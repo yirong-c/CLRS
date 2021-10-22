@@ -1,0 +1,27 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\usepackage{minted}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{clrscode3e}
+
+\geometry{left=3cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+% \indent
+\renewcommand{\proofname}{\bf Proof}
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{claim}[theorem]{Claim}
+% \setlength{\parindent}{0pt} 
+
+\def\RR{\mathbb{R}}
+\def\ZZ{\mathbb{Z}}
+\def\NN{\mathbb{N}}
+\def\QQ{\mathbb{Q}}
+\def\implies{\Longrightarrow}
+
+\author{frc6.com \\ i@frc6.com \\ https://github.com/frc123/CLRS-code-solution}
