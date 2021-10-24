@@ -40,7 +40,7 @@ The result is $16$.
 
 \begin{minted}[xleftmargin=20pt,linenos]{cpp}
     template <class Key, class T>
-    typename AugmentRedBlackTree<Key, T>::Node* AugmentRedBlackTree<Key, T>::Select
+    typename OrderStatisticsTree<Key, T>::Node* OrderStatisticsTree<Key, T>::Select
         (Node* subtree_root_node, size_t rank)
     {
         size_t root_rank;
@@ -59,14 +59,14 @@ The result is $16$.
             root_rank = subtree_root_node->left->size + 1;
         }
         return subtree_root_node;
-    } 
+    }
 \end{minted}
 
 \subsection*{14.1-4}
 
 \begin{minted}[xleftmargin=20pt,linenos]{cpp}
     template <class Key, class T>
-    size_t AugmentRedBlackTree<Key, T>::Rank(Node* node)
+    size_t OrderStatisticsTree<Key, T>::Rank(Node* node)
     {
         if (node == root_)
             return node->left->size + 1;
@@ -153,8 +153,8 @@ add the following code to the end of the procedure:
     size_t CountInversions(std::vector<Key> array)
     {
         size_t inversions, i, rank;
-        AugmentRedBlackTree<Key, int> tree;
-        std::pair<typename AugmentRedBlackTree<Key, int>::Iterator, bool> insert_result;
+        OrderStatisticsTree<Key, int> tree;
+        std::pair<typename OrderStatisticsTree<Key, int>::Iterator, bool> insert_result;
         inversions = 0;
         for (i = 0; i < array.size(); ++i)
         {
