@@ -304,7 +304,7 @@ the code will be:
 \subsection*{14.2-4}
 
 \noindent
-The following procedure takes $\Theta(m+\log(n))$ time 
+The following procedure takes $\Theta(m + \lg n)$ time 
 (to understand this asymptotic performance, refer to theorem 12.1 and exercise 12.2-8):
 
 \begin{codebox}
@@ -324,7 +324,7 @@ The following procedure takes $\Theta(m+\log(n))$ time
 \end{codebox}
 
 \noindent
-Note that we need to implement $\proc{RB-Enumerate}(x, a, b)$ in $\Theta(m+\log(n))$ time,
+Note that we need to implement $\proc{RB-Enumerate}(x, a, b)$ in $\Theta(m + \lg n)$ time,
 so it does not meet the requirement of the question
 if we implement the procedure in the following ways (augment the tree in the way of exercise 14.2-1) 
 since it takes $\Theta(m)$ time only:
@@ -338,5 +338,233 @@ since it takes $\Theta(m)$ time only:
     \li     $\proc{Output}(k)$
     \li \Until $k \isequal b$
 \end{codebox}
+
+\section*{14.3}
+
+\subsection*{14.3-1}
+
+Add the following lines to the end of $\proc{Left-Rotate}(T, x)$:
+
+\begin{codebox}
+    \li $\attrib{y}{max} \gets \attrib{x}{max}$
+    \li $\attrib{x}{max} \gets \func{max}(\attribb{x}{int}{high}, 
+        \attribb{x}{left}{max}, \attribb{x}{right}{max})$
+\end{codebox}
+
+\subsection*{14.3-2}
+
+\begin{codebox}
+    \Procname{$\proc{Interval-Search}(T, i)$}
+    \li $x \gets \attrib{T}{root}$
+    \li \While $x \neq \attrib{T}{nil}$ and $i$ does not overlap $\attrib{x}{int}$
+    \li \Do
+            \If $\attrib{x}{left} \neq \attrib{T}{nil}$ and 
+                $\attribb{x}{left}{max} > \attrib{i}{low}$
+    \li     \Then
+                $x \gets \attrib{x}{left}$
+    \li     \Else
+                $x \gets \attrib{x}{right}$
+            \End
+        \End
+    \li \Return $x$
+\end{codebox}
+
+\subsection*{14.3-3}
+
+\noindent
+Iterative version:
+
+\begin{codebox}
+    \Procname{$\proc{Interval-Search-Min}(T, i)$}
+    \li $x \gets \attrib{T}{root}$
+    \li $smallest \gets \attrib{T}{nil}$
+    \li \While $x \neq \attrib{T}{nil}$
+    \li \Do
+            \If $\attrib{x}{left} \neq \attrib{T}{nil}$ and
+                $\attribb{x}{left}{max} \geq \attrib{i}{low}$
+            \Then
+    \li         \If $i$ overlaps $\attrib{x}{int}$
+    \li         \Then
+                    $smallest \gets x$
+                \End
+    \li         $x \gets \attrib{x}{left}$
+    \li     \Else
+                \If $i$ overlaps $\attrib{x}{int}$
+    \li         \Then
+                    \Return $x$
+                \End
+    \li         $x \gets \attrib{x}{right}$
+            \End
+        \End
+    \li \Return $smallest$
+\end{codebox}
+
+\noindent
+Recursive version:
+
+Invoke $\proc{Interval-Search-Min}(T, \attrib{T}{root}, i)$
+
+\begin{codebox}
+    \Procname{$\proc{Interval-Search-Min}(T, x, i)$}
+    \li \If $\attrib{x}{left} \neq \attrib{T}{nil}$ and
+            $\attribb{x}{left}{max} \geq \attrib{i}{low}$
+    \li \Then
+            $smallest \gets \proc{Interval-Search-Min}(T, \attrib{x}{left}, i)$
+    \li     \If $smallest \neq \attrib{T}{nil}$
+    \li     \Then
+                \Return $smallest$
+    \li     \ElseIf $i$ overlaps $\attrib{x}{int}$
+    \li     \Then
+                \Return $x$
+    \li     \Else
+                \Return $\attrib{T}{nil}$
+            \End
+    \li \Else
+            \If $i$ overlaps $\attrib{x}{int}$
+            \Then
+    \li         \Return $x$
+    \li     \Else
+                \Return $\proc{Interval-Search-Min}(T, \attrib{x}{right}, i)$
+            \End
+        \End
+\end{codebox}
+
+\subsection*{14.3-4}
+
+\begin{codebox}
+    \Procname{$\proc{List-Overlap-Interval}(T, x, i)$}
+    \li \If $\attrib{x}{int}$ overlaps $i$
+    \li \Do
+            $\proc{Output}(x)$
+        \End
+        \li \If $\attrib{x}{left} \neq \attrib{T}{nil}$
+            and $\attribb{x}{left}{max} \geq \attrib{i}{low}$
+    \li \Do
+            $\proc{List-Overlap-Interval}(T, \attrib{x}{left}, i)$
+        \End
+    \li \If $\attrib{x}{right} \neq \attrib{T}{nil}$
+        and $\attribb{x}{right}{max} \geq \attrib{i}{low}$
+        and $\attribb{x}{int}{low} < \attrib{i}{high}$
+    \li \Do
+            $\proc{List-Overlap-Interval}(T, \attrib{x}{right}, i)$
+        \End
+\end{codebox}
+
+\subsection*{14.3-5}
+
+\begin{codebox}
+    \Procname{$\proc{Interval-Search-Exactly}(T, i)$}
+    \li $x \gets \attrib{T}{root}$
+    \li \While $x \neq \attrib{T}{nil}$ 
+        and ($\attribb{x}{int}{low}\neq \attrib{i}{low}$ 
+        or $\attribb{x}{int}{high}\neq \attrib{i}{high}$)
+    \li \Do
+            \If $\attrib{i}{high} > \attrib{x}{max}$
+    \li     \Then
+                $x \gets \attrib{T}{nil}$
+    \li     \ElseIf $\attrib{i}{low} < \attrib{x}{low}$
+    \li     \Then
+                $x \gets \attrib{x}{left}$
+    \li     \ElseIf $\attrib{i}{low} > \attrib{x}{low}$
+    \li     \Then
+                $x \gets \attrib{x}{right}$
+    \li     \Else
+                $x \gets \attrib{T}{nil}$
+            \End
+        \End
+    \li \Return $x$
+\end{codebox}
+
+\subsection*{14.3-6}
+
+\noindent
+Consider to augment the red-black tree by 
+adding attibute $\id{min-gap}$, $\id{min}$, and $\id{max}$ to every node.
+
+$\id{min-gap}$ is the minimum gap in the subtree rooted at the node.
+
+$\id{min}$ is the minimum key in the subtree rooted at the node.
+
+$\id{max}$ is the maximum key in the subtree rooted at the node.
+
+\noindent
+When $\proc{Min-Gap}(Q)$ is called, 
+we just need to return $\attribb{Q}{root}{min-gap}$, 
+which takes $O(1)$ time.
+
+\noindent
+Let $x$ be arbitrary node in the red-black tree $Q$.
+In order to maintain $\id{min-gap}$ in $O(\lg n)$, 
+we want $\attrib{x}{min-gap}$ depends on only the information in nodes
+$x$, $\attrib{x}{left}$, and $\attrib{x}{right}$.
+
+$\attrib{x}{min-gap} \gets 
+\func{min}(\attribb{x}{left}{min-gap}, \attribb{x}{right}{min-gap}, 
+\attrib{x}{key} - \attribb{x}{left}{max}, \attribb{x}{right}{min} - \attrib{x}{key})$
+
+$\attribb{Q}{nil}{min-gap} \gets \infty$
+
+$\attribb{Q}{nil}{min} \gets \infty$
+
+$\attribb{Q}{nil}{max} \gets - \infty$
+
+\noindent
+Notice when there is no left subtree of $x$ 
+($\attrib{x}{left} \isequal \attrib{Q}{nil}$),
+$\attrib{x}{prev}$ will be the ancestor of $x$,
+and the gap between $\attrib{x}{prev}$ and $x$ will be compared by $\attrib{x}{prev}$,
+so the gap will not be neglected.
+(recall that $\attrib{x}{min-gap}$ only contains the minimum gap in the subtree rooted at $x$)
+
+\noindent
+We can maintain $\id{min}$ and $\id{max}$ in $O(\lg n)$ also
+since $\attrib{x}{min}$ and $\attrib{x}{max}$ depends only on only the information in nodes
+$x$, $\attrib{x}{left}$, and $\attrib{x}{right}$.
+
+$\attrib{x}{min} \gets \func{min}(\attribb{x}{left}{min}, \attrib{x}{key})$
+
+$\attrib{x}{max} \gets \func{max}(\attribb{x}{right}{max}, \attrib{x}{key})$
+
+\noindent
+Notice that if $\attrib{x}{left} \neq \attrib{Q}{nil}$,
+$\attribb{x}{left}{min} < \attrib{x}{key}$ must be true;
+if $\attrib{x}{right} \neq \attrib{Q}{nil}$,
+$\attribb{x}{right}{max} > \attrib{x}{key}$ must be true.
+
+\subsection*{14.3-7}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    bool DetermineOverlapRectangles(const std::vector<Rectangle>& rectangles)
+    {
+        bool found_overlap;
+        RectangleWithXCoordIndex *alloc_ptr, *now;
+        std::allocator<RectangleWithXCoordIndex> alloc;
+        std::vector<RectangleWithXCoordIndex*> heap;
+        Tree tree;// interval tree
+        found_overlap = false;
+        // sort the x-coordinates with the minimum heap
+        alloc_ptr = ConstructHeap(rectangles, heap);
+        while (heap.size() > 0)
+        {
+            now = HeapExtractMin(heap);
+            if (now->coord_pos == RectangleWithXCoordIndex::LEFT)
+            {
+                if (tree.Find(now->rectangle->y_int) != tree.End())
+                {
+                    found_overlap = true;
+                    break;
+                }
+                now->relate.right->relate.left = 
+                    tree.Insert({now->rectangle->y_int, 0}).first;
+            }
+            else
+            {
+                tree.Delete(now->relate.left);
+            }
+        }
+        DestructHeap(alloc_ptr, rectangles.size());
+        return found_overlap;
+    }
+\end{minted}
 
 \end{document}
