@@ -781,4 +781,86 @@ $\attribb{x}{right}{max} > \attrib{x}{key}$ must be true.
     }
 \end{minted}
 
+\subsection*{14-2}
+
+\subsubsection*{(a)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    /**
+    * running time: O(mn)
+    * caller is responsible to deallocate the return value
+    * n, m must greater than 0
+    */
+    std::vector<int>* GetJosephusPermutation(int n, int m)
+    {
+        Node *nodes, **ptr;
+        std::vector<int>* result;
+        int i;
+        /* allocate nodes */
+        nodes = new Node[n];
+        /* build circular singly linked list */
+        for (i = 0; i < n - 1; ++i)
+        {
+            nodes[i].key = i + 1;
+            nodes[i].next = &(nodes[i + 1]);
+        }
+        nodes[i].key = i + 1;
+        nodes[i].next = nodes;// &(nodes[0])
+        /* allocate vector */
+        result = new std::vector<int>;
+        result->reserve(n);
+        /* output */
+        /* find the m-th key */
+        ptr = &(nodes[n - 1].next);
+        for (i = 1; i < m; ++i) ptr = &((*ptr)->next);
+        while (true)
+        {
+            /* add the key into the permutation */
+            result->push_back((*ptr)->key);
+            /* remove the key */
+            if (*ptr == (*ptr)->next) break;
+            *ptr = (*ptr)->next;
+            /* find the next m-th key */
+            for (i = 1; i < m; ++i) ptr = &((*ptr)->next);
+        }
+        /* deallocate nodes */
+        delete[] nodes;
+        /* return */
+        return result;
+    }
+\end{minted}
+
+\subsubsection*{(b)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    /**
+    * running time: O(nlgn)
+    * caller is responsible to deallocate the return value
+    * n, m must greater than 0
+    */
+    std::vector<int>* GetJosephusPermutation(int n, int m)
+    {
+        int i, rank;
+        OrderStatisticsTree<int, int> ostree;
+        OrderStatisticsTree<int, int>::Iterator it;
+        std::vector<int>* result;
+        /* build order statistics tree: O(nlgn) */
+        for (i = 1; i <= n; ++i) ostree.Insert(std::make_pair(i, 0));
+        /* allocate vector */
+        result = new std::vector<int>;
+        result->reserve(n);
+        /* output: O(nlgn) */
+        rank = m;
+        for (i = n; i > 0; --i)// n times
+        {
+            rank = ((rank - 1) % i) + 1;
+            it = ostree.Select(rank);// O(lgn)
+            result->push_back(it->first);
+            ostree.Delete(it);// O(lgn)
+            rank += (m - 1);
+        }
+        return result;
+    }
+\end{minted}
+
 \end{document}
