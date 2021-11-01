@@ -567,4 +567,218 @@ $\attribb{x}{right}{max} > \attrib{x}{key}$ must be true.
     }
 \end{minted}
 
+\section*{Chapter 14 Problems}
+
+\subsection*{14-1}
+
+\subsubsection*{(a)}
+
+\begin{proof}
+    Let $[a,b]$ be the interval of maximum overlap.
+    In other word, $[a,b]$ is the intersection of the overlap segments.
+    This says all points in $[a,b]$ have the same number of overlap segments.
+    Notice $a$ and $b$ must be one of the endpoint of a segment that is included in the intersection.
+    Hence there will always be a point of maximum overlap that is an endpoint of the segments.
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    struct Node
+    {
+        Node* parent;
+        Node* left;
+        Node* right;
+        enum { BLACK, RED } color;
+        T mapped_value;// only lower endpoint
+        const Key key;
+        enum { LOWER = +1, HIGHER = -1 } endpoint_type;
+        Node* related_endpoint;// other endpoint of the current interval
+        /**
+         * x.type_sum = x.left.type_sum + x.endpoint_type + x.right.type_sum
+         */
+        int type_sum;
+        /**
+         * x.left_max_overlap_num = x.left.max_overlap_num
+         * x.overlap_num = x.left.type_sum + x.endpoint_type
+         * x.right_max_overlap_num = x.overlap_num + x.right.max_overlap_num
+         * x.max_overlap_num = 
+         *      max(x.left_max_overlap_num, x.overlap_num, x.right_max_overlap_num)
+         * 
+         * Notice that overlap_num only consider local overlap 
+         *      (in the subtree root at the node)
+         * This says overlap_num is relatively
+         */
+        // node with endpoint which has maximum number of overlap segments
+        Node* max_overlap_node;
+        // maximum number of overlap segments
+        int max_overlap_num;
+
+        Node() : key(Key()) {}
+        Node(const Key& key) : key(key) {}
+    };
+
+    template <class Key, class T>
+    bool IntervalTreePOM<Key, T>::MaintainAugmentedAttributesOfSingleNode(Node *node)
+    {
+        int type_sum, max_overlap_num, overlap_num, right_max_overlap_num;
+        Node *max_overlap_node;
+        bool modified;
+        /* maintain type_sum */
+        type_sum = node->left->type_sum + node->endpoint_type + node->right->type_sum;
+        /* maintain max_overlap */
+        overlap_num = node->left->type_sum + node->endpoint_type;
+        if (node->left != nil_ && node->left->max_overlap_num > overlap_num)
+        {
+            max_overlap_num = node->left->max_overlap_num;
+            max_overlap_node = node->left->max_overlap_node;
+        }
+        else
+        {
+            max_overlap_num = overlap_num;
+            max_overlap_node = node;
+        }
+        if (node->right != nil_)
+        {
+            right_max_overlap_num = overlap_num + node->right->max_overlap_num;
+            if (right_max_overlap_num > max_overlap_num)
+            {
+                max_overlap_num = right_max_overlap_num;
+                max_overlap_node = node->right->max_overlap_node;
+            }
+        }
+        /* do modify */
+        modified = false;
+        if (node->type_sum != type_sum)
+        {
+            node->type_sum = type_sum;
+            modified = true;
+        }
+        if (node->max_overlap_num != max_overlap_num)
+        {
+            node->max_overlap_num = max_overlap_num;
+            modified = true;
+        }
+        if (node->max_overlap_node != max_overlap_node)
+        {
+            node->max_overlap_node = max_overlap_node;
+            modified = true;
+        }
+        return modified;
+    }
+
+    // start to check augmented attributes from node->parent to root_
+    template <class Key, class T>
+    void IntervalTreePOM<Key, T>::FixAugmentedAttributes(Node* node)
+    {
+        Key max;
+        while (node != root_)
+        {
+            node = node->parent;
+            if (MaintainAugmentedAttributesOfSingleNode(node) == false) break;
+        }
+    }
+
+    template <class Key, class T>
+    std::pair<typename IntervalTreePOM<Key, T>::Iterator, bool> 
+        IntervalTreePOM<Key, T>::Insert(const ValueType& value)
+    {
+        Node **node_ptr, *lower_node, *higher_node,  *parent;
+        node_ptr = FindNodePtrByLowerKey(value.interval.low, &parent);
+        if (*node_ptr == nil_)
+        {
+            /* insert lower endpoint */
+            lower_node = new Node(value.interval.low);
+            *node_ptr = lower_node;
+            lower_node->parent = parent;
+            lower_node->left = nil_;
+            lower_node->right = nil_;
+            lower_node->color = Node::RED;
+            lower_node->mapped_value = value.mapped_value;
+            lower_node->endpoint_type = Node::LOWER;
+            MaintainAugmentedAttributesOfSingleNode(lower_node);
+            FixAugmentedAttributes(lower_node);
+            InsertFixup(lower_node);
+            /* insert higher endpoint */
+            node_ptr = FindLeafNodePtrToInsertByKey(value.interval.high, &parent);
+            higher_node = new Node(value.interval.high);
+            *node_ptr = higher_node;
+            lower_node->related_endpoint = higher_node;
+            higher_node->related_endpoint = lower_node;
+            higher_node->parent = parent;
+            higher_node->left = nil_;
+            higher_node->right = nil_;
+            higher_node->color = Node::RED;
+            higher_node->endpoint_type = Node::HIGHER;
+            MaintainAugmentedAttributesOfSingleNode(higher_node);
+            FixAugmentedAttributes(higher_node);
+            InsertFixup(higher_node);
+            return std::make_pair(Iterator(lower_node, this), true);
+        }
+        else
+        {
+            return std::make_pair(Iterator(nil_, this), false);
+        }
+    }
+
+    template <class Key, class T>
+    void IntervalTreePOM<Key, T>::Delete(Iterator pos)
+    {
+        DeleteNode(pos.node_->related_endpoint);
+        DeleteNode(pos.node_);
+    }
+
+    template <class Key, class T>
+    void IntervalTreePOM<Key, T>::DeleteNode(Node *node)
+    {
+        Node *replaced, *replaced_replaced;
+        bool is_black_deleted;
+        replaced = node;
+        is_black_deleted = replaced->color == Node::BLACK;
+        if (replaced->left == nil_)
+        {
+            replaced_replaced = replaced->right;
+            Transplant(replaced, replaced_replaced);
+            FixAugmentedAttributes(replaced_replaced);// replaced_replaced will NOT be checked
+        }
+        else if (replaced->right == nil_)
+        {
+            replaced_replaced = replaced->left;
+            Transplant(replaced, replaced_replaced);
+            FixAugmentedAttributes(replaced_replaced);// replaced_replaced will NOT be checked
+        }
+        else
+        {
+            replaced = TreeMinimum(node->right);
+            is_black_deleted = replaced->color == Node::BLACK;
+            replaced_replaced = replaced->right;
+            if (replaced->parent == node)
+            {
+                replaced_replaced->parent = replaced;
+            }
+            else
+            {
+                Transplant(replaced, replaced_replaced);
+                replaced->right = node->right;
+                replaced->right->parent = replaced;
+            }
+            Transplant(node, replaced);
+            replaced->left = node->left;
+            replaced->left->parent = replaced;
+            replaced->color = node->color;
+            FixAugmentedAttributes(replaced_replaced);// replaced_replaced will NOT be checked
+            FixAugmentedAttributes(replaced->right);// so replaced will be checked
+        }
+        if (is_black_deleted)
+            DeleteFixup(replaced_replaced);
+        delete node;
+    }
+
+    template <class Key, class T>
+    Key IntervalTreePOM<Key, T>::FindPOM()
+    {
+        return root_->max_overlap_node->key;
+    }
+\end{minted}
+
 \end{document}
