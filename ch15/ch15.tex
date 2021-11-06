@@ -132,4 +132,138 @@ However, the optimal way is ``$3$'', and the total price is $8$.
     }
 \end{minted}
 
+\section*{15.2}
+
+\subsection*{15.2-1}
+
+Optimal parenthesization: $((1,2),((3,4),(5,6)))$
+
+Minimum cost: $2010$
+
+\subsection*{15.2-2}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    /**
+    * s: table (2d) storing index of k achieved the optimal cost 
+    *      (index start by 1)
+    * caller is responisble to deallocate the return value
+    */
+    Matrix* MatrixChainMultiply
+        (const std::vector<Matrix*>& matrices, const Table* s, int i, int j)
+    {
+        Matrix *matrix_a, *matrix_b, *matrix_c;
+        if (i == j)
+        {
+            return matrices[i - 1];
+        }
+        matrix_a = MatrixChainMultiply(matrices, s, i, (*s)[i][j]);
+        matrix_b = MatrixChainMultiply(matrices, s, (*s)[i][j] + 1, j);
+        matrix_c = MatrixMultiply(matrix_a, matrix_b);
+        if (i != (*s)[i][j]) delete matrix_a;
+        if ((*s)[i][j] + 1 != j) delete matrix_b;
+        return matrix_c;
+    }
+\end{minted}
+
+\subsection*{15.2-3}
+
+\begin{proof}
+    \noindent
+    We prove by substitution method.
+    For $n=1$, $P(1)=1 \geq 2^k$ for $k\leq 0$.
+    For $n \geq 2$,
+
+    $P(n) = \sum\limits_{k=1}^{n-1}P(k)P(n-k)
+    \geq \sum\limits_{k=1}^{n-1}(c \cdot 2^k)(c \cdot 2^{n-k})
+    = \sum\limits_{k=1}^{n-1}(c^2 \cdot 2^n)
+    = (n-1)(c^2 \cdot 2^n)
+    \geq c^2 \cdot 2^n$
+
+    \noindent
+    for some constant $c$.
+\end{proof}
+
+\subsection*{15.2-4}
+\noindent
+For all vertices $v_{i,j}$ in the graph, 
+it contains edge $(v_{i,j}, v_{i,k})$ and $(v_{i,j}, v_{k+1,j})$
+for all $i \leq k < j$.
+
+\noindent
+Vertices: 
+
+$\tbinom{n}{2} + n = \frac{n(n-1)}{2} + n = \frac{n(n+1)}{2}$
+
+\noindent
+Edges: 
+
+$\sum\limits_{i=1}^{n}\sum\limits_{j=i}^{n}(j-i)
+= \sum\limits_{i=1}^{n}(\sum\limits_{j=i}^{n}(j)-\sum\limits_{j=i}^{n}(i))
+= \sum\limits_{i=1}^{n}(\sum\limits_{j=1}^{n}(j)-\sum\limits_{j=1}^{i-1}(j)-(n-i+1)i)$
+
+$= \sum\limits_{i=1}^{n}(\frac{n(n+1)}{2}-\frac{(i-1)i}{2}-(n-i+1)i)
+= \frac{n^2(n+1)}{2}-\sum\limits_{i=1}^{n}(\frac{i-i^2+2ni}{2})$
+
+$= \frac{n^2(n+1)}{2}+\frac{1}{2}\sum\limits_{i=1}^{n}(i^2)-\frac{1}{2}(1+2n)\sum\limits_{i=1}^{n}(i)
+= \frac{n^2(n+1)}{2}+\frac{n(n+1)(2n+1)}{12}-\frac{n(n+1)(2n+1)}{4}$
+
+$= \frac{n^2(n+1)}{2}-\frac{n(n+1)(2n+1)}{6}
+= \frac{(n-1)n(n+1)}{6}$
+
+\subsection*{15.2-5}
+
+\begin{proof}
+    \noindent
+    Notice that 
+    $\sum\limits_{i=1}^{n}\sum\limits_{j=i}^{n}R(i,j)$ 
+    is equal to the total times of any entries are referenced 
+    during the entire call of $\proc{Matrix-Chain-Order}$.
+    In other words, it is equal to twice the times of line $10$ 
+    was executed during the entire call.
+
+    \noindent
+    Hence, we have
+
+    $\sum\limits_{i=1}^{n}\sum\limits_{j=i}^{n}R(i,j)
+    = \sum\limits_{l=2}^{n}\sum\limits_{i=1}^{n-l+1}\sum\limits_{k=i}^{i+l-2}2
+    = 2\sum\limits_{l=2}^{n}(n-l+1)(l-1)
+    = 2((n+2)\sum\limits_{l=2}^{n}l-\sum\limits_{l=2}^{n}l^2-(n-1)(n+1))$
+    
+    $= 2((n+2)(\frac{n(n+1)}{2}-1)-(\frac{n(n+1)(2n+1)}{6}-1))
+    = \frac{n^3-n}{3}$
+\end{proof}
+
+\subsection*{15.2-6}
+
+\begin{proof}
+    \noindent
+    We prove by induction.
+    Let $P(n)$ be the claim:
+    A full parenthesization of an $n$-element expression 
+    has exactly $n-1$ pairs of parentheses.
+
+    \noindent
+    (\textit{Base Case})
+    A $2$-element full parenthesization $(A_1,A_2)$ 
+    has only one pair of parentheses clearly.
+    Hence, we have proved $P(2)$ is true.
+
+    \noindent
+    (\textit{Induction Step})
+    Suppose that $P(n)$ is true.
+    Let $C$ be a sequence with $n+1$ elements: 
+    $A_1A_2...A_nA_{n+1}$.
+    Delete one arbitrary element from $C$, 
+    we have a sequence with $n$ elements.
+    By induction hypothesis, 
+    $C$ ($n$-element) has exactly $n-1$ pairs of parentheses now.
+    Add the deleted element back,
+    we can add one pair of parentheses to surround the deleted element
+    and one of the element's neighbor element 
+    or one of the element's neighbor parenthesization.
+    This says, $C$ ($n+1$-element) has exactly 
+    $n$ pairs of parentheses now.
+    We have proved $P(n+1)$ is true.
+\end{proof}
+
 \end{document}
