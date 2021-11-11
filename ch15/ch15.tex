@@ -30,7 +30,7 @@ Consider the following case:
 \end{tabular}
 
 \noindent
-If we use "greedy" strategy, our solution will be ``$2$ $1$'',
+If we use ``greedy'' strategy, our solution will be ``$2$ $1$'',
 and the total price will be $7$.
 However, the optimal way is ``$3$'', and the total price is $8$.
 
@@ -265,5 +265,329 @@ $= \frac{n^2(n+1)}{2}-\frac{n(n+1)(2n+1)}{6}
     $n$ pairs of parentheses now.
     We have proved $P(n+1)$ is true.
 \end{proof}
+
+\section*{15.3}
+
+\subsection*{15.3-1}
+
+\noindent
+$\proc{Recursive-Matrix-Chain}$ is a more efficient way.
+
+\begin{proof}
+    \noindent
+    By recurrence (15.6) in section 15.2, 
+    there are $P(n)$ alternative parenthesizations of a sequence of matrices
+    where
+
+    $P(n)=
+    \begin{cases}
+        1 & \text{if $n = 1$.} \\
+        \sum\limits_{k=1}^{n-1}P(k)(n-k) & \text{if $n \geq 2$.}
+    \end{cases}
+    \indent\indent\indent\indent\indent
+    (15.6)$
+
+    \noindent
+    By problem 12-4, we proved that $P(n) = \Omega(4^n/n^{3/2})$.
+    This says enumerating takes $\Omega(4^n/n^{3/2})$ time.
+
+    \noindent
+    In order to prove that 
+    $\proc{Recursive-Matrix-Chain}$ is a more efficient than enumerating,
+    we just need to prove that 
+    $\proc{Recursive-Matrix-Chain}$ takes $o(4^n/n^{3/2})$ time.
+
+    \noindent
+    By recurrence (15.7) in section 15.2, 
+    $\proc{Recursive-Matrix-Chain}$ takes $T(n)$ times
+    where 
+
+    $T(n)=
+    \begin{cases}
+        1 & \text{if $n = 1$.} \\
+        1 + \sum\limits_{k=1}^{n-1}(T(k) + T(n-k) + 1) & \text{if $n \geq 2$.}
+    \end{cases}$
+
+    $T(n)=2\sum\limits_{i=1}^{n-1}T(i)+n$
+
+    \noindent
+    This says we want to prove that $T(n) = o(4^n/n^{3/2})$.
+    Since $\lim\limits_{n\rightarrow\infty}\frac{4^n/n^{3/2}}{3.5^n}=\infty$,
+    we just need to prove that $T(n) = O(3.5^n)$.
+    ($T(n) = O(3^n)$ is false, so we try $T(n) = O(3.5^n)$.)
+
+    \noindent
+    We claim that $T(n) = O(3.5^n)$ and prove this by subsitution method.
+    Let $c$ be some constant. Assume $T(n) \leq c \cdot 3.5^n$.
+
+    \begin{equation*}
+    \begin{split}
+        T(n) &= 2 \sum\limits_{i=1}^{n-1} T(i) + n \\
+        &\leq 2 \sum\limits_{i=1}^{n-1} (c \cdot 3.5^i) + n \\
+        &= 2c (\frac{3.5^n - 1}{3.5 - 1} - 1) + n \\
+        &= 2c (\frac{3.5^n - 3.5}{2.5}) + n \\
+        &= 0.8c \cdot 3.5^n - 2.8c + n
+    \end{split}
+    \end{equation*}
+
+    \noindent
+    Let $c = 1$.
+    We have 
+    $0.8c \cdot 3.5^n - 2.8c + n \leq c \cdot 3.5^n$.
+    We have proved $T(n) = O(3.5^n)$.
+    Hence, $T(n) = o(4^n/n^{3/2})$.
+\end{proof}
+
+\subsection*{15.3-2}
+
+    \Tree [.1..16 
+        [.1..8
+            [.1..4 [.1..2 1 2 ] [.3..4 3 4 ]
+            ] [.5..8 [.5..6 5 6 ] [.7..8 7 8 ]
+            ]
+        ] [.9..16
+            [.9..12 [.9..10 9 10 ] [.11..12 11 12 ]
+            ] [.13..16 [.13..14 13 14 ] [.15..16 15 16 ]
+            ]
+        ]
+    ]
+
+    \noindent
+    We notice that there is no overlapping subproblem,
+    so memoization does not help to spped up the algorithm.
+
+\subsection*{15.3-3}
+
+\noindent
+Yes.
+
+\begin{proof}
+    \noindent
+    Let $A_{i...j}$ denotes sequece of matrices $A_i A_{i+1} ... A_j$.
+
+    \noindent
+    The subproblems in maximize multiplication are independent. 
+    (for more information, refer to page 383)
+    An optimal parenthesization of $A_{i...j}$
+    that splits the product between $A_k$ and $A_{k+1}$
+    contains within it optimal solutions
+    to the problems of parenthesizing
+    $A_{i...k}$ and $A_{k+1...j}$.
+
+    \noindent
+    Given parenthesization $P_{ij}$ maximize 
+    the number of scalar multiplications to $A_{i...j}$,
+    and $P_{ij}$ splits the product between $A_k$ and $A_{k+1}$.
+    Making the choice (splits the product between $A_k$ and $A_{k+1}$)
+    leaves subproblems 
+    $A_{i...k}$ and $A_{k+1...j}$ to solve.
+    Let $P_{ik}$ and $P_{k+1,j}$ be the parenthesization on
+    $A_{i...k}$ and $A_{k+1...j}$ respectively.
+    We want to prove that $P_{ik}$ and $P_{k+1,j}$ maximize 
+    the number of scalar multiplications to
+    $A_{i...k}$ and $A_{k+1...j}$ by contradiction.
+    Suppose that 
+    $P_{ik}$ and $P_{k+1,j}$ does not maximize 
+    the number of scalar multiplications to 
+    $A_{i...k}$ and $A_{k+1...j}$.
+    Let $Q_{ik}$ and $Q_{k+1,j}$ be the optimal parenthesization 
+    (maximize number of multiplications) to 
+    $A_{i...k}$ and $A_{k+1...j}$.
+    Then, by ``cutting out'' $P_{ik}$ and $P_{k+1,j}$
+    and ``pasting in'' $Q_{ik}$ and $Q_{k+1,j}$, 
+    we get a better solution (more number of multiplications) 
+    to the original problem than $P_{ij}$.
+    This contradicts to parenthesization $P_{ij}$ maximize 
+    the number of scalar multiplications.
+\end{proof}
+
+\subsection*{15.3-4}
+
+\noindent
+Consider the following $p$'s:
+
+\begin{tabular}{c|c|c|c}
+    $p_0$ & $p_1$ & $p_2$ & $p_3$ \\
+    \hline
+    1 & 10 & 20 & 100
+\end{tabular}
+
+\noindent
+By the approach of greedy algorithm,
+we choose $k=1$ for $[i,j]=[1,3]$ since
+$p_0p_1p_3=1000$ and $p_0p_2p_3=2000$.
+Hence, the solution of greedy algorithm is $(A_1(A_2A_3))$.
+
+\noindent
+However, $((A_1A_2)A_3)$ ($k=2$) is the optimal solution,
+which takes $p_0p_1p_2 + p_0p_2p_3 = 200 + 2000 = 2200$ multiplications.
+Greedy solution $(A_1(A_2A_3))$ ($k=1$) takes 
+$p_1p_2p_3 + p_0p_1p_3 = 20000 + 1000 = 21000$ multiplications.
+
+\noindent
+How can we find the counterexample?
+We start to try to find a counterexample 
+in a sequence with $3$ matrices.
+This says $[i,j]=[1,3]$,
+and there are two choices for $k$: $1$ or $2$.
+
+\noindent
+The algorithm perform $m[1,3]$ times multiplication.
+
+$m[1,3]=
+\begin{cases}
+    m[1,1]+m[2,3]+p_0p_1p_3 & k=1 \\
+    m[1,2]+m[3,3]+p_0p_2p_3 & k=2
+\end{cases}
+=
+\begin{cases}
+    p_1p_2p_3+p_0p_1p_3 & k=1 \\
+    p_0p_1p_2+p_0p_2p_3 & k=2
+\end{cases}$
+
+\noindent
+We try to make the greedy algorithm choose $k=1$.
+This says we want $p_0p_1p_3<p_0p_2p_3 \Longleftrightarrow p_1<p_2$.
+In order to make the greedy approach ($k=1$) yields a suboptimal solution,
+we want $k=2$ to be the optimal approach.
+This says we want $p_1p_2p_3+p_0p_1p_3 > p_0p_1p_2+p_0p_2p_3$.
+
+\noindent
+Hence, our goal is to find $p_0,p_1,p_2,p_3$ such that 
+$p_1<p_2$ and $p_1p_2p_3+p_0p_1p_3 > p_0p_1p_2+p_0p_2p_3$.
+We try to let $p_1 = 10$ and $p_2 = 20$.
+By a sloppy way, we can try to let $p_3$ much larger than $p_0$
+since $p_3$ appears twice and $p_0$ appears once on the LHS,
+and $p_0$ appears twice and $p_3$ appears once on the RHS.
+We try to let $p_0 = 1$ and $p_3 = 100$.
+After testing, we find that this is a good counterexample.
+
+\subsection*{15.3-5}
+
+\noindent
+If we have limit $l_i$ on the number of pieces of length $i$ 
+that we are allowed to produce,
+We can not find the optimal subproblems indenpendently.
+We show the optimal-substructure property does not hold
+by providing a counterexample. 
+(Recall optimal substructure on page 374)
+
+\noindent
+Consider the following case:
+
+\begin{tabular}{c||c|c|c}
+    $i$     & 1 & 2 & 3 \\
+    \hline
+    $p_i$   & 5 & 8 & 9 \\
+    $l_ii$  & 2 & 2 & 1
+\end{tabular}
+
+\noindent
+The optimal solution of cutting the rod where $i=3$ is 
+lengths $1$ and $2$ with price $5+8=13$.
+However, the optimal solution of cutting the rod where $i=2$ is
+lengths $1$ and $1$ with price $5+5=10$.
+We have showed that there is a way of cutting that 
+does not contain in the optimal solution to the original problem
+but does contain in the optimal solution to the subproblem,
+which violates the optimal-substructure property.
+
+\subsection*{15.3-6}
+
+\noindent
+Note: For this question, we assume that $r_{ij}r_{ji}=1$ 
+for any $1 \leq i,j \leq n$.
+
+\begin{claim}
+    If $c_k = 0$ for all $k = 1,2...,n$, 
+    then the problem of finding the best sequence of exchanges 
+    from currency $1$ to currency $n$ exhibits optimal substructure.
+\end{claim}
+
+\begin{proof}
+    Let the sequence of currencies $k_1,k_2,k_3,...,k_{n-1},k_n$ 
+    be the best sequence
+    to exchange from currency from $k_1$ to currency $k_n$,
+    which means $r_{k_1k_2}r_{k_2k_3}...r_{k_{n-1}k_n}$ is maximized.
+    We show that the sequence of currencies 
+    $k_i,k_{i+1},...,k_{j-1},k_{j}$ is the best sequence to exchange
+    from currency from $k_i$ to currency $k_j$ by contradiction.
+    Assume $k_i,q_{i+1},...,q_{j-1},k_{j}$ is the best sequence to exchange
+    from currency from $k_i$ to currency $k_j$.
+    By using the ``cut-and-paste'' technique to replace 
+    $k_i,k_{i+1},...,k_{j-1},k_{j}$ with
+    $k_i,q_{i+1},...,q_{j-1},k_{j}$,
+    we get a better sequence of currencies to 
+    exchange from currency from $k_1$ to currency $k_n$
+    (e.g. $k_1,k_2,k_3,...k_i,q_{i+1},...,q_{j-1},k_{j},...,k_{n-1},k_n$),
+    which contradicts to $k_1,k_2,k_3,...,k_{n-1},k_n$ is the best sequence.
+\end{proof}
+
+\noindent
+Now, we show that if $c_k$ are arbitrary values, 
+then the problem of finding the best sequence of exchanges 
+from currency $1$ to currency $n$ does not
+necessarily exhibit optimal substructure.
+
+\noindent
+Consider the following case:
+
+\noindent
+We want to exchange from currency from $k_1$ to currency $k_4$.
+
+\begin{tabular}{c|c|c|c|c|c}
+    $r_{k_1k_2}$ & $r_{k_2k_3}$ & $r_{k_3k_4}$
+    & $r_{k_1k_3}$ & $r_{k_2k_4}$ & $r_{k_1k_4}$ \\
+    \hline
+    6 & 2 & 5 & 2 & 8 & 10
+\end{tabular}
+\indent\indent\indent
+\begin{tabular}{c|c|c}
+    $c_1$ & $c_2$ & $c_3$ \\
+    \hline
+    4 & 5 & 20
+\end{tabular}
+
+\noindent
+We try to find the optimal sequence from $k_1$ to $k_4$ 
+by list all possible sequences:
+
+$k_1k_4$: $r_{k_1k_4} - c_1 = 10 - 4 = 6$
+
+$k_1k_2k_4$: $r_{k_1k_2}r_{k_2k_4} - c_2 = 6 \cdot 8 - 5 = 43$
+
+$k_1k_3k_4$: $r_{k_1k_3}r_{k_3k_4} = 2 \cdot 5 - 5 = 5$
+
+$k_1k_2k_3k_4$: $r_{k_1k_2}r_{k_2k_3}r_{k_3k_4} 
+= 6 \cdot 2 \cdot 5 - 20 = 40$
+
+$k_1k_3k_2k_4$: $r_{k_1k_3}r_{k_3k_2}r_{k_2k_4} 
+= 2 \cdot \frac{1}{2} \cdot 8 - 20 = -12$
+
+\noindent
+The optimal sequence from $k_1$ to $k_4$ is $k_1k_2k_4$.
+
+\noindent
+Now, we try to show that $k_2k_4$ is not the optimal sequence 
+from $k_2$ to $k_4$ 
+by list all possible sequences:
+
+$k_2k_4$: $r_{k_2k_4} - c_1 = 8 - 4 = 4$
+
+$k_2k_3k_4$: $r_{k_2k_3}r_{k_3k_4} - c_2 = 2 \cdot 5 - 5 = 5$
+
+$k_2k_1k_4$: (unnecessary)
+
+$k_2k_1k_3k_4$: (unnecessary)
+
+$k_2k_3k_1k_4$: (unnecessary)
+
+\noindent
+It is unnecessary to solve results for 
+$k_2k_1k_4$, $k_2k_1k_3k_4$, and $k_2k_3k_1k_4$ 
+since we already find that 
+$k_2k_3k_4$ is a better sequence than $k_4$ is $k_2k_4$.
+
+
 
 \end{document}

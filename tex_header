@@ -7,6 +7,7 @@
 \usepackage{tikz}
 \usepackage{clrscode3e}
 \usepackage{amsmath}
+\usepackage{tikz-qtree}
 
 \geometry{left=3cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 % \indent
