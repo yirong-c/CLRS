@@ -900,4 +900,180 @@ between the sequence and the sorted sequence.
     }
 \end{minted}
 
+\section*{15.5}
+
+\subsection*{15.5-1}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    void ConstructOptimalBST(std::ostream& os, const Table& root, 
+        const std::string& suffix, size_t i, size_t j)
+    {
+        if (j == i - 1)
+        {
+            os << "d_" << j << " is the " << suffix << "\n";
+        }
+        else
+        {
+            size_t r = root[i][j];
+            os << "k_" << r << " is the " << suffix << "\n";
+            ConstructOptimalBST(os, root, 
+                "left child of k_" + std::to_string(r), i, r - 1);
+            ConstructOptimalBST(os, root, 
+                "right child of k_" + std::to_string(r), r + 1, j);
+        }
+    }
+
+    void ConstructOptimalBST(std::ostream& os, const Table& root)
+    {
+        ConstructOptimalBST(os, root, "root", 1, root.size() - 1);
+    }
+\end{minted}
+
+\subsection*{15.5-2}
+
+\noindent
+cost: $3.12$
+
+\noindent
+structure:\\
+$k_5$ is the root\\
+$k_2$ is the left child of $k_5$\\
+$k_1$ is the left child of $k_2$\\
+$d_0$ is the left child of $k_1$\\
+$d_1$ is the right child of $k_1$\\
+$k_3$ is the right child of $k_2$\\
+$d_2$ is the left child of $k_3$\\
+$k_4$ is the right child of $k_3$\\
+$d_3$ is the left child of $k_4$\\
+$d_4$ is the right child of $k_4$\\
+$k_7$ is the right child of $k_5$\\
+$k_6$ is the left child of $k_7$\\
+$d_5$ is the left child of $k_6$\\
+$d_6$ is the right child of $k_6$\\
+$d_7$ is the right child of $k_7$
+
+\subsection*{15.5-3}
+
+\noindent
+The $\proc{Optimal-BST}$ would still take $Theta(n^3)$.
+
+\noindent
+According to equation $(15.12)$, 
+it takes $\Theta(j-i)$ to computer $w(i,j)$ each time.
+Hence the total time contributed by line $9$ in $\proc{Optimal-BST}$ is
+
+\begin{equation*}
+    \begin{split}
+        \sum\limits_{l=1}^n\sum\limits_{i=1}^{n-l+1}(c\cdot(j-i)) 
+        &= c\cdot\sum\limits_{l=1}^n\sum\limits_{i=1}^{n-l+1}((i+l-1)-i) \\
+        &= c\cdot\sum\limits_{l=1}^n(n-(l-1))(l-1) \\
+        &= c\cdot\sum\limits_{z=0}^{n-1}(n-z)z \\
+        &= c\cdot\sum\limits_{z=0}^{n-1}(n-z)z \\
+        &= \Theta(n^3)
+    \end{split}
+\end{equation*}
+
+\subsection*{15.5-4}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    // O(n^2)
+    std::pair<Table, Table> OptimalBST(const Row& p, const Row& q)
+    {
+        size_t q_size, i, j, l, r;
+        int t;
+        q_size = q.size();// n + 1
+        Table e(q_size + 1, Row(q_size)), w(q_size + 1, Row(q_size)),
+            root(q_size, Row(q_size));
+        for (i = 1; i <= q_size; ++i)// 1 to (n + 1)
+        {
+            e[i][i - 1] = q[i - 1];
+            // w[i][i - 1] = q[i - 1];
+        }
+        // l = 1
+        for (i = 1; i < q_size; ++i)// 1 to n
+        {
+            // w[i][i] = w[i][i - 1] + p[i] + q[i];
+            w[i][i] = q[i - 1] + p[i] + q[i];
+            // e[i][i] = e[i][i - 1] + e[i + 1][i] + w[i][i];
+            e[i][i] = q[i - 1] + q[i] + w[i][i];
+            root[i][i] = i;
+        }
+        // l = 2 ... n
+        for (l = 2; l < q_size; ++l)// 2 to n
+        {
+            for (i = 1; i <= q_size - l; ++i)// 1 to (n - l + 1)
+            {
+                j = i + l - 1;
+                e[i][j] = INT_MAX;
+                // root[i][j - 1] to root[i + 1][j]
+                for (r = root[i][j - 1]; r <= root[i + 1][j]; ++r)
+                {
+                    t = e[i][r - 1] + e[r + 1][j];
+                    if (t < e[i][j])
+                    {
+                        e[i][j] = t;
+                        root[i][j] = r;
+                    }
+                }
+                w[i][j] = w[i][j - 1] + p[j] + q[j];
+                e[i][j] += w[i][j];
+            }
+        }
+        return std::make_pair(std::move(e), std::move(root));
+    }
+\end{minted}
+
+The main principle is to 
+reduce the loop range of line 10 of $\proc{Optimal-BST}$
+from $i...j$ to $root[i,j-1]...root[i+1,j]$.
+This says modify line 10 of $\proc{Optimal-BST}$ to
+
+\begin{codebox}
+    \zi \For $r = root[i,j-1]$ \To $root[i+1,j]$
+\end{codebox}
+
+Note the modification of case of $l=1$ is skipped here. 
+We primary consider $l \geq 2$.
+
+\begin{claim}
+    $\proc{Optimal-BST}$ run in $\Theta(n^2)$ time
+\end{claim}
+
+\begin{proof}
+    Denote the $\For$ loop of line 5-14 as $L_1$,
+    and denote the $\For$ loop of line 6-14 as $L_2$.
+    In order to show $\proc{Optimal-BST}$ run in $\Theta(n^2)$ time,
+    we just need to show each iteration of $L_1$ takes $\Theta(n)$ time.
+
+    Let $t(l,i)$ be the running time of each iteration of $L_2$ with varible $l$ and $i$.
+
+    \begin{equation*}
+        \begin{split}
+            t(l,i) &= r[i+1,j] - r[i,j-1] + 1 \\
+            &= r[i+1,i+l-1] - r[i,i+l-2] + 1
+        \end{split}
+    \end{equation*}
+
+    Each iteration of $L_1$ takes $\sum\limits_{i=1}^{n-l+1} t(l,i)$ time.
+    Notice $1 \leq root[a,b] \leq n$ for all $a,b$.
+    Also, by Knuth [212], 
+    $root[a+k,b-1+k] \leq root[a+h,b-1+h]$ for all $k \leq h$.
+    Hence we have \mbox{$root[a+h,b-1+h] - root[a+k,b-1+k] \leq n$} for all $k \leq h$.
+
+    \begin{equation*}
+        \begin{split}
+            \sum\limits_{l=1}^{n}\sum\limits_{i=1}^{n-l+1} t(l,i) 
+            &= \sum\limits_{l=1}^{n}\sum\limits_{i=1}^{n-l+1} (r[i+1,i+l-1] - r[i,i+l-2] + 1) \\
+            &= \sum\limits_{l=1}^{n} (r[n-l+2,n] - r[1,l-1] + (n-l+1))
+        \end{split}
+    \end{equation*}
+
+    We claim $r[n-l+2,n] - r[1,l-1] \leq n$ by setting $a=1$, $b=l$, $k=0$, and $h=n-l+1$.
+    Hence $\sum\limits_{l=1}^{n}\sum\limits_{i=1}^{n-l+1} t(l,i) = \Theta(n^2)$.
+
+\end{proof}
+
+
+
+
 \end{document}
