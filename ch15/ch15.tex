@@ -1073,7 +1073,57 @@ We primary consider $l \geq 2$.
 
 \end{proof}
 
+\section*{Chapter 15 Problems}
 
+\subsection*{15-1}
 
+The memoized, recursive version algorithm run in $O(V+E)$.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    // O(E)
+    int RecursiveLongestSimplePath(const Graph& graph, int start, int dist, 
+        Row& length, Row& next)
+    {
+        int curr_length;
+        if (length[start] >= 0)
+            return length[start];
+        for (const AdjListElement& adj_element : graph[start])
+        {
+            curr_length = adj_element.weight + RecursiveLongestSimplePath(graph, 
+                adj_element.vertex, dist, length, next);
+            if (curr_length > length[start])
+            {
+                length[start] = curr_length;
+                next[start] = adj_element.vertex;
+            }
+        }
+        return length[start];
+    }
+
+    // O(V + E)
+    std::list<int> LongestSimplePath(const Graph& graph, int start, int dist)
+    {
+        int vertex;
+        size_t size;
+        std::list<int> result;
+        size = graph.size();
+        Row length(size, INT_MIN), next(size);
+        length[dist] = 0;
+        RecursiveLongestSimplePath(graph, start, dist, length, next);
+        if (length[start] < 0)
+            return result;
+        vertex = start;
+        while (vertex != dist)
+        {
+            result.push_back(vertex);
+            vertex = next[vertex];
+        }
+        result.push_back(dist);
+        return result;
+    }
+\end{minted}
+
+We can implement a bottom-up version algorithm 
+by utilizing the topological sort.
 
 \end{document}
