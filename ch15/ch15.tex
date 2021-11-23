@@ -1126,4 +1126,116 @@ The memoized, recursive version algorithm run in $O(V+E)$.
 We can implement a bottom-up version algorithm 
 by utilizing the topological sort.
 
+\subsection*{15-2}
+
+Denote $X_{ij} = \langle x_i, x_{i+1}, \cdots, x_{j-1}, x_j \rangle$
+and $Z_{kt} = \langle z_k, z_{k+1}, \cdots, z_{t-1}, z_t \rangle$. 
+Let $Z_{kt}$ be the LPS of $X_{ij}$. 
+For all $X_{ij}$ where $n > 2$, 
+we claim the following:
+
+1. If $x_i = x_j$, 
+then $z_k = z_t = x_i = x_j$
+and $Z_{k+1,t-1}$ is the LCS of $X_{i+1,j-1}$.
+
+2. If $x_i \leq x_j$,
+then $z_k = z_t \neq x_i$ implies $Z_{kt}$ is the LCS of $X_{i+1,j}$.
+
+3. If $x_i \leq x_j$,
+then $z_k = z_t \neq x_j$ implies $Z_{kt}$ is the LCS of $X_{i,j-1}$.
+
+Denote $c[i,j]$ as the length of LPS of $X_{ij}$.
+For all $X_{ij}$ where $n > 2$, 
+we have the following recursive solution:
+
+$c[i,j]=
+\begin{cases}
+    c[i+1,j-1] + 2 & \text{if $x_i = x_j$.} \\
+    \func{max}(c[i+1,j], c[i,j-1]) & \text{if $x_i \neq x_j$.}
+\end{cases}$
+
+Therefore,
+we have the following bottom-up algorithm which runs in $\Theta(n^2)$:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    // O(n^2)
+    std::string LPS(const std::string& str) 
+    {
+        size_t size, i, j, lps_left, lps_right;
+        size = str.size();
+        std::string result;
+        LengthTable lengths(size, LengthTableRow(size, INT_MIN));
+        PointerTable pointers(size, PointerTableRow(size, NIL));
+        // compute
+        for (i = 0; i < size - 1; ++i)
+        {
+            lengths[i][i] = 1;
+            j = i + 1;
+            if (str[i] == str[j])
+            {
+                lengths[i][j] = 2;
+                pointers[i][j] = COMMON;
+            }
+            else
+            {
+                lengths[i][j] = 1;
+                pointers[i][j] = I_SUCC;
+            }
+        }
+        lengths[i][i] = 1;// i == size - 1
+        for (i = size - 3; i < size; --i)
+        {
+            for (j = i + 2; j < size; ++j)
+            {
+                if (str[i] == str[j])
+                {
+                    lengths[i][j] = lengths[i + 1][j - 1] + 2;
+                    pointers[i][j] = COMMON;
+                }
+                else if (lengths[i + 1][j] >= lengths[i][j - 1])
+                {
+                    lengths[i][j] = lengths[i + 1][j];
+                    pointers[i][j] = I_SUCC;
+                }
+                else
+                {
+                    lengths[i][j] = lengths[i][j - 1];
+                    pointers[i][j] = J_PREV;
+                }
+            }
+        }
+        // output
+        i = 0;
+        j = size - 1;
+        lps_left = 0;
+        lps_right = lengths[i][j] - 1;
+        result.resize(lengths[i][j]);
+        while (i < j)
+        {
+            if (pointers[i][j] == I_SUCC)
+            {
+                ++i;
+            }
+            else if (pointers[i][j] == J_PREV)
+            {
+                --j;
+            }
+            else
+            {
+                result[lps_left] = str[i];
+                result[lps_right] = str[j];
+                ++i;
+                --j;
+                ++lps_left;
+                --lps_right;
+            }
+        }
+        if (i == j)
+        {
+            result[lps_left] = str[i];
+        }
+        return result;
+    }
+\end{minted}
+
 \end{document}
