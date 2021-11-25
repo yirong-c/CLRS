@@ -1344,4 +1344,88 @@ Therefore, we have the following bottom-up algorithm which runs in $O(n^2)$:
     }
 \end{minted}
 
+\subsection*{15-4}
+
+\noindent
+Denote $c[i, j]$ as the minimum sum of extra space (characters).
+For $j < n$, we have the following preliminary recursive solution:
+
+\begin{equation*}
+    c[i,j] = \mathop{\func{min}}\limits_{i < k \leq j}
+        (c[i,k-1] + c[k,j])
+\end{equation*}
+
+\noindent
+Let $e(i,j) = M - j + i - \sum\limits_{k=1}^j l_k$.
+Fix $j$, and let $t$ be the smallest possible integer such that
+$e(t,j) \geq 0$.
+For $j < n$, we have the following improved recursive solution:
+
+\begin{equation*}
+    c[1,j] = 
+    \begin{cases}
+        e(1,j) & \text{if $t = 1$.} \\
+        \mathop{\func{min}}\limits_{t \leq k \leq j}
+            (c[1,k-1] + e(k, j)) & \text{if $t \geq 2$.}
+    \end{cases}
+\end{equation*}
+
+\noindent
+Therefore, we have the following bottom-up algorithm which runs in $O(n^2)$:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+    std::list<int> PrintingNeatly(int line_max_char, 
+        const std::vector<int>& lengths)
+    {
+        int size, j, k, extra;
+        size = (int)(lengths.size());
+        /**
+        * min_sum[k + 1] is the minimum extra char of
+        * from the first word to the word which the length is lengths[k]
+        */
+        std::vector<int> min_sum(size + 1);
+        std::vector<int> line_start_index(size);
+        std::list<int> result;
+        // compute
+        min_sum[0] = 0;
+        for (j = 0; j < size - 1; ++j)
+        {
+            min_sum[j + 1] = INT_MAX;
+            extra = line_max_char + 1;
+            for (k = j; k >= 0; --k)
+            {
+                extra = extra - 1 - lengths[k];
+                if (extra < 0)
+                    break;
+                if (min_sum[k] + extra < min_sum[j + 1])
+                {
+                    min_sum[j + 1] = min_sum[k] + extra;
+                    line_start_index[j] = k;
+                }
+            }
+        }
+        extra = line_max_char + 1;
+        min_sum[size] = INT_MAX;
+        for (k = size - 1; k >= 0; --k)
+        {
+            extra = extra - 1 - lengths[k];
+            if (extra < 0)
+                break;
+            if (min_sum[k] < min_sum[size])
+            {
+                min_sum[size] = min_sum[k];
+                line_start_index[size - 1] = k;
+            }
+        }
+        // output
+        k = size;
+        while (k != 0)
+        {
+            k = line_start_index[k - 1];
+            result.push_front(k);
+        }
+        return result;
+    }
+\end{minted}
+
 \end{document}
