@@ -1630,4 +1630,109 @@ cost(delete) $= +2$
 
 cost(insert) $= +2$
 
+\subsection*{15-6}
+
+\noindent
+Let $r(x)$ be the conviviality rating of $x$.
+Denote $c[x]$ as the sum of the conviviality ratings of 
+the subtree root at $x$ if $x$ will attend.
+Denote $d[x]$ as the sum of the conviviality ratings of 
+the subtree root at $x$ if $x$ will not attend.
+We have the following recursive solution:
+
+\begin{equation*}
+    c[x] = r(x) + \sum\limits_{y \text{ is child of } x} d[y]
+\end{equation*}
+
+\begin{equation*}
+    d[x] = \sum\limits_{y \text{ is child of } x} \func{max}(c[y], d[y])
+\end{equation*}
+
+\noindent
+Therefore, we have the following algorithm which runs in $\Theta(n)$:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+/* declarations of function are omitted */
+
+struct Node
+{
+    Node *left_child = nullptr;
+    Node *right_sibling = nullptr;
+    std::string name;
+    int conviviality_rating;
+    int dp_attend_subtree_r_sum = INT_MIN;
+    int dp_not_attend_subtree_r_sum = INT_MIN;
+    bool dp_attend_if_parent_not_attend;
+};
+
+void DpAuxRootAttend(Node *root)
+{
+    Node *child;
+    root->dp_attend_subtree_r_sum = root->conviviality_rating;
+    for (child = root->left_child; child; child = child->right_sibling)
+    {
+        if (child->dp_not_attend_subtree_r_sum < 0)
+            DpAuxRootNotAttend(child);
+        root->dp_attend_subtree_r_sum += child->dp_not_attend_subtree_r_sum;
+    }
+}
+
+void DpAuxRootNotAttend(Node *root)
+{
+    Node *child;
+    root->dp_not_attend_subtree_r_sum = 0;
+    for (child = root->left_child; child; child = child->right_sibling)
+    {
+        if (child->dp_attend_subtree_r_sum < 0)
+            DpAuxRootAttend(child);
+        if (child->dp_not_attend_subtree_r_sum < 0)
+            DpAuxRootNotAttend(child);
+        if (child->dp_attend_subtree_r_sum > child->dp_not_attend_subtree_r_sum)
+        {
+            root->dp_not_attend_subtree_r_sum += child->dp_attend_subtree_r_sum;
+            child->dp_attend_if_parent_not_attend = true;
+        }
+        else
+        {
+            root->dp_not_attend_subtree_r_sum += child->dp_not_attend_subtree_r_sum;
+            child->dp_attend_if_parent_not_attend = false;
+        }
+    }
+}
+
+void OutputListRootAttend(Node *root, std::list<Node*>& result)
+{
+    Node *child;
+    result.push_back(root);
+    for (child = root->left_child; child; child = child->right_sibling)
+    {
+        OutputListRootNotAttend(child, result);
+    }
+}
+
+void OutputListRootNotAttend(Node *root, std::list<Node*>& result)
+{
+    Node *child;
+    for (child = root->left_child; child; child = child->right_sibling)
+    {
+        if (child->dp_attend_if_parent_not_attend)
+            OutputListRootAttend(child, result);
+        else
+            OutputListRootNotAttend(child, result);
+    }
+}
+
+std::list<Node*> PlanningCompanyParty(Node *root)
+{
+    std::list<Node*> result;
+    DpAuxRootAttend(root);
+    DpAuxRootNotAttend(root);
+    if (root->dp_attend_subtree_r_sum > root->dp_not_attend_subtree_r_sum)
+        OutputListRootAttend(root, result);
+    else
+        OutputListRootNotAttend(root, result);
+    return result;
+}
+\end{minted}
+
 \end{document}
