@@ -2053,4 +2053,99 @@ std::vector<int> LowestDisruptionSeam(const std::vector< std::vector<int> >& dis
 }
 \end{minted}
 
+\subsection*{15-9}
+
+\noindent
+Denote $c[i,j]$ where $1 \leq i \leq j \leq n$
+as the least cost to break the string $S[i..j]$
+by the break points $x \in L$ such that $x \in [i,j)$.
+We have the following recursive solution
+
+\begin{equation*}
+    c[i,j] = 
+    \begin{cases}
+        0 & \text{if } \forall x \in [i,j), x \notin L \\
+        \mathop{\func{min}}\limits_{x \in L 
+            \atop x \in [i,j)}
+            (c[i,x] + c[x+1,j])+j-i+1
+            & \text{otherwise}
+    \end{cases}
+\end{equation*}
+
+\noindent
+In another way, we sort the array $L[1..m]$ first,
+and let $L[0] = 0$, $L[m+1] = n$.
+Denote $d[i,j]$ where $0 \leq i < j \leq m+1$ 
+as the least cost to break the string $S[(L[i]+1)..L[j]]$
+by the break points in $L[(i+1)...(j-1)]$.
+We have the following recursive solution
+
+\begin{equation*}
+    d[i,j] = 
+    \begin{cases}
+        0 & \text{if } j - i = 1 \\
+        \mathop{\func{min}}\limits_{i < x < j}
+            (d[i,x] + d[x,j])+L[j]-L[i]
+            & \text{if } j - i > 1
+    \end{cases}
+\end{equation*}
+
+\noindent
+Therefore, we have the following bottom-up algorithm run in $\Theta(m^3)$
+(process is similar to 15.2-5):
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void OutputSequence(const std::vector<int>& breaking_point, 
+    const std::vector< std::vector<int> >& dp_break,
+    int i, int j, std::vector<int>& result)
+{
+    int x;
+    if (j - i == 1)
+        return;
+    x = dp_break[i][j];
+    result.push_back(breaking_point[x]);
+    OutputSequence(breaking_point, dp_break, i, x, result);
+    OutputSequence(breaking_point, dp_break, x, j, result);
+}
+
+std::pair<int, std::vector<int> > BreakingString(std::vector<int>& breaking_point, int n)
+{
+    int m, l, i, j, x, l_cost;
+    m = (int)(breaking_point.size());
+    std::vector< std::vector<int> > dp_cost(m + 2, std::vector<int>(m + 2)),
+        dp_break(m + 2, std::vector<int>(m + 2));
+    std::vector<int> result;
+    result.reserve(m);
+    breaking_point.push_back(breaking_point[0]);
+    breaking_point[0] = 0;
+    breaking_point.push_back(n);
+    Quicksort(breaking_point, 1, m);
+    for (i = 0; i <= m; ++i)// l = 1
+    {
+        dp_cost[i][i + 1] = 0;
+    }
+    for (l = 2; l <= m + 2; ++l)
+    {
+        for (i = 0; i <= m + 1 - l; ++i)
+        {
+            j = i + l;
+            dp_cost[i][j] = INT_MAX;
+            for (x = i + 1; x < j; ++x)
+            {
+                l_cost = dp_cost[i][x] + dp_cost[x][j];
+                if (l_cost < dp_cost[i][j])
+                {
+                    dp_cost[i][j] = l_cost;
+                    dp_break[i][j] = x;
+                }
+            }
+            dp_cost[i][j] += breaking_point[j] - breaking_point[i];
+        }
+    }
+    // output
+    OutputSequence(breaking_point, dp_break, 0, m + 1, result);
+    return std::make_pair(dp_cost[0][m + 1], result);
+}
+\end{minted}
+
 \end{document}
