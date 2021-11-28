@@ -1136,13 +1136,13 @@ we claim the following:
 
 1. If $x_i = x_j$, 
 then $z_k = z_t = x_i = x_j$
-and $Z_{k+1,t-1}$ is the LCS of $X_{i+1,j-1}$.
+and $Z_{k+1,t-1}$ is the LPS of $X_{i+1,j-1}$.
 
 2. If $x_i \leq x_j$,
-then $z_k = z_t \neq x_i$ implies $Z_{kt}$ is the LCS of $X_{i+1,j}$.
+then $z_k = z_t \neq x_i$ implies $Z_{kt}$ is the LPS of $X_{i+1,j}$.
 
 3. If $x_i \leq x_j$,
-then $z_k = z_t \neq x_j$ implies $Z_{kt}$ is the LCS of $X_{i,j-1}$.
+then $z_k = z_t \neq x_j$ implies $Z_{kt}$ is the LPS of $X_{i,j-1}$.
 
 Denote $c[i,j]$ as the length of LPS of $X_{ij}$.
 For all $X_{ij}$ where $n > 2$, 
