@@ -2148,4 +2148,142 @@ std::pair<int, std::vector<int> > BreakingString(std::vector<int>& breaking_poin
 }
 \end{minted}
 
+\subsection*{15-10}
+
+\subsubsection*{(a)}
+
+% TODO: complete the proof
+
+\begin{claim}
+    There exists an optimal investment strategy that, in each year,
+    puts all the money into a single investment.
+\end{claim}
+
+\begin{proof}
+    Assume there does not exists an optimal investment strategy that, 
+    in each year, puts all the money into a single investment.
+    This says for all optimal investment strategy,
+    there exists a year such that 
+    money is put in more than one inverstment.
+
+    For each year such that 
+    we shift money into $k$ inverstments where $1 < k \leq n$.
+    Let $d$ be how many dollars we have at the begin of the year.
+    Let $\sum\limits_{s=1}^{k} g_s = d - f_2$.
+    We put money $g_1, g_2, \cdots, g_k$ 
+    into $i_1, i_2, \cdots, i_k$ respectively in year $j$,
+    At the end of the year $j$,
+    we have $u = \sum\limits_{s=1}^{k} g_s \cdot r_{i_s j}$ dollars.
+    Let $i_m$ be the investment with the highest return rate in year $j$;
+    i.e. $r_{i_m j} = \func{max}(r_{i_1 j}, r_{i_2 j}, \cdots, r_{i_n j})$.
+    If we put all the money into investment $i_m$,
+    we have $v = \sum\limits_{s=1}^{k} g_s \cdot r_{i_m j}$ dollars 
+    at the end of the year $j$.
+    We observed $u \leq v$. 
+    Contradition
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{proof}
+    Suppose that the optimal investment strategy for year $10$ 
+    where year $10$ put all money in $i_{10}$
+    is contained in the sequence 
+    $s_{10} = \langle i_1, i_2, \cdots, i_9, i_{10} \rangle$;
+    i.e. year $k$ put all money in single investment $i_k$.
+    Consider a year $t$ such that $1 < t < 10$.
+    Let strategy 
+    $s_t = \langle i_1, i_2, \cdots, i_{t-1}, i_t \rangle$.
+    Assume $s_t$ is not the optimal strategy for year $t$.
+    where year $t$ put all money in $i_{t}$
+    Then there exists a optimal investment strategy for year $t$
+    where year $t$ put all money in $i_{t}$:
+    $s_t' = \langle i_1', i_2', \cdots, i_{t-1}', i_t \rangle$.
+    We can utilize ``cut-and-paste'' technique to replace 
+    $i_1, i_2, \cdots, i_{t-1}$ with $i_1', i_2', \cdots, i_{t-1}'$,
+    and let $s_{10}' = \langle i_1', i_2', \cdots, i_{t-1}', 
+    i_t \cdots, i_{10} \rangle$.
+    The strategy $s_{10}'$ result a greater amount of money 
+    after $10$ years than the strategy $s_{10}$.
+    Contradition.
+\end{proof}
+
+\subsubsection*{(c)}
+
+Denote $c[i,j]$ as the largest amount of money after year $j$
+where year $j$ put all money in $i$.
+Then we have the following recursive solution:
+
+\begin{equation*}
+    c[i,j] = 
+    \begin{cases}
+        10000 \cdot r_{i1} & \text{if } j = 1 \\
+        \mathop{\func{max}}\limits_{1 \leq k \leq n}
+        \begin{cases}
+            (c[i,j-1] - f_1) \cdot r_{ij} \\
+            (c[k,j-1] - f_2) \cdot r_{ij}
+        \end{cases}
+        & \text{if } j > 1
+    \end{cases}
+\end{equation*}
+
+The following algorithm run in $\Theta(10 \cdot n^2) = \Theta(n^2)$:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+std::pair<double, std::vector<int> > InvestmentStrategy
+    (const std::vector< std::vector<double> >& rate, int f_1, int f_2)
+{
+    int i, j, k, n;
+    double l_money;
+    n = (int)(rate.size());
+    std::vector< std::vector<double> > dp_money(n, std::vector<double>(10)); 
+    std::vector< std::vector<int> > dp_investment(n, std::vector<int>(10));
+    std::vector<int> result(10);
+    // compute
+    for (i = 0; i < n; ++i)// j == 0
+    {
+        dp_money[i][0] = rate[i][0] * 10000;
+    }
+    for (j = 1; j < 10; ++j)
+    {
+        for (i = 0; i < n; ++i)
+        {
+            dp_money[i][j] = (dp_money[i][j - 1] - f_1) * rate[i][j];
+            dp_investment[i][j] = i;
+            for (k = 0; k < n; ++k)
+            {
+                l_money = (dp_money[k][j - 1] - f_2) * rate[i][j];
+                if (l_money > dp_money[i][j])
+                {
+                    dp_money[i][j] = l_money;
+                    dp_investment[i][j] = k;
+                }
+            }
+        }
+    }
+    // output
+    l_money = dp_money[0][9];
+    result[9] = 0;
+    for (i = 1; i < n; ++i)
+    {
+        if (dp_money[i][9] > l_money)
+        {
+            l_money = dp_money[i][9];
+            result[9] = i;
+        }
+    }
+    for (j = 9; j > 0; --j)
+    {
+        result[j - 1] = dp_investment[result[j]][j];
+    }
+    return std::make_pair(l_money, std::move(result));
+}
+\end{minted}
+
+\subsubsection*{(d)}
+
+If the restriction is imposed,
+the subproblems are depend on initial amount of money.
+We cannot solve the subproblems for each initial amount of money.
+
 \end{document}
