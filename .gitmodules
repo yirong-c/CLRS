@@ -1,0 +1,9 @@
+[submodule "ch14/code/augment-red-black-tree"]
+	path = ch14/code/augment-red-black-tree
+	url = https://github.com/frc123/augment-red-black-tree.git
+[submodule "ch13/code/red-black-tree"]
+	path = ch13/code/red-black-tree
+	url = https://github.com/frc123/red-black-tree.git
+[submodule "ch13/code/persistent-red-black-tree"]
+	path = ch13/code/persistent-red-black-tree
+	url = https://github.com/frc123/persistent-red-black-tree
