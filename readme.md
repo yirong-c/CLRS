@@ -8,21 +8,28 @@ This repo includes
 (in LaTeX and handwriting)
 (the handwriting part will be updated to LaTeX)
 
+## Solution Menu
+
+Chapter 2 - 12 Contents are Uploading and Migrating
+(you can check out codes in [this repo](https://github.com/frc123/CLRS-code-solution) for temporary)
+
+Chpater 13: 
+[Code](https://github.com/frc123/CLRS/tree/master/ch13/code)
+[Solution](https://github.com/frc123/CLRS/tree/master/ch13/solution) (Hand-writing)
+
+Chpater 14:
+[Code](https://github.com/frc123/CLRS/tree/master/ch14/code)
+[Solution](https://github.com/frc123/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
+
+Chpater 15:
+[Code](https://github.com/frc123/CLRS/tree/master/ch15/code)
+[Solution](https://github.com/frc123/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
+
 ## More Code Implementation in C++
 
 https://github.com/frc123/CLRS-code-solution
 
 This repo is being migrated here.
-
-## Solution Menu
-
-Chapter 2 - 12 Contents are Uploading and Migrating
-
-[Chpater 13 Solution](https://github.com/frc123/CLRS/tree/master/ch13/solution) (Hand-writing)
-
-[Chpater 14 Solution](https://github.com/frc123/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
-
-[Chpater 15 Solution](https://github.com/frc123/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
 
 ## Contribute
 
