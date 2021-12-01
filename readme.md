@@ -13,6 +13,10 @@ This repo includes
 Chapter 2 - 12 Contents are Uploading and Migrating
 (you can check out codes in [this repo](https://github.com/frc123/CLRS-code-solution) for temporary)
 
+Chpater 12: 
+[Code](https://github.com/frc123/CLRS/tree/master/ch12/code)
+[Solution](https://github.com/frc123/CLRS/tree/master/ch12/solution) (Hand-writing)
+
 Chpater 13: 
 [Code](https://github.com/frc123/CLRS/tree/master/ch13/code)
 [Solution](https://github.com/frc123/CLRS/tree/master/ch13/solution) (Hand-writing)
