@@ -10,24 +10,15 @@ This repo includes
 
 ## Solution Menu
 
-Chapter 2 - 12 Contents are Uploading and Migrating
+Chapter 2 - 11 Contents are Uploading and Migrating
 (you can check out codes in [this repo](https://github.com/frc123/CLRS-code-solution) for temporary)
 
-Chpater 12: 
-[Code](https://github.com/frc123/CLRS/tree/master/ch12/code)
-[Solution](https://github.com/frc123/CLRS/tree/master/ch12/solution) (Hand-writing)
-
-Chpater 13: 
-[Code](https://github.com/frc123/CLRS/tree/master/ch13/code)
-[Solution](https://github.com/frc123/CLRS/tree/master/ch13/solution) (Hand-writing)
-
-Chpater 14:
-[Code](https://github.com/frc123/CLRS/tree/master/ch14/code)
-[Solution](https://github.com/frc123/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
-
-Chpater 15:
-[Code](https://github.com/frc123/CLRS/tree/master/ch15/code)
-[Solution](https://github.com/frc123/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
+| Chapter | Code | Solution |
+| --- | --- | --- |
+| Chpater 12 | [Code](https://github.com/frc123/CLRS/tree/master/ch12/code) |[Solution](https://github.com/frc123/CLRS/tree/master/ch12/solution) (Hand-writing)
+| Chpater 13 | [Code](https://github.com/frc123/CLRS/tree/master/ch13/code) | [Solution](https://github.com/frc123/CLRS/tree/master/ch13/solution) (Hand-writing)
+| Chpater 14 | [Code](https://github.com/frc123/CLRS/tree/master/ch14/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
+| Chpater 15 | [Code](https://github.com/frc123/CLRS/tree/master/ch15/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
 
 ## More Code Implementation in C++
 
