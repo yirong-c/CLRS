@@ -1,25 +1,36 @@
-# CLRS-solution
+# CLRS
 
-Include exercise and problem solutions of "Introduction to Algorithms" (CLRS) 3rd edition
+This repo includes 
 
-Chapter 15 is updating
+- C++ code implementation of data structures and algorithms
 
-## Code Implementation in C++
+- exercise and problem solutions of "Introduction to Algorithms" (CLRS) 3rd edition 
+(in LaTeX and handwriting)
+(the handwriting part will be updated to LaTeX)
+
+## More Code Implementation in C++
 
 https://github.com/frc123/CLRS-code-solution
 
-## Note
+This repo is being migrated here.
 
-This repo includes my solutions in LaTeX and handwriting.
-(The handwriting part will be updated to LaTeX)
+## Solution Menu
 
-## Progress
+Chapter 2 - 12 Contents are Uploading and Migrating
 
-- Chapter 2 - 12: Uploading
+[Chpater 13 Solution](https://github.com/frc123/CLRS/tree/master/ch13/solution) (Hand-writing)
 
-- Chapter 13: In Handwriting
+[Chpater 14 Solution](https://github.com/frc123/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
 
-- Chapter 14 - 15: In LaTex
+[Chpater 15 Solution](https://github.com/frc123/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
+
+## Contribute
+
+If you find any errors, other approachs to solution, 
+or want to contribute,
+you are welcome to create a Pull Request.
+
+Thank you so much for your contribution!
 
 ## Bibliography
 
