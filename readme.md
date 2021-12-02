@@ -30,7 +30,7 @@ Chapter 2 - 11 Contents are Uploading and Migrating
 
 ## Contribute
 
-If you find any errors, other approachs to solution, 
+If you find any errors, other approaches to solution, 
 or want to contribute,
 you are welcome to create a Pull Request.
 
