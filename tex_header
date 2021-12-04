@@ -9,6 +9,8 @@
 \usepackage{amsmath}
 \usepackage{tikz-qtree}
 
+\usetikzlibrary{matrix,arrows,fit} 
+
 \geometry{left=3cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 % \indent
 \renewcommand{\proofname}{\bf Proof}

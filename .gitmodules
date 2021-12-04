@@ -7,3 +7,6 @@
 [submodule "ch13/code/persistent-red-black-tree"]
 	path = ch13/code/persistent-red-black-tree
 	url = https://github.com/frc123/persistent-red-black-tree
+[submodule "ch4/matrix"]
+	path = ch4/matrix
+	url = https://github.com/frc123/matrix.git
