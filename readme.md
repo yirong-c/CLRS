@@ -1,4 +1,4 @@
-# CLRS
+# [CLRS](https://github.com/frc123/CLRS)
 
 This repo includes 
 
