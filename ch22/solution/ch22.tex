@@ -465,6 +465,363 @@ Disadvantage compared to the hash table:
 expect time of red-black tree is $\Theta(\lg n)$
 where $n$ is the size of elements in the red-black tree. 
 
+\section*{22.2}
+
+\subsection*{22.2-1}
+
+vertex 1: $d = \infty$, $\pi = NIL$.
+
+vertex 2: $d = 3$, $\pi = 4$.
+
+vertex 3: $d = 0$, $\pi = NIL$.
+
+vertex 4: $d = 2$, $\pi = 5$.
+
+vertex 5: $d = 1$, $\pi = 3$.
+
+vertex 6: $d = 1$, $\pi = 3$.
+
+\subsection*{22.2-2}
+
+vertex r: $d = 4$, $\pi = s$.
+
+vertex s: $d = 3$, $\pi = w$.
+
+vertex t: $d = 1$, $\pi = u$.
+
+vertex u: $d = 0$, $\pi = NIL$.
+
+vertex v: $d = 5$, $\pi = r$.
+
+vertex w: $d = 2$, $\pi = x$.
+
+vertex x: $d = 1$, $\pi = u$.
+
+vertex y: $d = 1$, $\pi = u$.
+
+\subsection*{22.2-3}
+
+We can replace all "GRAY"s with "BLACK"s.
+Notice line 13 is the only place to check color,
+and it only checks whether or not the vertex is "WHITE".
+Hence, as long as we can make sure all non-white vertex are in non-"WHITE" color,
+our algorithm works.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+std::list<int> BFS(Graph& graph, int src_idx)
+{
+    int u_idx, v_idx;
+    std::list<int> discover_result;
+    std::queue<int> q;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.distance = INT_MAX;
+        u.prev = -1;
+    }
+    graph.vertices[src_idx].color = Color::kNonWhite;
+    graph.vertices[src_idx].distance = 0;
+    graph.vertices[src_idx].prev = -1;
+    q.push(src_idx);
+    while (q.empty() == false)
+    {
+        u_idx = q.front();
+        q.pop();
+        discover_result.push_back(u_idx);
+        Vertex& u = graph.vertices[u_idx];
+        for (int v_idx : graph.adj[u_idx])
+        {
+            Vertex& v = graph.vertices[v_idx];
+            if (v.color == Color::kWhite)
+            {
+                v.color = Color::kNonWhite;
+                v.distance = u.distance + 1;
+                v.prev = u_idx;
+                q.push(v_idx);
+            }
+        }
+    }
+    return discover_result;
+}
+\end{minted}
+
+\subsection*{22.2-4}
+
+$O(V^2)$ since we need to iterate all entries in the matrix.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+std::list<int> BFS(Graph& graph, int src_idx)
+{
+    int u_idx, v_idx;
+    std::list<int> discover_result;
+    std::queue<int> q;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.distance = INT_MAX;
+        u.prev = -1;
+    }
+    graph.vertices[src_idx].color = Color::kGray;
+    graph.vertices[src_idx].distance = 0;
+    graph.vertices[src_idx].prev = -1;
+    q.push(src_idx);
+    while (q.empty() == false)
+    {
+        u_idx = q.front();
+        q.pop();
+        discover_result.push_back(u_idx);
+        Vertex& u = graph.vertices[u_idx];
+        for (v_idx = 0; v_idx < graph.size; ++v_idx)
+        {
+            if (graph.adj[u_idx][v_idx])
+            {
+                Vertex& v = graph.vertices[v_idx];
+                if (v.color == Color::kWhite)
+                {
+                    v.color = Color::kGray;
+                    v.distance = u.distance + 1;
+                    v.prev = u_idx;
+                    q.push(v_idx);
+                }
+            }
+        }
+        u.color = Color::kBlack;
+    }
+    return discover_result;
+}
+\end{minted}
+
+\subsection*{22.2-5}
+
+For all reachable vertices $v \in V$,
+we have $v.d = \delta(s,v)$ by Theorem 22.5.
+For unreachable vertices $v \in V$,
+we have $v.d = \infty = \delta(s,v)$.
+Since $\delta(s,v)$ is independent of the order in which
+the vertices appear in each adjacency list,
+so does $v.d$ for all $v \in V$.
+
+If $t$ is in front of $x$ in the adjacency list of $w$,
+then $t$ will be enqueued before $x$ enqueue,
+and $u.\pi = t$, so $(t,u) \in E_\pi$.
+If $t$ is in after $x$ in the adjacency list of $w$,
+then $t$ will be enqueued after $x$ enqueue,
+and $u.\pi = x$, so $(x,u) \in E_\pi$.
+
+\subsection*{22.2-6}
+
+Consider the following directed graph $G = (V,E)$:
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=2em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    % vertices
+    \node[vertex] (a) at  (0,0) {$a$};
+    \node[vertex] (s) at  (2,2) {$s$};
+    \node[vertex] (b) at  (4,0) {$b$};
+    \node[vertex] (c) at  (0,-4) {$c$};
+    \node[vertex] (d) at  (4,-4) {$d$};
+    %edges
+    \draw[edge] (s) to (a);
+    \draw[edge] (s) to (b);
+    \draw[edge] (a) to (c);
+    \draw[edge] (a) to (d);
+    \draw[edge] (b) to (c);
+    \draw[edge] (b) to (d);
+\end{tikzpicture}
+
+Consider $E_\pi = \{ (s,a), (s,b), (a,c), (b,d) \}$.
+This $E_\pi$ cannot be produced by running BFS on $G$.
+
+The only two possible predecessor subgraph is
+
+\begin{equation*}
+    (V, \{ (s,a), (s,b), (a,c), (a,d) \})
+\end{equation*}
+
+and
+
+\begin{equation*}
+    (V, \{ (s,b), (s,a), (b,c), (b,d) \}).
+\end{equation*}
+
+\subsection*{22.2-7}
+
+Let $G=(V,E)$ be an undirected graph.
+
+Let each vertex $v \in V$ represent a professional wrestler,
+and let each edge $e \in E$ represent a rivalry.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+bool DesignateWrestlerType(Graph& graph)
+{
+    int u_idx, v_idx;
+    std::queue<int> q;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+    }
+    graph.vertices[0].color = Color::kNonWhite;
+    graph.vertices[0].type = WrestlerType::kBabyfaces;
+    q.push(0);
+    while (q.empty() == false)
+    {
+        u_idx = q.front();
+        q.pop();
+        Vertex& u = graph.vertices[u_idx];
+        for (int v_idx : graph.adj[u_idx])
+        {
+            Vertex& v = graph.vertices[v_idx];
+            if (v.color == Color::kWhite)
+            {
+                v.color = Color::kNonWhite;
+                graph.vertices[v_idx].type = (u.type == WrestlerType::kBabyfaces) ? 
+                    WrestlerType::kHeels : WrestlerType::kBabyfaces;
+                q.push(v_idx);
+            }
+            else
+            {
+                if (u.type == v.type)
+                    return false;
+            }
+        }
+    }
+    return true;
+}
+\end{minted}
+
+\subsection*{22.2-8}
+
+According to Theorem B.2 (Properties of free trees),
+We have $T$ is connected, acyclic, and $|E| = |V| - 1$.
+This says we can do BFS in $O(|V| + |E|) = O(|V| + |V| - 1) = O(|V|)$ time.
+If we can do constant times BFS, we will be able to find diameter in $O(|V|)$ time.
+
+Let arbitrary node $s \in V$ be the sourse node of BFS.
+Since $T$ is connected, all nodes in $V$ are reachable.
+After performing BFS on $T$ from the souece node $s$,
+we have $v.d = \delta(s,v)$ for each $v \in V$.
+Let $s$ be the root node of the tree $T$.
+Then $v.d$ is the depth of node $v$ is the tree
+since any two vertices in a tree are connected by a unique simple path (Theorem B.2 (2))
+and the length of the path from $s$ to $v$ is $\delta(s,v)$, which is depth of node $v$.
+We can recursive traverse the tree to get the height of each node based on depth,
+and we can get the longest path containes the root of the subtree by height of children of the root.
+
+Since BFS takes $O(|V|)$ and traverses tree takes $O(|V|)$,
+our algorithm run in $O(|V|)$.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+int DiameterAux(Graph& graph, int subtree_root_idx)
+{
+    int first_largest_h, second_largest_h, longest_path_length;
+    first_largest_h = -1;
+    second_largest_h = -1;
+    longest_path_length = INT_MIN;
+    Vertex& subtree_root = graph.vertices[subtree_root_idx];
+    for (int child_idx : graph.adj[subtree_root_idx])
+    {
+        if (child_idx != subtree_root.prev)
+        {
+            Vertex& child = graph.vertices[child_idx];
+            longest_path_length = std::max(longest_path_length, 
+                DiameterAux(graph, child_idx));
+            if (child.height > first_largest_h)
+            {
+                second_largest_h = first_largest_h;
+                first_largest_h = child.height;
+            }
+            else if (child.height > second_largest_h)
+            {
+                second_largest_h = child.height;
+            }
+        }
+    }
+    subtree_root.height = first_largest_h + 1;
+    longest_path_length = std::max(longest_path_length, 
+                first_largest_h + second_largest_h + 2);
+    return longest_path_length;
+}
+
+int Diameter(Graph& graph)
+{
+    int u_idx, v_idx;
+    std::queue<int> q;
+    // let vertex 0 be the root node
+    graph.vertices[0].depth = 0;
+    graph.vertices[0].prev = -1;
+    q.push(0);
+    while (q.empty() == false)
+    {
+        u_idx = q.front();
+        q.pop();
+        Vertex& u = graph.vertices[u_idx];
+        for (int v_idx : graph.adj[u_idx])
+        {
+            if (v_idx != u.prev)
+            {
+                Vertex& v = graph.vertices[v_idx];
+                v.depth = u.depth + 1;
+                v.prev = u_idx;
+                q.push(v_idx);
+            }
+        }
+    }
+    return DiameterAux(graph, 0);
+}
+\end{minted}
+
+\subsection*{22.2-9}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+std::list< std::pair<int, int> > TraverseEdge(Graph& graph, int src_idx)
+{
+    int u_idx, v_idx;
+    std::list< std::pair<int, int> > traverse_result;
+    std::list< std::pair<int, int> >::iterator result_it;
+    std::queue<int> q;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+    }
+    graph.vertices[src_idx].color = Color::kGray;
+    graph.vertices[src_idx].result_pos = traverse_result.end();
+    q.push(src_idx);
+    while (q.empty() == false)
+    {
+        u_idx = q.front();
+        q.pop();
+        Vertex& u = graph.vertices[u_idx];
+        result_it = u.result_pos;
+        for (int v_idx : graph.adj[u_idx])
+        {
+            Vertex& v = graph.vertices[v_idx];
+            if (v.color == Color::kWhite)
+            {
+                v.color = Color::kGray;
+                traverse_result.emplace(result_it, u_idx, v_idx);
+                v.result_pos = 
+                    traverse_result.emplace(result_it, v_idx, u_idx);
+                q.push(v_idx);
+            }
+            else if (v.color == Color::kGray)
+            {
+                traverse_result.emplace(result_it, u_idx, v_idx);
+                traverse_result.emplace(result_it, v_idx, u_idx);
+            }
+        }
+        u.color = Color::kBlack;
+    }
+    return traverse_result;
+}
+\end{minted}
+
+Let each spot of the maze be a vertex in $V$.
+If there is no wall between two spots, 
+we add an edge to connect two vertices.
+Then we traverse each edge in $E$ by using the above algorithm
+to find the way out of the maze.
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
