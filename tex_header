@@ -8,6 +8,7 @@
 \usepackage{clrscode3e}
 \usepackage{amsmath}
 \usepackage{tikz-qtree}
+\usepackage{fancyhdr}
 
 \usetikzlibrary{matrix,arrows,fit} 
 
@@ -28,4 +29,8 @@
 \def\QQ{\mathbb{Q}}
 \def\implies{\Longrightarrow}
 
-\author{frc6.com \\ i@frc6.com \\ https://github.com/frc123/CLRS}
+\author{https://github.com/frc123/CLRS}
+
+\pagestyle{fancy}
+\chead{https://github.com/frc123/CLRS\\Thank you very much for starring and contributing}
+\cfoot{https://github.com/frc123/CLRS\\Check out the repo for the most recent update}
