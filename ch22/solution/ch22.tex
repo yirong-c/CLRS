@@ -822,6 +822,514 @@ we add an edge to connect two vertices.
 Then we traverse each edge in $E$ by using the above algorithm
 to find the way out of the maze.
 
+\section*{22.3}
+
+\subsection*{22.3-1}
+
+Directed:
+
+\begin{tabular}{l|c c c}
+    \diagbox{i}{j} & WHITE & GRAY & BLACK \\
+    \hline
+    W   & tree/back/forward/cross & back/cross & cross \\
+    G   & tree/forward & tree/back/forward & tree/forward/cross \\
+    B   & N/A & back & tree/back/forward/cross
+\end{tabular}
+
+Undirected:
+
+\begin{tabular}{l|c c c}
+    \diagbox{i}{j} & WHITE & GRAY & BLACK \\
+    \hline
+    W   & tree/back & tree/back & N/A \\
+    G   & tree/back & tree/back & tree/back \\
+    B   & N/A & tree/back & tree/back
+\end{tabular}
+
+\subsection*{22.3-2}
+
+\noindent
+Discovery and finish time:
+
+\begin{description}
+    \item[q] 1/16
+    \item[s] 2/7
+    \item[v] 3/6
+    \item[w] 4/5
+    \item[t] 8/15
+    \item[x] 9/12
+    \item[z] 10/11
+    \item[y] 13/14
+    \item[r] 17/20
+    \item[u] 18/19
+\end{description}
+
+\noindent
+Classification of each edge:
+
+\begin{description}
+    \item[(q,s)] tree
+    \item[(s,v)] tree
+    \item[(v,w)] tree
+    \item[(w,s)] back
+    \item[(q,t)] tree
+    \item[(t,x)] tree
+    \item[(x,z)] tree
+    \item[(z,x)] back
+    \item[(t,y)] tree
+    \item[(y,q)] back
+    \item[(q,w)] forward
+    \item[(r,u)] tree
+    \item[(u,y)] cross
+    \item[(r,y)] cross
+\end{description}
+
+\subsection*{22.3-3}
+
+(u (v (y (x x) y) v) u) (w (z z) w)
+
+\subsection*{22.3-4}
+
+The algorithm only check if the color is white or non white, 
+so we can use only two colors.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisit(Graph& graph, int u_idx, int& time)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kNonWhite;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (v.color == Color::kWhite)
+        {
+            v.prev = u_idx;
+            DFSVisit(graph, v_idx, time);
+        }
+    }
+    ++time;
+    u.finishing_time = time;
+}
+
+void DFS(Graph& graph)
+{
+    int time, u_idx;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+    }
+    time = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        Vertex& u = graph.vertices[u_idx];
+        if (u.color == Color::kWhite)
+        {
+            u.prev = -1;
+            DFSVisit(graph, u_idx, time);
+        }
+    }
+}
+\end{minted}
+
+\subsection*{22.3-5}
+
+\subsubsection*{(a)}
+
+\begin{proof}
+    Edge $(u,v)$ is a tree edge or forward edge if and only if
+    $v$ is a proper descendant of $u$.
+    By Corollary 22.8 (Nesting of descendants' intervals),
+    we have $u.d < v.d < v.f < u.f$ if and only if
+    $v$ is a proper descendant of $u$.
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{proof}
+    Edge $(u,v)$ is a back edge if and only if
+    $u$ is a descendant of $v$ (include self-loop).
+    By Theorem 22.7 (Parenthesis theorem),
+    we have $v.d\leq< u.d < u.f \leq v.f$ if and only if
+    $u$ is a descendant of $v$ immediately.
+\end{proof}
+
+\subsubsection*{(c)}
+
+\begin{proof}
+    Edge $(u,v)$ is a cross edge if and only if
+    $u$ is neither descendant of $v$ nor ancestor of $v$.
+    By Theorem 22.7 (Parenthesis theorem),
+    we have $v.d < v.f < u.d < u.f$ or $u.d < u.f < v.d < v.f$ if and only if
+    $u$ is neither descendant of $v$ nor ancestor of $v$.
+    Thus, we have $v.d < v.f < u.d < u.f$ $\Longrightarrow$ $(u,v)$ is a cross edge.
+    
+    We claim $(u,v)$ is a cross edge $\Longrightarrow$ $v.d < v.f < u.d < u.f$.
+    Assume $u.d < u.f < v.d < v.f$, for the purpose of contradiction.
+    This says $u$ is black and $v$ is white at some point during the DFS.
+    However, there is a edge from $u$ to $v$, which is a contradiction.
+\end{proof}
+
+\subsection*{22.3-6}
+
+\begin{proof}
+    By definition of tree edge, edge $(u,v)$ is classified as a tree edge 
+    if $v$ is first discovered by exploring edge $(u,v)$,
+    which is equivalent to $(u,v)$ is encountered first.
+    By Theorem 22.10, 
+    every edge in an undirected graph is either a tree edge or a back edge.
+    Thus, if $(u,v)$ is not classified as a tree edge,
+    $(u,v)$ is classified as a back edge, 
+    which is equivalent to $(v,u)$ is encountered first.
+\end{proof}
+
+\subsection*{22.3-7}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+struct StackElement
+{
+    int vertex_idx;
+    AdjList::iterator adj_it_curr;
+    AdjList::iterator adj_it_end;
+};
+
+void DFS(Graph& graph)
+{
+    int time, u_idx, v_idx;
+    std::stack< StackElement > path;
+    AdjList vertices_list;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        Vertex& u = graph.vertices[u_idx];
+        u.color = Color::kWhite;
+        vertices_list.push_back(u_idx);
+    }
+    time = 0;
+    path.push({ -1, vertices_list.begin(), vertices_list.end() });
+    while (true)
+    {
+        u_idx = path.top().vertex_idx;
+        AdjList::iterator& v_it = path.top().adj_it_curr;
+        if (v_it == path.top().adj_it_end)
+        {
+            path.pop();
+            if (path.empty())
+                break;
+            Vertex& u = graph.vertices[u_idx];
+            u.color = Color::kBlack;
+            ++time;
+            u.finishing_time = time;
+        }
+        else
+        {
+            v_idx = *v_it;
+            Vertex& v = graph.vertices[v_idx];
+            if (v.color == Color::kWhite)
+            {
+                ++time;
+                v.discovery_time = time;
+                v.color = Color::kGray;
+                v.prev = u_idx;
+                path.push({ v_idx, graph.adj[v_idx].begin(), graph.adj[v_idx].end() });
+            }
+            ++v_it;
+        }
+    }
+}
+\end{minted}
+
+\subsection*{22.3-8}
+
+Consider the following directed graph:
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=2em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (s) at (0,0) {$s$};
+    \node[vertex] (u) at (2,0) {$u$};
+    \node[vertex] (v) at (2,2) {$v$};
+    \draw[edge] (s) to (u);
+    \draw[->, bend left] (u) to (s);
+    \draw[edge] (s) to (v);
+\end{tikzpicture}
+
+Let $s$ be the source vertex,
+and let $u$ be in front of $v$ in the adjacency list of $s$.
+Thus, we have the following result of DFS:
+
+\begin{tabular}{c|c|c}
+    vetex & d & f \\
+    \hline
+    s & 0 & 5 \\
+    u & 1 & 2 \\
+    v & 3 & 4
+\end{tabular}
+
+There exist a path from $u$ to $v$:
+$u \rightarrow s \rightarrow v$.
+
+\subsection*{22.3-9}
+
+Consider the same case as the solution of 22.3-8.
+
+\subsection*{22.3-10}
+
+Directed graph:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+struct Edge
+{
+    int vertex_from;
+    int vertex_to;
+    enum Type { kTree, kBack, kForward, kCross } type;
+
+    Edge(int vertex_from, int vertex_to, Type type) 
+        : vertex_from(vertex_from), vertex_to(vertex_to), type(type) {}
+};
+
+void DFSVisit(Graph& graph, int u_idx, int& time, std::list<Edge>& result)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (v.color == Color::kWhite)
+        {
+            result.emplace_back(u_idx, v_idx, Edge::kTree);
+            v.prev = u_idx;
+            DFSVisit(graph, v_idx, time, result);
+        }
+        else if (v.color == Color::kGray)
+        {
+            result.emplace_back(u_idx, v_idx, Edge::kBack);
+        }
+        else if (u.discovery_time < v.discovery_time)
+        {
+            result.emplace_back(u_idx, v_idx, Edge::kForward);
+        }
+        else
+        {
+            result.emplace_back(u_idx, v_idx, Edge::kCross);
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+}
+
+std::list<Edge> DFS(Graph& graph)
+{
+    int time, u_idx;
+    std::list<Edge> result;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (graph.vertices[u_idx].color == Color::kWhite)
+        {
+            DFSVisit(graph, u_idx, time, result);
+        }
+    }
+    return result;
+}
+\end{minted}
+
+Undirected graph:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisitUndirected(Graph& graph, int u_idx, int& time, std::list<Edge>& result)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (u.prev != v_idx)
+        {
+            if (v.color == Color::kWhite)
+            {
+                result.emplace_back(u_idx, v_idx, Edge::kTree);
+                v.prev = u_idx;
+                DFSVisitUndirected(graph, v_idx, time, result);
+            }
+            else if (v.color == Color::kGray)
+            {
+                result.emplace_back(u_idx, v_idx, Edge::kBack);
+            }
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+}
+
+std::list<Edge> DFSUndirected(Graph& graph)
+{
+    int time, u_idx;
+    std::list<Edge> result;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (graph.vertices[u_idx].color == Color::kWhite)
+        {
+            DFSVisitUndirected(graph, u_idx, time, result);
+        }
+    }
+    return result;
+}
+\end{minted}
+
+\subsection*{22.3-11}
+
+Consider the following directed graph:
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=2em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (s) at (0,0) {$s$};
+    \node[vertex] (u) at (2,0) {$u$};
+    \node[vertex] (v) at (4,0) {$v$};
+    \draw[edge] (u) to (s);
+    \draw[edge] (v) to (u);
+\end{tikzpicture}
+
+Let $s$ be the first source vertex, 
+let $u$ be the second,
+and let $v$ be the third.
+Thus, we have the following result of DFS:
+
+\begin{tabular}{c|c|c}
+    vetex & d & f \\
+    \hline
+    s & 1 & 2 \\
+    u & 3 & 4 \\
+    v & 5 & 6
+\end{tabular}
+
+There exist a depth-first tree containing only $u$.
+
+\subsection*{22.3-12}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisitUndirected(Graph& graph, int u_idx, int& time, int cc)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    u.connecting_component = cc;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (u.prev != v_idx)
+        {
+            if (v.color == Color::kWhite)
+            {
+                v.prev = u_idx;
+                DFSVisitUndirected(graph, v_idx, time, cc);
+            }
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+}
+
+void DFSUndirected(Graph& graph)
+{
+    int time, u_idx, cc;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    cc = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (graph.vertices[u_idx].color == Color::kWhite)
+        {
+            ++cc;
+            DFSVisitUndirected(graph, u_idx, time, cc);
+        }
+    }
+}
+\end{minted}
+
+\subsection*{22.3-13}
+
+We can run DFS multiple times with source on each vertex on the graph.
+A directed graph is not signly connected
+if there exist some forward edges or 
+cross edges that connect vertices in the same depth-first tree
+(i.e. in the same component).
+Hence, we have the following algorithm runs in $O(|V|(|V| + |E|))$:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+bool DFSVisit(Graph& graph, int u_idx, int& time)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (v.color == Color::kWhite)
+        {
+            v.prev = u_idx;
+            DFSVisit(graph, v_idx, time);
+        }
+        else if (v.color == Color::kBlack)
+        {
+            return false;
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+    return true;
+}
+
+bool DFSWithSrc(Graph& graph, int src_vertex)
+{
+    int time, u_idx;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    return DFSVisit(graph, src_vertex, time);
+}
+
+bool CheckSinglyConnected(Graph& graph)
+{
+    int u_idx;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (DFSWithSrc(graph, u_idx) == false)
+            return false; 
+    }
+    return true;
+}
+\end{minted}
+
 \centerline{\textbf{Updating...}}
 
 \end{document}

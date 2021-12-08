@@ -9,6 +9,7 @@
 \usepackage{amsmath}
 \usepackage{tikz-qtree}
 \usepackage{fancyhdr}
+\usepackage{diagbox}
 
 \usetikzlibrary{matrix,arrows,fit} 
 
