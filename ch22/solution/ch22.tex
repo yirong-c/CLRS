@@ -1330,6 +1330,308 @@ bool CheckSinglyConnected(Graph& graph)
 }
 \end{minted}
 
+\section*{22.4}
+
+\subsection*{22.4-1}
+
+\begin{tabular}{c|c|c}
+    vetex & d & f \\
+    \hline
+    m & 1 & 20 \\
+    n & 21 & 26 \\
+    o & 22 & 25 \\
+    p & 27 & 28 \\
+    q & 2 & 5 \\
+    r & 6 & 19 \\
+    s & 23 & 24 \\
+    t & 3 & 4 \\
+    u & 7 & 8 \\
+    v & 10 & 17 \\
+    w & 11 & 14 \\
+    x & 15 & 16 \\
+    y & 9 & 18 \\
+    z & 12 & 13 \\
+\end{tabular}
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=1em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (p) at (0,0) {$p$};
+    \node[vertex] (n) at (1,0) {$n$};
+    \node[vertex] (o) at (2,0) {$o$};
+    \node[vertex] (s) at (3,0) {$s$};
+    \node[vertex] (m) at (4,0) {$m$};
+    \node[vertex] (r) at (5,0) {$r$};
+    \node[vertex] (y) at (6,0) {$y$};
+    \node[vertex] (v) at (7,0) {$v$};
+    \node[vertex] (x) at (8,0) {$x$};
+    \node[vertex] (w) at (9,0) {$w$};
+    \node[vertex] (z) at (10,0) {$z$};
+    \node[vertex] (u) at (11,0) {$u$};
+    \node[vertex] (q) at (12,0) {$q$};
+    \node[vertex] (t) at (13,0) {$t$};
+    \draw[->, bend left] (p) to (o);
+    \draw[->, bend left] (p) to (s);
+    \draw[->, bend left] (p) to (z);
+    \draw[->] (n) to (o);
+    \draw[->, bend right] (n) to (q);
+    \draw[->, bend right] (n) to (u);
+    \draw[->, bend left] (o) to (r);
+    \draw[->] (o) to (s);
+    \draw[->, bend left] (o) to (v);
+    \draw[->, bend right] (s) to (r);
+    \draw[->, bend left] (m) to (q);
+    \draw[->] (m) to (r);
+    \draw[->, bend left] (m) to (x);
+    \draw[->, bend right] (r) to (u);
+    \draw[->] (r) to (y);
+    \draw[->] (y) to (v);
+    \draw[->, bend left] (v) to (w);
+    \draw[->] (v) to (x);
+    \draw[->] (w) to (z);
+    \draw[->, bend left] (u) to (t);
+    \draw[->] (q) to (t);
+\end{tikzpicture}
+
+\subsection*{22.4-2}
+
+We can perform topological sort on $G$
+and utilize dynamic programming to count simple path in linear time.
+
+Denote $c[u]$ as the number of simple paths from $u$ to $t$ in $G$.
+We have the following recursive solution:
+
+\begin{equation*}
+    c[u] = 
+    \begin{cases}
+        1 & \text{if $u = t$,} \\
+        0 & \text{if $u.f < t.f$,} \\
+        \sum\limits_{(u,v) \in E} c[v] & \text{if $u.f > t.f$.}
+    \end{cases}
+\end{equation*}
+
+The following bottom-up algorithm runs in $O(V + E)$:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+// graph must be DAG
+// s and t must be in the graph
+int CountSimplePaths(Graph& graph, int s, int t)
+{
+    int u;
+    std::vector<int> dp_count(graph.size, 0);
+    std::list<int> topo_sort = TopologicalSort(graph);
+    // find t
+    std::list<int>::reverse_iterator rit = topo_sort.rbegin();
+    while (rit != topo_sort.rend())
+    {
+        if (*rit == s)
+        {
+            return 0;
+        }
+        else if (*rit == t)
+        {
+            ++rit;
+            break;
+        }
+        ++rit;
+    }
+    // perform dp
+    dp_count[t] = 1;
+    while (rit != topo_sort.rend())
+    {
+        u = *rit;
+        for (int v : graph.adj[u])
+        {
+            dp_count[u] += dp_count[v];
+        }
+        if (u == s)
+            break;
+        ++rit;
+    }
+    return dp_count[s];
+}
+\end{minted}
+
+\subsection*{22.4-3}
+
+A forest contains multiple free trees (components).
+By Theorem B.2, $|E| = |V| - 1$ in a free tree.
+Hence, we can perform DFS on the graph.
+For each component,
+if the number of edges is more than the number of vertices,
+we can determine the graph contains a cycle.
+Hence, we can bound the running time in $O(|V| + |V|) = O(|V|)$.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+bool DFSVisit(Graph& graph, int u_idx, int& time)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (u.prev != v_idx)
+        {
+            if (v.color == Color::kWhite)
+            {
+                v.prev = u_idx;
+                DFSVisit(graph, v_idx, time);
+            }
+            else if (v.color == Color::kGray)
+            {
+                return false;
+            }
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+    return true;
+}
+
+bool IsAcyclic(Graph& graph)
+{
+    int time, u_idx;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (graph.vertices[u_idx].color == Color::kWhite)
+        {
+            if (DFSVisit(graph, u_idx, time) == false)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+\end{minted}
+
+\subsection*{22.4-4}
+
+The claim is incorrect.
+Observed ``bad'' edges produced by topological sort 
+are exactly back edges classified durning DFS. 
+However, DFS might not minimized back edges.
+Consider the following graph:
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=1em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (u) at (0,2) {$u$};
+    \node[vertex] (v) at (2,2) {$v$};
+    \node[vertex] (w) at (1,0) {$w$};
+    \draw[->] (u) to (v);
+    \draw[->] (w) to (u);
+    \draw[->] (v) to (w);
+    \draw[->, bend right] (w) to (v);
+\end{tikzpicture}
+
+Let $u$ be our source edge of DFS.
+Then we have the following DFS result and topological sort result
+which only has two ``bad'' edges: $(w,u)$ and $(w,v)$.
+
+\begin{tabular}{c|c|c}
+    vetex & d & f \\
+    \hline
+    u & 1 & 6 \\
+    v & 2 & 5 \\
+    w & 3 & 4 \\
+\end{tabular}
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=1em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (u) at (0,0) {$u$};
+    \node[vertex] (v) at (2,0) {$v$};
+    \node[vertex] (w) at (4,0) {$w$};
+    \draw[->] (u) to (v);
+    \draw[->, bend right] (w) to (u);
+    \draw[->] (v) to (w);
+    \draw[->, bend right] (w) to (v);
+\end{tikzpicture}
+
+However, if we let $w$ be out source edge of DFS and 
+let $u$ be in front of $v$ in the adjacency list of $w$,
+we have the following DFS result and topological sort result
+which has only one ``bad'' edge: $(v, w)$.
+
+\begin{tabular}{c|c|c}
+    vetex & d & f \\
+    \hline
+    u & 2 & 5 \\
+    v & 3 & 4 \\
+    w & 1 & 6 \\
+\end{tabular}
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=1em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (w) at (0,0) {$w$};
+    \node[vertex] (u) at (2,0) {$u$};
+    \node[vertex] (v) at (4,0) {$v$};
+    \draw[->] (u) to (v);
+    \draw[->] (w) to (u);
+    \draw[->, bend right] (v) to (w);
+    \draw[->, bend right] (w) to (v);
+\end{tikzpicture}
+
+\subsection*{22.4-5}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+std::list<int> TopologicalSort(Graph& graph)
+{
+    int u;
+    std::list<int> topo_sort;
+    std::vector<int> in_degree_counter(graph.size, 0);
+    std::queue<int> zero_in_degree;
+    // compute in-degree
+    for (AdjList& adj_list : graph.adj)
+    {
+        for (int v : adj_list)
+        {
+            ++in_degree_counter[v];
+        }
+    }
+    // init queue contains vertices with zero in-degree
+    for (u = 0; u < graph.size; ++u)
+    {
+        if (in_degree_counter[u] == 0)
+        {
+            zero_in_degree.push(u);
+        }
+    }
+    // perform topological sort
+    while (zero_in_degree.empty() == false)
+    {
+        u = zero_in_degree.front();
+        zero_in_degree.pop();
+        topo_sort.push_back(u);
+        for (int v : graph.adj[u])
+        {
+            --in_degree_counter[v];
+            if (in_degree_counter[v] == 0)
+            {
+                zero_in_degree.push(v);
+            }
+        }
+    }
+    return topo_sort;
+}
+\end{minted}
+
+If the graph has cycles, the array (std::vector) ``in\_degree\_counter'' 
+contains non-zero values at the end of the procedure,
+so there exist some vertices not contained in
+the result of topological sort.
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
