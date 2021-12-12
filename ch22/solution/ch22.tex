@@ -1632,6 +1632,443 @@ contains non-zero values at the end of the procedure,
 so there exist some vertices not contained in
 the result of topological sort.
 
+\section*{22.5}
+
+\subsection*{22.5-1}
+
+The number of strongly connected components of a graph will 
+stay same or decrease if a new edge is added.
+
+\subsection*{22.5-2}
+
+By Exercise 22.3-2, the result of $\proc{DFS}(G)$ (the first DFS) is the following:
+
+\begin{tabular}{c|c|c}
+    vetex & d & f \\
+    \hline
+    q & 1 & 16 \\
+    s & 2 & 7 \\
+    v & 3 & 6 \\
+    w & 4 & 5 \\
+    t & 8 & 15 \\
+    x & 9 & 12 \\
+    z & 10 & 11 \\
+    y & 13 & 14 \\
+    r & 17 & 20 \\
+    u & 18 & 19 \\
+\end{tabular}
+
+Hence $\proc{DFS}(G^T)$ (the second DFS), in the main loop of DFS, 
+consider the vetices in the following order:
+r u q t y x z s v w.
+
+Therefore, the strongly connected components of the graph is the following:
+
+\begin{description}
+    \item r
+    \item u
+    \item q y t
+    \item x z
+    \item s w v
+\end{description}
+
+\subsection*{22.5-3}
+
+The claim is incorrect.
+
+Construct the sequence $A = \langle a_1, a_2, \cdots, a_{|V|} \rangle$
+where $a_i \in V$ for $i \in [1, |V|]$.
+WLOG, let $a_i.f$ to be strictly increase for $i \in [1, |V|]$.
+Let $C$ be arbitrary strongly connected component.
+Let $B = \langle b_1, b_2, \cdots, b_{|C|} \rangle$ be the subsequence of $A$
+such that elements in $B$ are vertex of $C$.
+Note that $f(C) = \mathop{\func{max}}\limits_{u \in C} \{ u.f \}$.
+This says $f(C) = b_{|C|}.f$.
+In the main loop of the second DFS,
+the procedure consider the vetices in the order of $A$.
+This says, in the case of $|C| > 1$,
+the procedure will consider $b_1$ before consider $b_{|C|}$,
+unlike the process in $\proc{Strongly-Connected-Components}$.
+However, we have $b_1.f = \mathop{\func{min}}\limits_{u \in C} \{ u.f \}$.
+Let $C'$ be a strongly connected component that is distinct from $C$.
+Hence, by lemma 22.14, there might be a edge $(b_1, v)$ where $v \in C'$
+and $b_1.f < v.f \leq f(C') < f(C)$ (especially $b_1.f < f(C')$),
+which means depth-first forest produced by the second DFS
+might not output strongly connected components correctly.
+
+Consider the following counterexample:
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=2em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (s) at (1,0) {$s$};
+    \node[vertex] (u) at (0,2) {$u$};
+    \node[vertex] (v) at (2,2) {$v$};
+    \draw[->] (s) to (u);
+    \draw[->, bend right] (u) to (s);
+    \draw[->] (s) to (v);
+\end{tikzpicture}
+
+Let $s$ be the source vertex in the first DFS, 
+and let $u$ be in front of $v$ in the adjacency list of $s$.
+The result of the first DFS is the following:
+
+\begin{tabular}{c|c|c}
+    vetex & d & f \\
+    \hline
+    s & 1 & 6 \\
+    u & 2 & 3 \\
+    v & 4 & 5 \\
+\end{tabular}
+
+Then the second DFS, in the main loop, 
+will consider the vetices in the following order:
+u v s.
+Hence the second DFS will produce the following depth-first forest:
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=2em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (s) at (2,0) {$s$};
+    \node[vertex] (u) at (0,0) {$u$};
+    \node[vertex] (v) at (4,0) {$v$};
+    \draw[->] (u) to (s);
+    \draw[->] (s) to (v);
+\end{tikzpicture}
+
+The depth-first forest implies u-s-v are in a single strongly connected component,
+which is incorrect.
+
+\subsection*{22.5-4}
+
+\begin{proof}
+    Let $G^{SCC} = (V^{SCC}, E^{SCC})$,
+    Observed that $G$ and $G^T$ have exactly the same strongly connected components
+    (page 616),
+    we have $(G^T)^{SCC} = (V^{SCC}, (E^T)^{SCC})$.
+    To show $G^{SCC} = ((G^T)^{SCC})^T$,
+    we claim $E^{SCC} = ((E^T)^{SCC})^T$.
+
+    ($\subseteq$)
+    Suppose that $(u,v) \in E^{SCC}$.
+    Then $u,v \in V^{SCC}$
+    and $(u,v) \in E$ where $u$ and $v$ are in distinct components.
+    By definition of $E^T$, $(v,u) \in E^T$.
+    Since $u$ and $v$ are in distinct components
+    and $u,v \in V^{SCC}$,
+    we have $(v,u) \in (E^T)^{SCC}$.
+    Hence $(u,v) \in ((E^T)^{SCC})^T$.
+
+    ($\supseteq$)
+    Similar to the proof of ($\subseteq$).
+\end{proof}
+
+\subsection*{22.5-5}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisitComputeComponentGraph(Graph& graph, int u_idx, 
+    std::list<int>& adj_list)
+{
+    Vertex& u = graph.vertices[u_idx];
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (v.component < 0)
+        {
+            v.component = u.component;
+            DFSVisitComputeComponentGraph(graph, v_idx, adj_list);
+        }
+        else if (v.component != u.component)
+        {
+            adj_list.push_back(v.component);
+        }
+    }
+}
+
+std::list< std::list<int> > DFSComputeComponentGraphAdjList(Graph& graph, 
+    const std::list<int>& order)
+{
+    int curr_component, v_idx;
+    std::list< std::list<int> > adj_lists;
+    for (Vertex& u : graph.vertices)
+    {
+        u.component = INT_MIN;
+    }
+    curr_component = 0;// index of component graph start from 0
+    for (int u_idx : order)
+    {
+        Vertex& u = graph.vertices[u_idx];
+        if (u.component < 0)
+        {
+            // DFS find edges (in adj_list) connected with curr_component
+            u.component = curr_component;
+            adj_lists.emplace_back(std::list<int>());
+            DFSVisitComputeComponentGraph(graph, u_idx, adj_lists.back());
+            ++curr_component;
+        }
+    }
+    return adj_lists;
+}
+
+Graph ComponentGraphAdjLists(Graph& graph)
+{
+    int i;
+    std::list<int> topo_sort = TopologicalSort(graph);
+    Graph tranpose = Transpose(graph);
+    std::list< std::list<int> > tranpose_component_graph_adj_lists = 
+        DFSComputeComponentGraphAdjList(tranpose, topo_sort);
+    // build ComponentGraph
+    Graph component_graph(tranpose_component_graph_adj_lists.size());
+    std::list< std::list<int> >::iterator adj_lists_it = 
+        tranpose_component_graph_adj_lists.begin();
+    for (i = 0; i < component_graph.size; ++i)
+    {
+        // adjacency list might exist repeat elements
+        // we delete repeat elements by utilizing counter
+        // Note that the adjacency list is for (G^T)^{SCC}
+        // By Exercise 22.5-4, we showed that G^{SCC} = ((G^T)^{SCC})^T
+        std::vector<bool> counter(i + 1, false);
+        for (std::list<int>::iterator it = adj_lists_it->begin();
+            it != adj_lists_it->end(); ++it)
+        {
+            if (counter[*it] == false)
+            {
+                counter[*it] = true;
+                component_graph.adj[*it].push_back(i);
+            }
+        }
+        ++adj_lists_it;
+    }
+    for (i = 0; i < graph.size; ++i)
+    {
+        component_graph.vertices_lists_from_original_graph
+            [tranpose.vertices[i].component].push_back(i);
+    }
+    return component_graph;
+}
+\end{minted}
+
+\subsection*{22.5-6}
+
+Notice that a simple directed cycle constructed by vertices of the component
+minimized edges in each component.
+We can utilize the procedure in 25.5-5 to get component graph in $O(V + E)$.
+Therefore, we have the following algorithm which takes $O(V + E)$ time:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+Graph CreateGraphExercise22_5_6(Graph& graph)
+{
+    int component_idx, u;
+    Graph component_graph = ComponentGraphAdjLists(graph);
+    Graph result_graph(graph.size);
+    for (component_idx = 0; component_idx < component_graph.size; ++component_idx)
+    {
+        // build cycle
+        std::list<int>& vertices = 
+            component_graph.vertices_lists_from_original_graph[component_idx];
+        if (vertices.front() != vertices.back())
+        {
+            u = vertices.back();
+            for (int v : vertices)
+            {
+                result_graph.adj[u].push_back(v);
+                u = v;
+            }
+        }
+        // build edges among components
+        u = vertices.front();
+        std::list<int>& adj = component_graph.adj[component_idx];
+        for (int c : adj)
+        {
+            int v = component_graph.vertices_lists_from_original_graph[c].front();
+            result_graph.adj[u].push_back(v);
+        }
+    }
+    return result_graph;
+}
+\end{minted}
+
+\subsection*{22.5-7}
+
+Let $G = (V,E)$ and $G^{SCC} = (V^{SCC},E^{SCC})$.
+Suppose that $G$ has strongly connected components $C_1,C_2,\cdots,C_k$.
+The vertex set $V^{SCC}$ is $\{ s_1, s_2, \cdots, s_k \}$,
+and it contains a vertex $s_i$ for each strongly connected component $C_i$ of $G$.
+
+\begin{lemma}
+    Let $x \in C_i$ and $y \in C_j$.
+    $x \rightsquigarrow y \Longleftrightarrow s_i \rightsquigarrow s_j$ 
+\end{lemma}
+
+\begin{proof}
+    ($\Longrightarrow$)
+    Suppose that $x \rightsquigarrow y$.
+    Then $\exists w_1, w_2, \cdots, w_p \in V$ such that
+    $(x,w_1), (w_1,w_2), \cdots, (w_p,y) \in E$.
+    Suppose that $c_1, c_2, \cdots c_p$ are the indexs of components contain $w_1, w_2, \cdots, w_p$;
+    i.e. $w_l \in C_{c_l}$ for all $l \in [1,p]$.
+    By definition of $E^{SCC}$,
+    we have $(s_i,s_{c_1}),(s_{c_1},s_{c_2}), \cdots, (s_{c_j},s_j) \in E^{SCC}$.
+    Thus, $s_i \rightsquigarrow s_j$.
+
+    ($\Longleftarrow$)
+    Suppose that $s_i \rightsquigarrow s_j$.
+    Then $\exists w_1, w_2, \cdots, w_p \in V^{SCC}$ such that
+    $(s_i,w_1), (w_1,w_2), \cdots, (w_p,s_j) \in E^{SCC}$.
+    Suppose that $c_1, c_2, \cdots c_p$ are the indexs of components $w_1, w_2, \cdots, w_p$;
+    i.e. $w_l = s_{c_l}$ for all $l \in [1,p]$.
+    Pick arbitrary $u_l \in C_{c_l}$ for all $l \in [1,p]$.
+    By definition of strongly connected components and $E^{SCC}$,
+    we have $x \rightsquigarrow u_1 \rightsquigarrow u_2 \cdots u_p \rightsquigarrow y$.
+    Thus, $x \rightsquigarrow y$.
+\end{proof}
+
+\begin{lemma}
+    $G$ is semiconnected if and only if
+    $G^{SCC}$ is semiconnected.
+\end{lemma}
+
+\begin{proof}
+    ($\Longrightarrow$)
+    Suppose that $G$ is semiconnected.
+    That is $\forall x,y \in V, x \rightsquigarrow y \vee y \rightsquigarrow x$.
+    We prove by induction on the number of strongly connected components of $G$.
+    Our inductive hypothesis is 
+    $\forall u,v \in \{ s_1, s_2, \cdots, s_k \}, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    The base case is when $G$ containes no vertex, which is trivial.
+    Suppose that 
+    $\forall u,v \in \{ s_1, s_2, \cdots, s_k \}, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    Let $x \in C_t$ where $t \in [1,k]$ and $y \in C_{k+1}$ be arbitrary choices.
+    Since $x,y \in V$, we have $x \rightsquigarrow y \vee y \rightsquigarrow x$.
+    If $x \rightsquigarrow y$, then, by lemma 4, we have $s_t \rightsquigarrow s_{k+1}$.
+    Similarily, if $y \rightsquigarrow x$, we have $s_{k+1} \rightsquigarrow s_t$.
+    Since $t \in [1,k]$ is a arbitrary choice, by induction,
+    we conclude $G^{SCC}$ is semiconnected.
+
+    ($\Longleftarrow$)
+    Suppose that $G^{SCC}$ is semiconnected.
+    That is $\forall x,y \in V^{SCC}, x \rightsquigarrow y \vee y \rightsquigarrow x$.
+    We prove by induction on the number of strongly connectly components of $G$.
+    Our inductive hypothesis is 
+    $\forall u,v \in C_1 \cup C_2 \cdots C_k, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    The base case is when $G$ containes no vertex, which is trivial.
+    Suppose that 
+    $\forall u,v \in C_1 \cup C_2 \cdots C_k, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    Let $x \in C_t$ where $t \in [1,k]$ and $y \in C_{k+1}$ be arbitrary choices.
+    Since $s_t,s_{k+1} \in V^{SCC}$, we have 
+    $s_t \rightsquigarrow s_{k+1} \vee s_{k+1} \rightsquigarrow s_t$.
+    If $s_t \rightsquigarrow s_{k+1}$, then, by lemma 4, we have $x \rightsquigarrow y$.
+    Similarily, if $s_{k+1} \rightsquigarrow s_t$, we have $y \rightsquigarrow x$.
+    Since $t \in [1,k]$ is a arbitrary choice, by induction,
+    we conclude $G$ is semiconnected.
+\end{proof}
+
+\begin{lemma}
+    $G$ is semiconnected if and only if
+    we are able to put all elements of $V$ in a sequence 
+    $\langle v_1, v_2, \cdots, v_{|V|} \rangle$ such that 
+    $v_1 \rightsquigarrow v_2 \cdots v_{|V|-1} \rightsquigarrow v_{|V|}$.
+\end{lemma}
+
+\begin{proof}
+    ($\Longrightarrow$)
+    Suppose that $G$ is semiconnected.
+    That is $\forall u,v \in V, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    Let $A = \langle a_1, a_2, \cdots, a_k \rangle$ be a sequence.
+    We prove by induction on $k$.
+    The base case is $k=0$, which is trivial.
+    Suppose that
+    $a_1 \rightsquigarrow a_2 \cdots a_{k-1} \rightsquigarrow a_k$.
+    Pick arbitrary element $u \in V$ and $u \notin A$.
+    If $\exists i \in [1,k)$ such that 
+    $a_i \rightsquigarrow u \rightsquigarrow a_{i+1}$,
+    then we insert $u$ between $a_i$ and $a_{i+1}$;
+    otherwise, insert $u$ before $a_1$ or after $a_k$ appropriately.
+    Re-assigning index of $A$,
+    we get $A = \langle a_1, a_2, \cdots, a_k, a_{k+1} \rangle$
+    where $a_1 \rightsquigarrow a_2 \cdots a_k \rightsquigarrow a_{k+1}$.
+
+    ($\Longleftarrow$)
+    Immediately.
+\end{proof}
+
+\begin{lemma}
+    Let $G$ be arbitrary DAG.
+    If we are able to put all elements of $V$ in a sequence 
+    $\langle v_1, v_2, \cdots, v_{|V|} \rangle$ such that 
+    $v_1 \rightsquigarrow v_2 \cdots v_{|V|-1} \rightsquigarrow v_{|V|}$,
+    then $\{ (v_1,v_2), (v_2,v_3), \cdots, (v_{|V|-1}, v_{|V|}) \} \subseteq E$ and
+    the result of topological sort order of $G$ is
+    $v_1, v_2, \cdots, v_{|V|}$.
+\end{lemma}
+
+\begin{proof}
+    Suppose that $v_1 \rightsquigarrow v_2 \cdots v_{|V|-1} \rightsquigarrow v_{|V|}$.
+    If $|V|=1$, the lemma is trivial correct.
+    Let integer $i \in [1,|V|)$.
+    Assume $(v_i, v_{i+1}) \notin E$, for the purpose of contradiction.
+    Then $\exists j \neq i, i+1$ such that 
+    $v_i \rightsquigarrow v_j \rightsquigarrow v_{i+1}$.
+    If $|V|=2$, we obviously have a contradiction.
+    If $j < i$, we have 
+    $v_i \rightsquigarrow v_j$ and $v_j \rightsquigarrow v_i$.
+    If $j > i+1$, we have 
+    $v_j \rightsquigarrow v_{i+1}$ and $v_{i+1} \rightsquigarrow v_j$.
+    Contradict to $G$ is a DAG.
+    
+    In order to get other order of $\langle v_1, v_2, \cdots, v_{|V|} \rangle$.
+    we must swap some elements in the sequence, and no linear ordering is possible,
+    which contradicts to the definition of topological sort.
+\end{proof}
+
+\begin{theorem}{(Correctness)}
+    Suppose that the result of topological sort order of $G^{SCC}$ is
+    $v_1, v_2, \cdots, v_{|V^{SCC}|}$.
+    $G$ is semiconnected if and only if 
+    $\{ (v_1,v_2), (v_2,v_3), \cdots, (v_{|V^{SCC}|-1}, v_{|V^{SCC}|}) \} \subseteq E^{SCC}$
+\end{theorem}
+
+\begin{proof}
+    $G$ is semiconnected
+    $\overset{\text{lemma 5}}{\Longleftrightarrow}$
+    $G^{SCC}$ is semiconnected
+    $\overset{\text{lemma 6}}{\Longleftrightarrow}$\\
+    $\exists \langle v_1, v_2, \cdots, v_{|V^{SCC}|} \rangle$ where $v \in V^{SCC}$ such that 
+    $v_1 \rightsquigarrow v_2 \cdots v_{|V^{SCC}|-1} \rightsquigarrow v_{|V^{SCC}|}$
+
+    ($\Longrightarrow$)
+    Suppose that $v_1 \rightsquigarrow v_2 \cdots v_{|V^{SCC}|-1} \rightsquigarrow v_{|V^{SCC}|}$.
+    Since $G^{SCC}$ is a DAG,
+    by lemma 7, we have $\{ (v_1,v_2), (v_2,v_3), \cdots, (v_{|V|-1}, v_{|V|}) \} \subseteq E$.
+
+    ($\Longleftarrow$)
+    Suppose that $\{ (v_1,v_2), (v_2,v_3), \cdots, (v_{|V^{SCC}|-1}, v_{|V^{SCC}|}) \} \subseteq E^{SCC}$.
+    Then, obviously, we have $v_1 \rightsquigarrow v_2 \cdots v_{|V^{SCC}|-1} \rightsquigarrow v_{|V^{SCC}|}$.
+\end{proof}
+
+Therefore, we have the following $O(V + E)$ algorithm:
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+bool Semiconnected(Graph& graph)
+{
+    int u;
+    Graph component_graph = ComponentGraphAdjLists(graph);
+    std::list<int> topo_sort = TopologicalSort(component_graph);
+    std::list<int>::iterator it = topo_sort.begin();
+    std::list<int>::iterator end = topo_sort.end();
+    u = *it;
+    ++it;
+    while (it != end)
+    {
+        if (std::find(component_graph.adj[u].begin(), component_graph.adj[u].end(), 
+            *it) == component_graph.adj[u].end())
+            return false;
+        u = *it;
+    }
+    return true;
+}
+\end{minted}
+
 \centerline{\textbf{Updating...}}
 
 \end{document}

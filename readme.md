@@ -8,6 +8,9 @@ This repo includes
 (in LaTeX and handwriting)
 (the handwriting part will be updated to LaTeX)
 
+For those who starred the repo, we really appreciate it.
+Your star is our motivation to do better.
+
 ## Solution Menu
 
 Chapter 2 - 11 Contents are Uploading and Migrating

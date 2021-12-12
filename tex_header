@@ -22,6 +22,7 @@
 \newtheorem{conjecture}[theorem]{Conjecture}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
 % \setlength{\parindent}{0pt} 
 
 \def\RR{\mathbb{R}}
