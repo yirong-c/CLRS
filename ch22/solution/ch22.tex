@@ -2069,6 +2069,145 @@ bool Semiconnected(Graph& graph)
 }
 \end{minted}
 
+\section*{Chapter 22 Problems}
+
+\subsection*{22-1}
+
+\subsubsection*{(a)}
+
+\begin{claim}
+    There are no back edges in a BFS of an undirected graph.
+\end{claim}
+
+\begin{proof}
+    Let $G = (V,E)$ be an undirected graph.
+    Suppose that $(u,v) \in E$ is a back edge, for the purpose of contradiction.
+    Then $v$ is an ancestor of $u$ in a breadth-first tree.
+    If $u.\pi = v$, then $(v,u)$ should be classified as a tree edge
+    before $(u,v)$ is classifed as a back edge.
+    Now, consider the case of $u.\pi \neq v$.
+    That is $(v,w_1), (w_1,w_2), \cdots, (w_{k-1},w_k), (w_k, u) \in E_\pi$
+    for some $k \in \NN$.
+    We have $u.\pi = w_k$.
+    However, since $(u,v) \in E$, we have $(v,u) \in E$,
+    and $(v,u)$ should be searched before $(w_k, u)$ is searched,
+    so $u.\pi$ should be $v$, and $(v,u)$ should be classified as a tree edge.
+    Contradiction.
+\end{proof}
+
+\begin{claim}
+    There are no forward edges in a BFS of an undirected graph.
+\end{claim}
+
+\begin{proof}
+    Let $G = (V,E)$ be an undirected graph.
+    Suppose that $(u,v) \in E$ is a forward edge, for the purpose of contradiction.
+    Then $v$ is an descendant of $u$ in a breadth-first tree.
+    If $v.\pi = u$, then $(u,v)$ should be classified as a tree edge.
+    Now, consider the case of $v.\pi \neq u$.
+    That is $(u,w_1), (w_1,w_2), \cdots, (w_{k-1},w_k), (w_k, v) \in E_\pi$
+    for some $k \in \NN$.
+    We have $v.\pi = w_k$.
+    However, since $(u,v) \in E$,
+    $(u,v)$ should be searched before $(w_k, v)$ is searched,
+    so $v.\pi$ should be $u$, and $(u,v)$ should be classified as a tree edge.
+    Contradiction.
+\end{proof}
+
+\begin{claim}
+    In a BFS of an undirected graph,
+    for each tree edge $(u,v)$, we have $v.d=u.d+1$.
+\end{claim}
+
+\begin{proof}
+    Let $G = (V,E)$ be an undirected graph.
+    Suppose that $(u,v) \in E$ is a tree edge.
+    By definition, $v$ was first discovered by exploring edge $(u,v)$.
+    Hence line 15 of $\proc{BFS}$ must be performed,
+    which is setting $v.d = u.d + 1$.
+\end{proof}
+
+\begin{claim}
+    In a BFS of an undirected graph,
+    for each cross edge $(u,v)$, we have $v.d=u.d$ or $v.d=u.d+1$.
+\end{claim}
+
+\begin{proof}
+    Let $G = (V,E)$ be an undirected graph.
+    Suppose that $(u,v) \in E$ is a cross edge.
+    Suppose that $v.d \neq u.d$ and $v.d \neq u.d+1$,
+    for the purpose of contradiction.
+    That is $u.d > v.d$ or $v.d > u.d +1$.
+    $u.d > v.d$ is impossible since $u$ is discovered before $v$.
+    Note that $u$ and $v$ must be in a same breath-first tree
+    since $(u,v) \in E$ and $G$ is a undirected graph.
+    Since $v.d > u.d + 1$, we have $(w,v) \in E$ 
+    for some $w \in V \setminus \{ u, v \}$
+    where $w.d = v.d - 1$ and $v.\pi = w$.
+    Then $w.d > u.d$.
+    By lemma 22.3, $u$ is dequeued before $w$.
+    Then, when $u$ is dequeued,
+    $w.color$ is WHITE or GRAY,
+    so $v.color$ is WHITE.
+    However, since $(u,v) \in E$ and $v.color$ is WHITE,
+    $v.\pi$ will become $u$,
+    which means $(u,v)$ is a tree edge.
+    Contradiction.
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{claim}
+    There are no forward edges in a BFS of an directed graph.
+\end{claim}
+
+\begin{proof}
+    Same as the proof of claim 10.
+\end{proof}
+
+\begin{claim}
+    In a BFS of an directed graph,
+    for each tree edge $(u,v)$, we have $v.d=u.d+1$.
+\end{claim}
+
+\begin{proof}
+    Same as the proof of claim 11.
+\end{proof}
+
+\begin{claim}
+    In a BFS of an directed graph,
+    for each cross edge $(u,v)$, we have $v.d \leq u.d+1$.
+\end{claim}
+
+\begin{proof}
+    Let $G = (V,E)$ be an directed graph.
+    Suppose that $(u,v) \in E$ is a cross edge.
+    Then $v.color$ must be GRAY or BLACK when $(u,v)$ is explored.
+    Suppose that $v.d > u.d+1$,
+    for the purpose of contradiction.
+    Then, by lemma 22.3, 
+    when $u$ is dequeued, $v$ has not been enqueued yet.
+    This says $v.color$ is WHITE at the time that $u$ is dequeued
+    and at the time that $(u,v)$ is explored.
+    Contradiction.
+
+    Actually, $v.d \leq u.d+1$ must be true for all kind of edge $(u,v)$
+    since ``when $u$ is dequeued, $v$ has not been enqueued''
+    is contradicting to $(u,v) \in E$ directly.
+\end{proof}
+
+\begin{claim}
+    In a BFS of an directed graph,
+    for each back edge $(u,v)$, we have $0 \leq v.d \leq u.d$.
+\end{claim}
+
+\begin{proof}
+    Let $G = (V,E)$ be an directed graph.
+    Suppose that $(u,v) \in E$ is a back edge.
+    Then $v$ is an ancestor of $u$.
+    We have $0 \leq v.d \leq u.d$ immediately.
+\end{proof}
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
