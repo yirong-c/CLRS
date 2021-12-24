@@ -36,3 +36,5 @@
 \pagestyle{fancy}
 \chead{https://github.com/frc123/CLRS\\Thank you very much for starring and contributing}
 \cfoot{https://github.com/frc123/CLRS\\Check out the repo for the most recent update}
+
+\newcommand*\quot[2]{{^{\textstyle #1}\big/_{\textstyle #2}}}

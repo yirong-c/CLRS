@@ -2208,6 +2208,731 @@ bool Semiconnected(Graph& graph)
     We have $0 \leq v.d \leq u.d$ immediately.
 \end{proof}
 
+\subsection*{22-2}
+
+We assume $G = (V,E)$ is a simple, connected, undirected graph
+in this problem.
+
+\subsubsection*{(a)}
+
+\begin{claim}
+    Let $G = (V,E)$ be a connected, undirected graph.
+    Let $s$ be the root of $G_\pi$.
+    $s$ is an articulation point of $G$ if and only if
+    $s$ has at least two children in $G_\pi$.
+\end{claim}
+
+\begin{proof}
+    ($\Longrightarrow$)
+    Suppose that $s \in V$ is the root of $G_\pi$ 
+    and is an articulation point of $G$.
+    Let $G' = (V',E')$ be the graph if we remove $s$
+    (i.e. $V' = V \setminus \{ s \}$ 
+    and $E'$ does not contain a edge connected $s$).
+    Since $s$ is an articulation point of $G$,
+    there exists two non-empty, disjoint set $W, U \subseteq V'$
+    (i.e. $W, U \neq \emptyset$ and $W \cap U = \emptyset$)
+    such that for every $w \in W$ and $u \in U$,
+    $w \not\rightsquigarrow u$ and $u \not\rightsquigarrow w$
+    in $G'$.
+
+    Suppose that $v \in V$ is the only one child $s$ has in $G.\pi$,
+    for the purpose of contradiction.
+    Let $E.\pi' = E.\pi \setminus \{ (s,v) \}$
+    and $G.\pi' = (V',E.\pi')$.
+    Then $E.\pi' \subseteq E'$
+    since $(s,v)$ is the only edge in $E.\pi$ that connects $s$.
+    Since $G$ is a connected, undirected graph,
+    by Theorem 22.10,
+    $G.\pi$ must be connected also.
+    WLOG, assume $v \in W$ and $v \notin U$.
+    Let $u$ be any vertex in $U$.
+    Then $u$ is a descendant of $v$ in $G.\pi$
+    since $G.\pi$ is a tree 
+    where $s$ is the root and $v$ is the only child of $s$.
+    Then there exist a path $v \rightsquigarrow u$ in $G.\pi$
+    that does not visit $s$.
+    Thus, such path is in $G.\pi'$ also.
+    Since $E.\pi' \subseteq E'$,
+    this path is in $G'$.
+    Contradiction.
+
+    ($\Longleftarrow$)
+    Suppose that $s$ be the root of $G_\pi$.
+    Let $C \subseteq V$ contains children of $s$.
+    Let $u,w \in C$ where $u \neq w$.
+    Let $U$ contains vertices in the subtree rooted at $u$.
+    Let $W$ contains vertices in the subtree rooted at $w$.
+    We claim for all $x \in U$ and $y \in W$,
+    $x \rightsquigarrow y$ in $G$ must visit $s$.
+    Then removing $s$ will lead to disconnection of $U$ and $W$.
+
+    Suppose that there exist a path $x \rightsquigarrow y$ in $G$
+    that does not visit $s$, for the purpose of contradiction.
+    Then $(a,b) \in E$ for some $a \in U$ and $b \in W$.
+    WLOG, assume $u$ is explored before $w$ in DFS.
+    By Theorem 22.9 (White-path theorem),
+    $w$ is a descendant of $u$ in $G.\pi$,
+    which contradicts to $u,w$ is children of $s$.
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{proof}
+    Let $v$ be a nonroot vertex of $G_\pi$.
+    
+    ($\Longrightarrow$)
+    Suppose that $v$ is an articulation point of $G$.
+    $v$ must have a child; 
+    otherwise, removing $v$ will even not lead $G_\pi$ disconnected,
+    and $G$ will naturally be disconnected.
+    For the purpose of contradiction,
+    suppose that for every subtree rooted at a child of $v$,
+    there exist a vertex $u$ in this subtree such that 
+    there is a back edge from $u$ to a proper ancestor of $v$.
+    Then removing $v$ will not disconnect $G$.
+    Contradiction.
+
+    ($\Longleftarrow$)
+    Suppose that $v$ has a child $s$ such that
+    there is no back edge from $s$ or any descendant of $s$
+    to a proper ancestor of $v$.
+    Let $S$ be the subtree rooted at $s$ 
+    ($S$ is a subgraph of $G_\pi$).
+    Then there is no back edge from vertices in $S$ 
+    to a proper ancestor of $v$.
+    By Theorem 22.10,
+    every edge from vertices in $S$ to a proper ancestor is a tree edge.
+    Then removing $v$ will cause subtree $S$ being disconnected
+    from other part of $G$.
+\end{proof}
+
+\subsubsection*{(c)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisit(Graph& graph, int u_idx, int& time)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    u.low = u.discovery_time;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (v.color == Color::kWhite)
+        {
+            // tree edge
+            v.prev = u_idx;
+            DFSVisit(graph, v_idx, time);
+            u.low = std::min(u.low, v.low);
+        }
+        else if (v.color == Color::kGray && u.prev != v_idx)
+        {
+            // back edge
+            u.low = std::min(u.low, v.low);
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+}
+
+void DFS(Graph& graph)
+{
+    int time, u_idx;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (graph.vertices[u_idx].color == Color::kWhite)
+        {
+            DFSVisit(graph, u_idx, time);
+        }
+    }
+}
+\end{minted}
+
+\subsubsection*{(d)}
+
+Let $p$ be a nonroot vertex of $G_\pi$.
+$\exists (p,v) \in E_\pi$ such that $v.low \geq p.d \Longleftrightarrow
+\not\exists (u,w) \in E$ such that $(u,w)$ is a back edge
+$\wedge u$ is a descendant of $v \wedge w$ is a proper ancestor of $p
+\Longleftrightarrow p$ is an articulation point
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisit(Graph& graph, int u_idx, int& time, std::list<int>& articulations)
+{
+    bool is_articulation;
+    int tree_edges_counter;
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    u.low = u.discovery_time;
+    is_articulation = false;
+    tree_edges_counter = 0;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (v.color == Color::kWhite)
+        {
+            // tree edge
+            ++tree_edges_counter;
+            v.prev = u_idx;
+            DFSVisit(graph, v_idx, time, articulations);
+            u.low = std::min(u.low, v.low);
+            if (v.low >= u.discovery_time)
+                is_articulation = true;
+        }
+        else if (v.color == Color::kGray && u.prev != v_idx)
+        {
+            // back edge
+            u.low = std::min(u.low, v.low);
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+    if ((u.discovery_time != 1 && is_articulation) || 
+        (u.discovery_time == 1 && tree_edges_counter >= 2))
+        articulations.push_back(u_idx);
+}
+
+std::list<int> DFS(Graph& graph)
+{
+    int time, u_idx;
+    std::list<int> articulations;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (graph.vertices[u_idx].color == Color::kWhite)
+        {
+            DFSVisit(graph, u_idx, time, articulations);
+        }
+    }
+    return articulations;
+}
+\end{minted}
+
+\subsubsection*{(e)}
+
+\begin{proof}
+    ($\Longrightarrow$)
+    Suppose that $(u,v)$ is an bridge,
+    and suppose that $(u,v)$ lies on a simple cycle,
+    for the purpose of contradiction.
+    Then there exists at least two simple path from $u$ to $v$.
+    Disconnecting $(u,v)$,
+    we still have a path from $u$ to $v$,
+    which means $G$ is still connected.
+    Contradiction.
+
+    ($\Longleftarrow$)
+    We prove by contrapositive.
+    Suppose that $(u,v)$ is not an bridge.
+    Then removing $(u,v)$ will not disconnect $G$.
+    Hence there must exist another path from $u$ to $v$
+    that does not visit $(u,v)$,
+    so such path and $(u,v)$ form a simple cycle.
+\end{proof}
+
+\subsubsection*{(f)}
+
+$v.low = v.d \Longleftrightarrow
+\not\exists (u,w) \in E$ such that $(u,w)$ is a back edge $\wedge$
+$u$ is a descendant of $v$ $\wedge$ $w.d < v.d$
+$\Longleftrightarrow (v.\pi,v)$ lies on a simple cycle
+$\Longleftrightarrow (v.\pi,v)$ is a bridge
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisit(Graph& graph, int u_idx, int& time, 
+    std::list< std::pair<int, int> >& bridges)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    u.low = u.discovery_time;
+    for (int v_idx : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[v_idx];
+        if (v.color == Color::kWhite)
+        {
+            // tree edge
+            v.prev = u_idx;
+            DFSVisit(graph, v_idx, time, bridges);
+            u.low = std::min(u.low, v.low);
+            if (v.low == v.discovery_time)
+                bridges.push_back({ u_idx, v_idx });
+        }
+        else if (v.color == Color::kGray && u.prev != v_idx)
+        {
+            // back edge
+            u.low = std::min(u.low, v.low);
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+}
+
+std::list< std::pair<int, int> > DFS(Graph& graph)
+{
+    int time, u_idx;
+    std::list< std::pair<int, int> > bridges;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+        u.prev = -1;
+    }
+    time = 0;
+    for (u_idx = 0; u_idx < graph.size; ++u_idx)
+    {
+        if (graph.vertices[u_idx].color == Color::kWhite)
+        {
+            DFSVisit(graph, u_idx, time, bridges);
+        }
+    }
+    return bridges;
+}
+\end{minted}
+
+\subsubsection*{(g)}
+
+\begin{proof}
+    Let $E'$ be the set of the nonbridge edges of $G$ (so $E' \subseteq E$).
+    We prove that the biconnected components of $G$ partition $E'$
+    by defining a relation $\sim$ on $E'$ and showing it is a equivlence class.
+    By the definition of biconnected component,
+    the collection of biconnected components of $G$
+    is exactly $\quot{E'}{\sim}$.
+
+    For all $(u,v), (x,y) \in E'$, we define relation $\sim$ by 
+    $(u,v) \sim (x,y) \Longleftrightarrow (u,v)$ and $(x,y)$
+    lies on a common simple cycle of $G$.
+    
+    (\textit{Reflexivity})
+    Let $(u,v) \in E'$.
+    Then $(u,v)$ is a nonbridge edge.
+    By part (e), $(u,v)$ lies on a simple cycle of $G$.
+    Clearly, $(u,v)$ and $(u,v)$ on a common simple cycle.
+    Hence $(u,v) \sim (u,v)$.
+
+    (\textit{Symmetry})
+    Let $(u,v), (x,y) \in E'$.
+    Suppose that $(u,v) \sim (x,y)$.
+    Then $(u,v)$ and $(x,y)$ lies on a common simple cycle of $G$.
+    It is trivial to show that $(x,y) \sim (u,v)$.
+
+    (\textit{Transitivity})
+    Let $(u,v), (x,y), (a,b) \in E'$.
+    Suppose that $(u,v) \sim (x,y)$ and $(x,y) \sim (a,b)$.
+    Then $(u,v)$ and $(x,y)$ lies on a common simple cycle $C_1$,
+    and $(x,y)$ and $(a,b)$ lies on a common simple cycle $C_2$.
+
+    Define symbol
+    $u \overset{P}{\rightsquigarrow} v$
+    as the path from $u$ to $v$ ($u,v \notin P$)
+    where $P$ is the set contains vertices on the path from $u$ to $v$.
+
+    WLOG (we can swap ``u'' and ``v'' or swap ``x'' and ``y''), 
+    let $u \overset{P_1}{\rightsquigarrow} x$ 
+    and $v \overset{P_2}{\rightsquigarrow} y$ be the simple paths
+    that formed cycle $C_1$, so we have $P_1 \cap P_2 = \emptyset$.
+    WLOG, let $x \overset{P_3}{\rightsquigarrow} a$ 
+    and $y \overset{P_4}{\rightsquigarrow} b$ be the simple paths
+    that formed cycle $C_2$, so we have $P_3 \cap P_4 = \emptyset$.
+    Our goal is to form a simple cycle contains $(u,v)$ and $(a,b)$
+    by forming path $u \overset{A}{\rightsquigarrow} a$
+    and $v \overset{B}{\rightsquigarrow} b$
+    or forming path $u \overset{A}{\rightsquigarrow} b$
+    and $v \overset{B}{\rightsquigarrow} a$
+    where $A \cap B = \emptyset$
+    Note that we can find non-simple paths 
+    for $A$ and $B$
+    where $A \cap B = \emptyset$ first
+    and transform them into simple paths 
+    without changing endpoints and 
+    violating $A \cap B = \emptyset$.
+
+    \textbf{Case 1.}
+    Construct
+    $u \overset{P_5}{\rightsquigarrow} a
+    = u \overset{P_1}{\rightsquigarrow} x \overset{P_3}{\rightsquigarrow} a$,
+    and construct
+    $v \overset{P_6}{\rightsquigarrow} b
+    = v \overset{P_2}{\rightsquigarrow} y \overset{P_4}{\rightsquigarrow} b$.
+    We have $P_5 \cap P_6 = \emptyset$.
+    Transforming $P_5$ and $P_6$ into simple path,
+    we can construct the simple cycle by using path $P_5$ and $P_6$.
+
+    \textbf{Case 2.}
+    $P_5 \cap P_6 \neq \emptyset$.
+    Then $u \overset{P_5}{\rightsquigarrow} a
+    = u \overset{P_{5.1}}{\rightsquigarrow} I_1 \overset{P_{5.2}}{\rightsquigarrow} a$
+    and $v \overset{P_6}{\rightsquigarrow} b
+    = v \overset{P_{6.1}}{\rightsquigarrow} I_2 \overset{P_{6.2}}{\rightsquigarrow} b$
+    where $I_1,I_2$ are sets of vertices 
+    and $P_5 \cap P_6 \subseteq I_1$, $P_5 \cap P_6 \subseteq I_2$,
+    so $(P_{5.1} \cup P_{5.2}) \cap (P_{6.1} \cup P_{6.2}) = \emptyset$.
+    Let $I_1.f$ be the first vertex in $I_1$ on the path $u \overset{P_5}{\rightsquigarrow} a$
+    and $I_1.l$ be the last vertex in $I_1$ on the path.
+    Let $I_2.f$ be the first vertex in $I_2$ on the path $v \overset{P_6}{\rightsquigarrow} b$
+    and $I_2.l$ be the last vertex in $I_2$ on the path.
+    WLOG, assume $I_1.f, I_1.l \in I_2$ and $I_2.f, I_2.l \in I_1$.
+    We claim \textcircled{1} $x \in P_{5.1}$ and $y \in P_{6.2}$,
+    \textcircled{2} $x \in P_{5.2}$ and $y \in P_{6.1}$,
+    or \textcircled{3} $x \in I_1$ and $y \in I_2$, and
+    show it by contradiction.
+    
+    Suppose that $x \in I_1$ and $y \notin I_2$, for the purpose of contradiction.
+    Then $u \overset{P_5}{\rightsquigarrow} a = u \overset{P_{5.1}}{\rightsquigarrow} I_{1.1} 
+    \overset{\emptyset}{\rightsquigarrow} x \overset{\emptyset}{\rightsquigarrow}
+    I_{1.2} \overset{P_{5.2}}{\rightsquigarrow} a$ where $I_1 = I_{1.1} \cup \{ x \} \cup I_{1.2}$.
+    We have $P_1 = P_{5.1} \cup I_{1.1}$, $P_3 = I_{1.2} \cup P_{5.2}$, 
+    and $I_1.f \in I_{1.1}$, $I_1.l \in I_{1.2}$.
+    Since $y \notin I_2$, there are two cases: $I_2 \subseteq P_2$ or $I_2 \subseteq P_4$.
+    If $I_2 \subseteq P_2$, then 
+    $I_1.f \in I_{1.1} \wedge I_1.f \in I_2 \Longrightarrow I_1.f \in I_{1.1} \cap I_2
+    \Longrightarrow I_1.f \in P_1 \cap P_2
+    \Longrightarrow P_1 \cap P_2 \neq \emptyset$,
+    which is a contradiction.
+    If $I_2 \subseteq P_4$, then 
+    $I_1.l \in I_{1.2} \wedge I_1.l \in I_2 \Longrightarrow I_1.l \in I_{1.2} \cap I_2
+    \Longrightarrow I_1.l \in P_3 \cap P_4
+    \Longrightarrow P_3 \cap P_4 \neq \emptyset$,
+    which is a contradiction.
+    We have a contradiction for $x \notin I_1$ and $y \in I_2$ by the similar way,
+    so we conclude $x \in I_1 \Longleftrightarrow y \in I_2$.
+
+    Suppose that $x \in P_{5.1}$ and $y \in P_{6.1}$, for the purpose of contradiction.
+    Then $I_1 \subseteq P_3$ and $I_2 \subseteq P_4$.
+    Since $I_1 \cap I_2 \neq \emptyset$, we have $P_3 \cap P_4 \neq \emptyset$,
+    which is a contradiction.
+    We have a contradiction for $x \in P_{5.2}$ and $y \in P_{6.2}$ by the similar way,
+    so we conclude $x \notin I_1 \Longrightarrow 
+    (x \in P_{5.1} \wedge y \in P_{6.2}) \vee (x \in P_{5.2} \wedge y \in P_{6.1})$.
+
+    We have showed there are only three subcases:
+    \textcircled{1} $x \in P_{5.1}$ and $y \in P_{6.2}$,
+    \textcircled{2} $x \in P_{5.2}$ and $y \in P_{6.1}$,
+    or \textcircled{3} $x \in I_1$ and $y \in I_2$.
+
+    \textcircled{1} Suppose that $x \in P_{5.1}$ and $y \in P_{6.2}$.
+    WLOG, assume $I = I_1 = I_2$.
+    Then there are two subsubcases according to whether or not 
+    $P_1 \cap P_{5.2} = \emptyset \wedge P_4 \cap P_{6.1} = \emptyset$.
+    If $P_1 \cap P_{5.2} = \emptyset \wedge P_4 \cap P_{6.1} = \emptyset$,
+    we consider paths $u \overset{A}{\rightsquigarrow} b = u \overset{P_1}{\rightsquigarrow} x 
+    \overset{\emptyset}{\rightsquigarrow} y \overset{P_4}{\rightsquigarrow} b$ and 
+    $v \overset{B}{\rightsquigarrow} a = 
+    v \overset{P_{6.1}}{\rightsquigarrow} I \overset{P_{5.2}}{\rightsquigarrow} a$.
+    We claim $A \cap B = \emptyset$ so we have a simple cycle contains $(u,v)$ and $(a,b)$.
+    We need to show that $(P_1 \cup \{ x, y \} \cup P_4) \cap (P_{6.1} \cup I \cup P_{5.2}) = \emptyset$.
+    Since $P_1 \cap P_2 = \emptyset$, $P_3 \cap P_4 = \emptyset$, 
+    and $u \overset{P_1}{\rightsquigarrow} x$, $v \overset{P_2}{\rightsquigarrow} y$,
+    $x \overset{P_3}{\rightsquigarrow} a$, $y \overset{P_4}{\rightsquigarrow} b$
+    are simple paths,
+    We just need to show that $(P_1 \cup P_4) \cap (P_{6.1} \cup P_{5.2}) = \emptyset$.
+    Since $(P_{5.1} \cup P_{5.2}) \cap (P_{6.1} \cup P_{6.2}) = \emptyset$,
+    we have $P_1 \cup P_{6.1} = \emptyset$ and $P_4 \cup P_{5.2} = \emptyset$.
+    By the hypothesis of the subsubcase, we have\
+    $P_1 \cup P_{5.2} = \emptyset$ and $P_4 \cup P_{6.1} = \emptyset$.
+    Thus, we have showed $A \cap B = \emptyset$ in this subsubcase.
+    If $P_1 \cap P_{5.2} \neq \emptyset \vee P_4 \cap P_{6.1} \neq \emptyset$,
+    and, WLOG, we assume $P_4 \cap P_{6.1} \neq \emptyset$,
+    then $\exists s \in P_4 \cap P_{6.1}$.
+    Consider paths $u \overset{A}{\rightsquigarrow} a = u \overset{P_5}{\rightsquigarrow} a$
+    and $v \overset{B}{\rightsquigarrow} b = 
+    v \overset{P_7}{\rightsquigarrow} s \overset{P_8}{\rightsquigarrow} a$
+    where $P_7 \subseteq P_{6.1}$ and $P_8 \subseteq P_4$.
+    We claim $A \cap B = \emptyset$ so we have a simple cycle contains $(u,v)$ and $(a,b)$.
+    We need to show that $P_5 \cap (P_7 \cup \{ s \} \cup P_8) = \emptyset$.
+    Since $(P_{5.1} \cup P_{5.2}) \cap (P_{6.1} \cup P_{6.2}) = \emptyset$
+    and $P_7 \cup \{ s \} \cup P_8 \subseteq P_{6.1} \cup P_{6.2}$,
+    we have $(P_{5.1} \cup P_{5.2}) \cap (P_7 \cup \{ s \} \cup P_8) = \emptyset$.
+    Since $P_2$ is a simple path,
+    we have $I \cap (P_7 \cup \{ s \}) = \emptyset$.
+    Since $I \subseteq P_3 \wedge P_8 \subseteq P_4 \wedge P_3 \cap P_4 = \emptyset$,
+    we have $I \cap P_8 = \emptyset$.
+    Hence we have $I \cap (P_7 \cup \{ s \} \cup P_8) = \emptyset$ also,
+    and we have showed $A \cap B = \emptyset$ in this subsubcase.
+    In subcase \textcircled{2}, we can form a simple cycle contains $(u,v)$ and $(a,b)$
+    and prove it in the similar way of \textcircled{1}.
+
+    \textcircled{3} Suppose that $x \in I_1$ and $y \in I_2$.
+    Then we have 
+    $u \overset{P_5}{\rightsquigarrow} a = u \overset{P_{5.1}}{\rightsquigarrow} I_{1.1} 
+    \overset{\emptyset}{\rightsquigarrow} x \overset{\emptyset}{\rightsquigarrow}
+    I_{1.2} \overset{P_{5.2}}{\rightsquigarrow} a$ where $I_1 = I_{1.1} \cup \{ x \} \cup I_{1.2}$
+    and
+    $v \overset{P_6}{\rightsquigarrow} b = v \overset{P_{6.1}}{\rightsquigarrow} I_{2.1} 
+    \overset{\emptyset}{\rightsquigarrow} y \overset{\emptyset}{\rightsquigarrow}
+    I_{2.2} \overset{P_{6.2}}{\rightsquigarrow} b$ where $I_2 = I_{2.1} \cup \{ y \} \cup I_{2.2}$.
+    We have $I_{1.1} \subseteq P_1$, $I_{2.1} \subseteq P_2$, 
+    $I_{1.2} \subseteq P_3$, and $I_{2.2} \subseteq P_4$.
+    Since $P_1 \cap P_2 = \emptyset$ and $P_3 \cap P_4 = \emptyset$,
+    we have $I_{1.1} \cap I_{2.1} = \emptyset$ and $I_{1.2} \cap I_{2.2} = \emptyset$.
+    Since $I_1 \cap I_2 = \emptyset$ and $x \notin I_2$, $y \notin I_1$,
+    we have $I_{1.1} \cap I_{2.2} \neq \emptyset$ or $I_{1.2} \cap I_{2.1} \neq \emptyset$.
+    WLOG, assume $I_{1.2} \cap I_{2.1} \neq \emptyset$.
+    
+    Similar to \textcircled{1},
+    and, WLOG, assume $I = I_{1.2} = I_{2.1}$ and $I' = I_{1.1} = I_{2.2}$,
+    there are two subsubcases: 
+    if $P_1 \cap P_{5.2} = \emptyset \wedge P_4 \cap P_{6.1} = \emptyset$,
+    we have two paths $u \overset{A}{\rightsquigarrow} b = u \overset{P_1}{\rightsquigarrow} x 
+    \overset{\emptyset}{\rightsquigarrow} y \overset{P_4}{\rightsquigarrow} b$ and 
+    $v \overset{B}{\rightsquigarrow} a = 
+    v \overset{P_{6.1}}{\rightsquigarrow} I \overset{P_{5.2}}{\rightsquigarrow} a$
+    and $A \cap B = \emptyset$;
+    if $P_1 \cap P_{5.2} \neq \emptyset \vee P_4 \cap P_{6.1} \neq \emptyset$,
+    and, WLOG, we assume $P_4 \cap P_{6.1} \neq \emptyset$,
+    then $\exists s \in P_4 \cap P_{6.1}$,
+    so we have two paths 
+    $u \overset{A}{\rightsquigarrow} a = u \overset{P_5}{\rightsquigarrow} a$
+    and $v \overset{B}{\rightsquigarrow} b = 
+    v \overset{P_7}{\rightsquigarrow} s \overset{P_8}{\rightsquigarrow} a$
+    where $P_7 \subseteq P_{6.1}$ and $P_8 \subseteq P_{6.2} \subseteq P_4$
+    ($P_8 \cap I' = \emptyset$ since $s \notin I'$; 
+    otherwise $s \in I' \wedge I' \subseteq P_1 \wedge s \in P_{6.1} \wedge P_{6.1} \subseteq P_2
+    \Longrightarrow s \in P_1 \cap P_2$, contradiction)
+    and $A \cap B = \emptyset$.
+    Thus, we have a simple cycle contains $(u,v)$ and $(a,b)$.
+
+    Therefore, $(u,v) \sim (a,b)$.
+    We have showed relation $\sim$ is a equivlence class on $E'$.
+\end{proof}
+
+\subsubsection*{(h)}
+
+\begin{lemma}
+    Let $G = (V,E)$ be a simple, undirected, connected graph
+    and $x,y \in V$.
+    After DFS, we have
+    $(x.d \leq y.d) \Longrightarrow (\exists$ simple path
+    $x \overset{A}{\rightsquigarrow} y$
+    such that $(\forall a \in A, a.d < y.d))$.
+\end{lemma}
+
+\begin{proof}
+    If $x$ is an ancestor of $y$,
+    we can simply connect tree edges between $x$ and $y$,
+    and we have $\forall a \in A, x.d < a.d < y.d$.
+    If $x$ is not an ancestor of $y$,
+    then let $s$ be the vertex where $s$ is the ancestor of $x$ and $y$
+    with the grestest possible $s.d$.
+    Note that such $s$ must exist since $G$ is a connected graph.
+    Construct $x \overset{A}{\rightsquigarrow} y = 
+    x \overset{B}{\rightsquigarrow} s \overset{C}{\rightsquigarrow} y$
+    where $x \overset{B}{\rightsquigarrow} s$ is formed by connecting
+    all tree edges from $x$ to $s$
+    and $s \overset{C}{\rightsquigarrow} y$ is formed by connecting
+    all tree edges from $s$ to $y$,
+    so $A = B \cup \{ s \} \cup C$, and
+    $B$ and $C$ are simple paths.
+    Clearly, $\forall a \in A, a.d < \func{max}(x.d, y.d) = y.d$.
+    We also have $B \cap C = \emptyset$
+    since otherwise $p.d > s.d$ where $p \in B \cap C$,
+    which contradicts $s$ is the candidate with the grestest possible $s.d$.
+    Thus, $x \overset{A}{\rightsquigarrow} y$ is a simple path.
+\end{proof}
+
+\begin{lemma}
+    Let $G = (V,E)$ be a simple, undirected, connected graph
+    and $u,v \in V$ where $u$ is nonroot vertex of $G_\pi$.
+    Let $E'$ be the set of the nonbridge edges of $G$ (so $E' \subseteq E$).
+    $(u,v)$ is a back edge $\Longrightarrow 
+    (u,v) \in E' \wedge (u,v).bcc = (u.\pi,u).bcc$.
+\end{lemma}
+
+\begin{proof}
+    Consider the cycle formed by the path
+    $v \overset{A}{\rightsquigarrow} u.\pi 
+    \overset{\emptyset}{\rightsquigarrow} u 
+    \overset{\emptyset}{\rightsquigarrow} v$.
+    We construct $u \overset{\emptyset}{\rightsquigarrow} v$
+    by using the back edge $(u,v)$
+    and construct $u.\pi \overset{\emptyset}{\rightsquigarrow}$
+    by using the tree edge $(u.\pi,u)$ simply.
+    Since $(u,v)$ is a back edge,
+    we have $v.d < u.d$,
+    so $v.d \leq u.\pi.d$.
+    By lemma 18, $\exists$ simple path
+    $v \overset{A}{\rightsquigarrow} u.\pi$
+    such that $(\forall a \in A, a.d < u.\pi.d)$.
+    Hence $(u,v)$ and $(u.\pi,u)$ lies on the common simple cycle,
+    which means $(u,v).bcc = (u.\pi,u).bcc$.
+\end{proof}
+
+\begin{claim}
+    Let $G = (V,E)$ be a simple, undirected, connected graph
+    and $u,v \in V$ where $u$ is nonroot vertex of $G_\pi$.
+    Let $E'$ be the set of the nonbridge edges of $G$ (so $E' \subseteq E$).
+    After DFS, we have
+    $v.low < u.d \Longleftrightarrow 
+    (u,v) \in E' \wedge (u,v).bcc = (u.\pi,u).bcc$.
+\end{claim}
+
+\begin{proof}
+    ($\Longrightarrow$)
+    Suppose that $v.low < u.d$.
+    
+    \textbf{Case 1.}
+    $(u,v)$ is tree edge.
+
+    Then $u.d = v.d - 1$ and $\exists (z,w) \in E$ such that
+    $(z,w)$ is a back edge $\wedge$ $z$ is a descendant of $v$
+    $\wedge$ $w.d < u.d$.
+    Hence $w.d \leq u.\pi.d$.
+    By lemma 18, $\exists$ simple path
+    $w.d \overset{A}{\rightsquigarrow} u.\pi$
+    such that $(\forall a \in A, a.d < u.\pi.d)$.
+    Consider the cycle formed by the path
+    $w.d \overset{A}{\rightsquigarrow} u.\pi 
+    \overset{\emptyset}{\rightsquigarrow} u 
+    \overset{\emptyset}{\rightsquigarrow} v
+    \overset{B}{\rightsquigarrow} z
+    \overset{\emptyset}{\rightsquigarrow} w$
+    where $v \overset{B}{\rightsquigarrow} z$
+    is formed by connecting all tree edges from $v$ to $z$
+    Since $(\forall a \in A, a.d < u.\pi.d)$,
+    $(\forall b \in B, b.d > v.d)$, and $u.\pi.d + 1 = u.d = v.d - 1$,
+    we conclude $A \cap B = \emptyset$.
+    Therefore, it is a simple cycle, and 
+    $(u,v)$ and $(u.\pi,u)$ lies on the common simple cycle,
+    which means $(u,v).bcc = (u.\pi,u).bcc$.
+
+    \textbf{Case 2.}
+    $(u,v)$ is back edge.
+    
+    Immediately from lemma 19.
+
+    ($\Longleftarrow$)
+    We prove by contrapositive.
+    Suppose that $v.low \geq u.d$.
+    $(u,v)$ cannot be a back edge;
+    otherwise, we have $u.d > v.d \geq v.low$,
+    which contradicts to our hypothesis.
+    Hence $(u,v)$ is a tree edge.
+    Then $u.d = v.d - 1$ and $v.low \geq u.d = v.d - 1$.
+    Since $v.low \leq v.d$, 
+    there are two case: $v.low = v.d$ or $v.low = v.d - 1$.
+
+    \textbf{Case 1.}
+    $v.low = v.d$.
+
+    By part (f), we have $(v.\pi,v) = (u,v)$ is a bridge.
+    Hence $(u,v) \notin E'$.
+
+    \textbf{Case 2.}
+    $v.low = v.d - 1$.
+
+    Then $(v.\pi,v) = (u,v)$ is not a bridge.
+    Hence $(u,v) \notin E'$.
+    Suppose that $(u,v).bcc = (u.\pi,u).bcc$,
+    for the purpose of contradiction.
+    Then $(u,v)$ and $(u.\pi,u)$ lies on a common simple cycle.
+    We already have $u.\pi \overset{\emptyset}{\rightsquigarrow} u 
+    \overset{\emptyset}{\rightsquigarrow} v$
+    formed by tree edges.
+    We also need a back edge $(z,w)$ such that
+    $z$ is a descendant of $v$ and $w.d \leq u.\pi.d$.
+    Then we have $v.low \leq u.\pi.d$,
+    which contradicts to $v.low = v.d - 1 = u.d$.
+\end{proof}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisitLabelVertice(Graph& graph, int u_idx, int& time)
+{
+    Vertex& u = graph.vertices[u_idx];
+    ++time;
+    u.discovery_time = time;
+    u.color = Color::kGray;
+    u.low = u.discovery_time;
+    for (Edge& e : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[e.vertex];
+        if (v.color == Color::kWhite)
+        {
+            // tree edge
+            v.prev = u_idx;
+            DFSVisitLabelVertice(graph, e.vertex, time);
+            u.low = std::min(u.low, v.low);
+        }
+        else if (v.color == Color::kGray && u.prev != e.vertex)
+        {
+            // back edge
+            u.low = std::min(u.low, v.low);
+        }
+    }
+    u.color = Color::kBlack;
+    ++time;
+    u.finishing_time = time;
+}
+
+void DFSVisitLabelEdges(Graph& graph, int u_idx, int last_bcc, int& bcc_counter)
+{
+    Vertex& u = graph.vertices[u_idx];
+    u.color = Color::kGray;
+    for (Edge& e : graph.adj[u_idx])
+    {
+        Vertex& v = graph.vertices[e.vertex];
+        if (v.color == Color::kWhite)
+        {
+            // tree edge
+            if (v.low < u.discovery_time)
+                e.bcc = last_bcc;
+            else if (v.discovery_time == v.low)
+                e.bcc = -1;// bridge edge
+            else
+                e.bcc = ++bcc_counter;
+            
+            DFSVisitLabelEdges(graph, e.vertex, e.bcc, bcc_counter);
+        }
+        else if (v.color == Color::kGray && u.prev != e.vertex)
+        {
+            // back edge
+            e.bcc = last_bcc;
+        }
+    }
+    u.color = Color::kBlack;
+}
+
+// graph: simple, connected, undirected
+void LabelBcc(Graph& graph)
+{
+    int time, bcc_counter;
+    // first DFS: compute prev, discovery_time, finishing_time, 
+    //      low attributes for each vertex
+    graph.vertices[0].prev = -1;
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+    }
+    time = 0;
+    DFSVisitLabelVertice(graph, 0, time);
+    // second DFS: label bcc attributes for each edge
+    for (Vertex& u : graph.vertices)
+    {
+        u.color = Color::kWhite;
+    }
+    bcc_counter = 0;
+    DFSVisitLabelEdges(graph, 0, 0, bcc_counter);
+}
+\end{minted}
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
