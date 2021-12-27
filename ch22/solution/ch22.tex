@@ -2933,6 +2933,180 @@ void LabelBcc(Graph& graph)
 }
 \end{minted}
 
+\subsection*{22-3}
+
+\subsubsection*{(a)}
+
+\begin{lemma}
+    If $\func{in-degree}(v) = \func{out-degree}(v)$
+    for each vertex $v \in V$,
+    then (for all $u \in V$, 
+    $\func{in-degree}(u) = \func{out-degree}(u) \geq 1
+    \Longrightarrow
+    $($\exists$ cycle contains $u$ and 
+    $\func{in-degree}(v) = \func{out-degree}(v)$
+    for each vertex $v \in V$
+    after removing each edges in the cycle)).
+\end{lemma}
+
+Note that the path of a cycle contains at least one edge.
+
+\begin{proof}
+    Suppose that $\func{in-degree}(v) = \func{out-degree}(v)$
+    for each vertex $v \in V$.
+    Let $u \in V$ be arbitrary choice.
+    Suppose that $\func{in-degree}(u) = \func{out-degree}(u) \geq 1$.
+    We inductively construct an cycle 
+    $\langle a_1, a_2, \cdots, a_n \rangle$ 
+    contains $u$, where $k$ is our induction varible.
+    Let $a_1 = u$.
+    Assume we remove the edge after we visited it.
+    The base case is $k = 2$:
+    since $\func{out-degree}(u) \geq 1$,
+    $\exists (u,w) \in E$,
+    so we remove $(u,w)$ and let $a_2 = w$,
+    and we have $\func{in-degree}(a_1) = \func{out-degree}(a_1) + 1$
+    and $\func{in-degree}(a_2) = \func{out-degree}(a_2) - 1$.
+    Assume $\func{in-degree}(a_k) = \func{out-degree}(a_k) - 1$
+    for some $k \geq 2$
+    and $\func{in-degree}(a_j) = \func{out-degree}(a_j)$
+    for all $j = 2, \cdots, k-1$,
+    which is our inductive hypothesis.
+    Then $\func{out-degree}(a_k) = \func{in-degree}(a_k) + 1 \geq 1$.
+    We have $\exists (a_k,x) \in E$.
+    We remove $(a_k,x)$ and let $a_{k+1} = x$,
+    which means $\func{in-degree}(a_{k+1})$ and
+    $\func{out-degree}(a_k)$ decreased by $1$.
+    If $a_k = u$, then we stop our construction and have a cycle
+    contains $u$, and we conclude 
+    $\func{in-degree}(v) = \func{out-degree}(v)$
+    for all $v \in V$ at this time (after construction of the cycle).
+    If $a_k \neq u$, 
+    then we have $\func{in-degree}(a_k) = \func{out-degree}(a_k)$
+    and $\func{in-degree}(a_{k+1}) = \func{out-degree}(a_{k+1}) - 1$,
+    so our inductive hypothesis hold for next induction varible.
+\end{proof}
+
+\begin{claim}
+    $G$ has an Euler tour
+    $\Longleftrightarrow$
+    $\func{in-degree}(v) = \func{out-degree}(v)$
+    for each vertex $v \in V$.
+\end{claim}
+
+\begin{proof}
+    ($\Longrightarrow$)
+    We prove by contrapositive.
+    Suppose that there exists $v \in V$ such that
+    $\func{in-degree}(v) \neq \func{out-degree}(v)$.
+    If $\func{in-degree}(v) > \func{out-degree}(v)$,
+    then there will be $\func{in-degree}(v) - \func{out-degree}(v)$
+    edges to $v$ cannot be visit
+    since the tour need to go into $v$ $\func{in-degree}(v)$ times
+    and only go out $v$ $\func{out-degree}(v)$ times 
+    then the tour will stuck in $v$.
+    Similarily, if $\func{in-degree}(v) < \func{out-degree}(v)$,
+    then there will be $\func{out-degree}(v) - \func{int-degree}(v)$
+    edges from $v$ cannot be visit.
+    Hence $G$ does not have an Euler tour.
+
+    ($\Longleftarrow$)
+    Notice the our tour is actually a cycle 
+    unless there are only one node in the graph, which is trivial.
+    Assume there are at least two nodes in the graph.
+    Then we the graph contains at least one cycle.
+    Suppose that $\func{in-degree}(v) = \func{out-degree}(v)$
+    for each vertex $v \in V$ before we start the construction.
+    We inductively construct the set of cycles 
+    $S = \{ C : C$ is a cycle$ \}$
+    where the induction varible is $|S|$.
+    Assume we remove the edges that in the cycles from the graph.
+    The inductive hypothesis is
+    $\func{in-degree}(v) = \func{out-degree}(v)$
+    for all $v \in V$.
+    The base case is $|S| = 0$,
+    which is before the start of the construction
+    By our hypothesis of the problem,
+    the inductive hypothesis hold for next step.
+    Suppose that the inductive hypothesis is true
+    after cycles in $S$ are constructed where $|S| = k$.
+    If $\exists u \in V$ such that 
+    $\func{in-degree}(u) = \func{out-degree}(u) \geq 1$,
+    then by lemma 21, we have a cycle $C$ contains $u$.
+    We insert this $C$ into the set $S$ and $|S| = k + 1$.
+    Since $\func{in-degree}(v) = \func{out-degree}(v)$
+    for each vertex $v \in V$
+    after removing each edges in the cycle $C$,
+    our inductive hypothesis hold for next step.
+    If $\forall u \in V$,
+    $\func{in-degree}(u) = \func{out-degree}(u) = 0$,
+    then we stop the indcution and all edges are removed (visited).
+
+    Now we reconsider the removed edges, 
+    and we have cycles in $S$ contains all edges in the graph.
+    In order to form an Euler tour, 
+    we just need to merge these cycles to a single cycle,
+    which is exactly our Euler tour.
+    If $|S|=1$, then the only cycle in $S$ is our Euler tour.
+    If $|S| > 1$, then we claim 
+    $\exists C, D \in S$ where
+    $C = \langle c_1, c_2, \cdots, c_m \rangle$ and
+    $D = \langle d_1, d_2, \cdots, d_n \rangle$ 
+    such that $c_i = d_j$ 
+    for some integers $i \in [1,m]$ and $j \in [1,n]$;
+    otherwise, the graph is not strongly connected.
+    We merge $C$ and $D$ at the vertex $c_i = d_j$ by forming cycle 
+    $\langle c_1, c_2, \cdots, c_i, 
+    d_{j+1}, d_{j+2}, \cdots, d_n, d_1, \cdots, d_{j-1},
+    c_{i+1}, \cdots, c_m \rangle$.
+    Clearly, we can inductively merge all cycles in $S$
+    and find an Euler tour.    
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+std::list< std::pair<int, int> > EulerTour(Graph& graph)
+{
+    int u, v, s;
+
+    if (graph.size <= 1)
+        return std::list< std::pair<int, int> >();
+
+    std::vector< AdjList > adjs_copy = graph.adj;// make a copy of adjacency list
+    std::list< std::pair<int, int> > tour;// result
+    std::vector< std::list< std::pair<int, int> >::iterator > 
+        tour_its(graph.size, tour.end());// iterators of tours for each insert-availble 
+                                         // (in the tour list) vertices
+    std::queue<int> todo;// queue of vertices in the tour list already
+    
+    todo.push(0);
+
+    while (todo.empty() == false)
+    {
+        u = todo.front();
+        s = u;
+        todo.pop();
+        std::list< std::pair<int, int> >::iterator tour_curr_it = tour_its[u];
+            // current iterator of insert postion in the tour list
+
+        while (adjs_copy[u].empty() == false)
+        {
+            v = adjs_copy[u].front();
+            tour_its[u] = tour.insert(tour_curr_it, { u, v });
+            adjs_copy[u].pop_front();
+            todo.push(u);
+            u = v;
+        }
+
+        if (s != u)
+            return std::list< std::pair<int, int> >();
+    }
+
+    return tour;
+}
+\end{minted}
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
