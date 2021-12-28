@@ -3107,6 +3107,205 @@ std::list< std::pair<int, int> > EulerTour(Graph& graph)
 }
 \end{minted}
 
-\centerline{\textbf{Updating...}}
+\subsection*{22-4}
+
+\textbf{Approach 1}
+Find the strongly connected components (SCC) of the graph first.
+Each pair in a SCC are reachable each other,
+so we can treat each SCC as a whole, and take the minimum value in the SCC
+as the value of the SCC.
+Then the SCC graph is a DAG, 
+so we can utilize a simple dynamic programming.
+Define $L(u)$ and $R(u)$ on $G^{SCC} = (V^{SCC}, E^{SCC})$ 
+with the same definition of $G$.
+Denote $c[u]$ as $\func{min} \{ L(w) : w \in R(u) \}$ 
+for all $u \in V^{SCC}$.
+
+\begin{equation*}
+    c[u] = \func{min}
+    \begin{cases}
+        L(u) \\
+        \mathop{\func{min}}\limits_{(u,v) \in E^{SCC}}(c[v])\\
+    \end{cases}
+\end{equation*}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void TopoSortVisit(Graph<OriginalVertex>& graph, int u, 
+    std::list<int>& topo_sort_result)
+{
+    graph.vertices[u].color = Color::kNonWhite;
+    for (int v : graph.adj[u])
+    {
+        if (graph.vertices[v].color == Color::kWhite)
+            TopoSortVisit(graph, v, topo_sort_result);
+    }
+    topo_sort_result.push_front(u);
+}
+
+// component_adj_list is for tranpose graph and might exist repeat elements 
+void SCCTranposeVisit(Graph<TranposeVertex>& tranpose, int u, 
+    std::list<int>& component_vertices, std::list<int>& component_adj_list, 
+    int curr_component)
+{
+    tranpose.vertices[u].color = Color::kNonWhite;
+    tranpose.vertices[u].component = curr_component;
+    component_vertices.push_back(u);
+    for (int v : tranpose.adj[u])
+    {
+        if (tranpose.vertices[v].color == Color::kWhite)
+            SCCTranposeVisit(tranpose, v, component_vertices, 
+                component_adj_list, curr_component);
+        else if (tranpose.vertices[v].component != curr_component)
+            // default value of component attribute is INT_MIN
+            component_adj_list.push_back(tranpose.vertices[v].component);
+    }
+}
+
+void DpSCCVisit(Graph<SCCVertex>& scc, int u)
+{
+    scc.vertices[u].color = Color::kNonWhite;
+    for (int v : scc.adj[u])
+    {
+        if (scc.vertices[v].color == Color::kWhite)
+        {
+            DpSCCVisit(scc, v);
+            if (scc.vertices[u].dp_min_scc_value > scc.vertices[v].dp_min_scc_value)
+            {
+                scc.vertices[u].dp_min_scc_vertex = scc.vertices[v].dp_min_scc_vertex;
+                scc.vertices[u].dp_min_scc_value = scc.vertices[v].dp_min_scc_value;
+            }
+        }
+    }
+}
+
+void Reachability(Graph<OriginalVertex>& graph)
+{
+    int u, component_counter;
+    std::list<int> topo_sort_result;
+    std::list< std::list<int> > component_vertices_collection, 
+        tranpose_component_adj_list_collection;
+    // topo sort
+    graph.WhitenAllVertices();
+    for (u = 0; u < graph.size; ++u)
+    {
+        if (graph.vertices[u].color == Color::kWhite)
+            TopoSortVisit(graph, u, topo_sort_result);
+    }
+    // find tranpose
+    Graph<TranposeVertex> tranpose = Tranpose(graph);
+    // find strongly connected components
+    tranpose.WhitenAllVertices();
+    component_counter = 0;
+    for (int w : topo_sort_result)
+    {
+        if (tranpose.vertices[w].color == Color::kWhite)
+        {
+            component_vertices_collection.emplace_back();
+            tranpose_component_adj_list_collection.emplace_back();
+            SCCTranposeVisit(tranpose, w, component_vertices_collection.back(), 
+                tranpose_component_adj_list_collection.back(), component_counter);
+            ++component_counter;
+        }
+    }
+    // make scc graph
+    Graph<SCCVertex> scc(component_counter);
+    u = 0;
+    for (std::list<int>& component_vertices : component_vertices_collection)
+    {
+        scc.vertices[u].vertices.assign(component_vertices.begin(), 
+            component_vertices.end());
+        ++u;
+    }
+    u = 0;
+    for (std::list<int>& component_adj_list : tranpose_component_adj_list_collection)
+    {
+        std::vector<bool> repeat_counter(scc.size, false);
+        for (int v : component_adj_list)
+        {
+            if (repeat_counter[v] == false)
+            {
+                scc.adj[v].push_back(u);
+                repeat_counter[v] = true;
+            }
+        }
+        ++u;
+    }
+    // init dp_min_scc_vertex and dp_min_scc_value for each scc vertex
+    for (SCCVertex& scc_v : scc.vertices)
+    {
+        scc_v.dp_min_scc_vertex = *(std::min_element(scc_v.vertices.begin(), 
+            scc_v.vertices.end(), [&graph](int a, int b) { 
+                return graph.vertices[a].value < graph.vertices[b].value; 
+            }));
+        scc_v.dp_min_scc_value = graph.vertices[scc_v.dp_min_scc_vertex].value;
+    }
+    // dp find min for each scc
+    scc.WhitenAllVertices();
+    for (u = 0; u < scc.size; ++u)
+    {
+        if (scc.vertices[u].color == Color::kWhite)
+            DpSCCVisit(scc, u);
+    }
+    // set min attribute for each original vertex
+    for (SCCVertex& scc_v : scc.vertices)
+    {
+        for (int v : scc_v.vertices)
+        {
+            graph.vertices[v].min = scc_v.dp_min_scc_vertex;
+        }
+    }
+}
+\end{minted}
+
+\textbf{Approach 2}
+Perform DFS on $G^T$ by considering vertices 
+in the increasing order of $L(u)$ in the out-most loop.
+The depth-first forest partition vertices with the same $min$
+into the same depth-first forest tree where $min$ is the root
+vertex of the tree.
+
+The root has the minimum $L$ value due to the order we consider vertices.
+The root of the tree of $G^T$ is reachable in $G$ by each vertex 
+in the tree of $G^T$. 
+The main idea is $u \rightsquigarrow v$ in $G$
+$\Longleftrightarrow$
+$v \rightsquigarrow u$ in $G^T$.
+Note that DFS will visit all reachable unvisited vertices.
+Hence considering vertices in the increasing order of $L(u)$
+makes the algorithm work correctly.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void DFSVisit(Graph<TranposeVertex>& tranpose, int u, 
+    Graph<OriginalVertex>& graph, int root)
+{
+    tranpose.vertices[u].color = Color::kNonWhite;
+    graph.vertices[u].min = root;
+    for (int v : tranpose.adj[u])
+    {
+        if (tranpose.vertices[v].color == Color::kWhite)
+            DFSVisit(tranpose, v, graph, root);
+    }
+}
+
+void Reachability(Graph<OriginalVertex>& graph)
+{
+    int u;
+    std::vector<int> counting_sort(graph.size);
+    // sort vertices in the increasing order of L value in linear time
+    for (u = 0; u < graph.size; ++u)
+    {
+        counting_sort[graph.vertices[u].value] = u;
+    }
+    // find tranpose
+    Graph<TranposeVertex> tranpose = Tranpose(graph);
+    // DFS
+    tranpose.WhitenAllVertices();
+    for (int v : counting_sort)
+    {
+        if (tranpose.vertices[v].color == Color::kWhite)
+            DFSVisit(tranpose, v, graph, v);
+    }
+}
+\end{minted}
 
 \end{document}
