@@ -1,0 +1,46 @@
+\input{../../tex_header}
+
+\title{Chapter 17 Solusion}
+\date{12/28/2021}
+
+\begin{document}
+\maketitle
+
+\section*{17.1}
+
+\subsection*{17.1-1}
+
+No.
+Consider we operate $\proc{Multpush}(S,n)$ $n$ times.
+Such $n$ operations cost $\Theta(n^2)$, 
+so the amortized cost is $\Theta(n)$.
+
+Actually, we can $\proc{Multpush}$ incredible large amount of items,
+so $O(1)$ of course cannot be bound on the amortized cost
+of stack operations.
+
+\subsection*{17.1-2}
+
+Consider a $k$-bit counter where each bit in the counter is $1$.
+Now, we perform $\proc{Increment}$ which flips $k+1$ bits.
+Then, we perform $\proc{Decrement}$ which flips $k+1$ bits again.
+Hence perform a sequence of length $n$ operations 
+$\langle \proc{Increment}, \proc{Decrement}, 
+\proc{Increment}, \proc{Decrement}, \cdots \rangle$
+cost $\Theta(nk)$ in total.
+
+\subsection*{17.1-3}
+
+$n + \sum\limits_{i = 1}^{\lfloor \lg n \rfloor} (2^i - 1)
+\leq n + \sum\limits_{i = 0}^{\lg n} 2^i
+= n + 2^{\lg n + 1} - 1 = n + 2n - 1 = 3n - 1$
+
+Hence the amortized cost per operation is $O(1)$.
+
+% \section*{Chapter 17 Problems}
+
+% \subsection*{17-1}
+
+\centerline{\textbf{Updating...}}
+
+\end{document}
