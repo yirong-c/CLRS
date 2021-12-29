@@ -1897,30 +1897,30 @@ and it contains a vertex $s_i$ for each strongly connected component $C_i$ of $G
 
 \begin{lemma}
     Let $x \in C_i$ and $y \in C_j$.
-    $x \rightsquigarrow y \Longleftrightarrow s_i \rightsquigarrow s_j$ 
+    $x \leadsto y \Longleftrightarrow s_i \leadsto s_j$ 
 \end{lemma}
 
 \begin{proof}
     ($\Longrightarrow$)
-    Suppose that $x \rightsquigarrow y$.
+    Suppose that $x \leadsto y$.
     Then $\exists w_1, w_2, \cdots, w_p \in V$ such that
     $(x,w_1), (w_1,w_2), \cdots, (w_p,y) \in E$.
     Suppose that $c_1, c_2, \cdots c_p$ are the indexs of components contain $w_1, w_2, \cdots, w_p$;
     i.e. $w_l \in C_{c_l}$ for all $l \in [1,p]$.
     By definition of $E^{SCC}$,
     we have $(s_i,s_{c_1}),(s_{c_1},s_{c_2}), \cdots, (s_{c_j},s_j) \in E^{SCC}$.
-    Thus, $s_i \rightsquigarrow s_j$.
+    Thus, $s_i \leadsto s_j$.
 
     ($\Longleftarrow$)
-    Suppose that $s_i \rightsquigarrow s_j$.
+    Suppose that $s_i \leadsto s_j$.
     Then $\exists w_1, w_2, \cdots, w_p \in V^{SCC}$ such that
     $(s_i,w_1), (w_1,w_2), \cdots, (w_p,s_j) \in E^{SCC}$.
     Suppose that $c_1, c_2, \cdots c_p$ are the indexs of components $w_1, w_2, \cdots, w_p$;
     i.e. $w_l = s_{c_l}$ for all $l \in [1,p]$.
     Pick arbitrary $u_l \in C_{c_l}$ for all $l \in [1,p]$.
     By definition of strongly connected components and $E^{SCC}$,
-    we have $x \rightsquigarrow u_1 \rightsquigarrow u_2 \cdots u_p \rightsquigarrow y$.
-    Thus, $x \rightsquigarrow y$.
+    we have $x \leadsto u_1 \leadsto u_2 \cdots u_p \leadsto y$.
+    Thus, $x \leadsto y$.
 \end{proof}
 
 \begin{lemma}
@@ -1931,34 +1931,34 @@ and it contains a vertex $s_i$ for each strongly connected component $C_i$ of $G
 \begin{proof}
     ($\Longrightarrow$)
     Suppose that $G$ is semiconnected.
-    That is $\forall x,y \in V, x \rightsquigarrow y \vee y \rightsquigarrow x$.
+    That is $\forall x,y \in V, x \leadsto y \vee y \leadsto x$.
     We prove by induction on the number of strongly connected components of $G$.
     Our inductive hypothesis is 
-    $\forall u,v \in \{ s_1, s_2, \cdots, s_k \}, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    $\forall u,v \in \{ s_1, s_2, \cdots, s_k \}, u \leadsto v \vee v \leadsto u$.
     The base case is when $G$ containes no vertex, which is trivial.
     Suppose that 
-    $\forall u,v \in \{ s_1, s_2, \cdots, s_k \}, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    $\forall u,v \in \{ s_1, s_2, \cdots, s_k \}, u \leadsto v \vee v \leadsto u$.
     Let $x \in C_t$ where $t \in [1,k]$ and $y \in C_{k+1}$ be arbitrary choices.
-    Since $x,y \in V$, we have $x \rightsquigarrow y \vee y \rightsquigarrow x$.
-    If $x \rightsquigarrow y$, then, by lemma 4, we have $s_t \rightsquigarrow s_{k+1}$.
-    Similarily, if $y \rightsquigarrow x$, we have $s_{k+1} \rightsquigarrow s_t$.
+    Since $x,y \in V$, we have $x \leadsto y \vee y \leadsto x$.
+    If $x \leadsto y$, then, by lemma 4, we have $s_t \leadsto s_{k+1}$.
+    Similarily, if $y \leadsto x$, we have $s_{k+1} \leadsto s_t$.
     Since $t \in [1,k]$ is a arbitrary choice, by induction,
     we conclude $G^{SCC}$ is semiconnected.
 
     ($\Longleftarrow$)
     Suppose that $G^{SCC}$ is semiconnected.
-    That is $\forall x,y \in V^{SCC}, x \rightsquigarrow y \vee y \rightsquigarrow x$.
+    That is $\forall x,y \in V^{SCC}, x \leadsto y \vee y \leadsto x$.
     We prove by induction on the number of strongly connectly components of $G$.
     Our inductive hypothesis is 
-    $\forall u,v \in C_1 \cup C_2 \cdots C_k, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    $\forall u,v \in C_1 \cup C_2 \cdots C_k, u \leadsto v \vee v \leadsto u$.
     The base case is when $G$ containes no vertex, which is trivial.
     Suppose that 
-    $\forall u,v \in C_1 \cup C_2 \cdots C_k, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    $\forall u,v \in C_1 \cup C_2 \cdots C_k, u \leadsto v \vee v \leadsto u$.
     Let $x \in C_t$ where $t \in [1,k]$ and $y \in C_{k+1}$ be arbitrary choices.
     Since $s_t,s_{k+1} \in V^{SCC}$, we have 
-    $s_t \rightsquigarrow s_{k+1} \vee s_{k+1} \rightsquigarrow s_t$.
-    If $s_t \rightsquigarrow s_{k+1}$, then, by lemma 4, we have $x \rightsquigarrow y$.
-    Similarily, if $s_{k+1} \rightsquigarrow s_t$, we have $y \rightsquigarrow x$.
+    $s_t \leadsto s_{k+1} \vee s_{k+1} \leadsto s_t$.
+    If $s_t \leadsto s_{k+1}$, then, by lemma 4, we have $x \leadsto y$.
+    Similarily, if $s_{k+1} \leadsto s_t$, we have $y \leadsto x$.
     Since $t \in [1,k]$ is a arbitrary choice, by induction,
     we conclude $G$ is semiconnected.
 \end{proof}
@@ -1967,26 +1967,26 @@ and it contains a vertex $s_i$ for each strongly connected component $C_i$ of $G
     $G$ is semiconnected if and only if
     we are able to put all elements of $V$ in a sequence 
     $\langle v_1, v_2, \cdots, v_{|V|} \rangle$ such that 
-    $v_1 \rightsquigarrow v_2 \cdots v_{|V|-1} \rightsquigarrow v_{|V|}$.
+    $v_1 \leadsto v_2 \cdots v_{|V|-1} \leadsto v_{|V|}$.
 \end{lemma}
 
 \begin{proof}
     ($\Longrightarrow$)
     Suppose that $G$ is semiconnected.
-    That is $\forall u,v \in V, u \rightsquigarrow v \vee v \rightsquigarrow u$.
+    That is $\forall u,v \in V, u \leadsto v \vee v \leadsto u$.
     Let $A = \langle a_1, a_2, \cdots, a_k \rangle$ be a sequence.
     We prove by induction on $k$.
     The base case is $k=0$, which is trivial.
     Suppose that
-    $a_1 \rightsquigarrow a_2 \cdots a_{k-1} \rightsquigarrow a_k$.
+    $a_1 \leadsto a_2 \cdots a_{k-1} \leadsto a_k$.
     Pick arbitrary element $u \in V$ and $u \notin A$.
     If $\exists i \in [1,k)$ such that 
-    $a_i \rightsquigarrow u \rightsquigarrow a_{i+1}$,
+    $a_i \leadsto u \leadsto a_{i+1}$,
     then we insert $u$ between $a_i$ and $a_{i+1}$;
     otherwise, insert $u$ before $a_1$ or after $a_k$ appropriately.
     Re-assigning index of $A$,
     we get $A = \langle a_1, a_2, \cdots, a_k, a_{k+1} \rangle$
-    where $a_1 \rightsquigarrow a_2 \cdots a_k \rightsquigarrow a_{k+1}$.
+    where $a_1 \leadsto a_2 \cdots a_k \leadsto a_{k+1}$.
 
     ($\Longleftarrow$)
     Immediately.
@@ -1996,24 +1996,24 @@ and it contains a vertex $s_i$ for each strongly connected component $C_i$ of $G
     Let $G$ be arbitrary DAG.
     If we are able to put all elements of $V$ in a sequence 
     $\langle v_1, v_2, \cdots, v_{|V|} \rangle$ such that 
-    $v_1 \rightsquigarrow v_2 \cdots v_{|V|-1} \rightsquigarrow v_{|V|}$,
+    $v_1 \leadsto v_2 \cdots v_{|V|-1} \leadsto v_{|V|}$,
     then $\{ (v_1,v_2), (v_2,v_3), \cdots, (v_{|V|-1}, v_{|V|}) \} \subseteq E$ and
     the result of topological sort order of $G$ is
     $v_1, v_2, \cdots, v_{|V|}$.
 \end{lemma}
 
 \begin{proof}
-    Suppose that $v_1 \rightsquigarrow v_2 \cdots v_{|V|-1} \rightsquigarrow v_{|V|}$.
+    Suppose that $v_1 \leadsto v_2 \cdots v_{|V|-1} \leadsto v_{|V|}$.
     If $|V|=1$, the lemma is trivial correct.
     Let integer $i \in [1,|V|)$.
     Assume $(v_i, v_{i+1}) \notin E$, for the purpose of contradiction.
     Then $\exists j \neq i, i+1$ such that 
-    $v_i \rightsquigarrow v_j \rightsquigarrow v_{i+1}$.
+    $v_i \leadsto v_j \leadsto v_{i+1}$.
     If $|V|=2$, we obviously have a contradiction.
     If $j < i$, we have 
-    $v_i \rightsquigarrow v_j$ and $v_j \rightsquigarrow v_i$.
+    $v_i \leadsto v_j$ and $v_j \leadsto v_i$.
     If $j > i+1$, we have 
-    $v_j \rightsquigarrow v_{i+1}$ and $v_{i+1} \rightsquigarrow v_j$.
+    $v_j \leadsto v_{i+1}$ and $v_{i+1} \leadsto v_j$.
     Contradict to $G$ is a DAG.
     
     In order to get other order of $\langle v_1, v_2, \cdots, v_{|V|} \rangle$.
@@ -2034,16 +2034,16 @@ and it contains a vertex $s_i$ for each strongly connected component $C_i$ of $G
     $G^{SCC}$ is semiconnected
     $\overset{\text{lemma 6}}{\Longleftrightarrow}$\\
     $\exists \langle v_1, v_2, \cdots, v_{|V^{SCC}|} \rangle$ where $v \in V^{SCC}$ such that 
-    $v_1 \rightsquigarrow v_2 \cdots v_{|V^{SCC}|-1} \rightsquigarrow v_{|V^{SCC}|}$
+    $v_1 \leadsto v_2 \cdots v_{|V^{SCC}|-1} \leadsto v_{|V^{SCC}|}$
 
     ($\Longrightarrow$)
-    Suppose that $v_1 \rightsquigarrow v_2 \cdots v_{|V^{SCC}|-1} \rightsquigarrow v_{|V^{SCC}|}$.
+    Suppose that $v_1 \leadsto v_2 \cdots v_{|V^{SCC}|-1} \leadsto v_{|V^{SCC}|}$.
     Since $G^{SCC}$ is a DAG,
     by lemma 7, we have $\{ (v_1,v_2), (v_2,v_3), \cdots, (v_{|V|-1}, v_{|V|}) \} \subseteq E$.
 
     ($\Longleftarrow$)
     Suppose that $\{ (v_1,v_2), (v_2,v_3), \cdots, (v_{|V^{SCC}|-1}, v_{|V^{SCC}|}) \} \subseteq E^{SCC}$.
-    Then, obviously, we have $v_1 \rightsquigarrow v_2 \cdots v_{|V^{SCC}|-1} \rightsquigarrow v_{|V^{SCC}|}$.
+    Then, obviously, we have $v_1 \leadsto v_2 \cdots v_{|V^{SCC}|-1} \leadsto v_{|V^{SCC}|}$.
 \end{proof}
 
 Therefore, we have the following $O(V + E)$ algorithm:
@@ -2233,7 +2233,7 @@ in this problem.
     there exists two non-empty, disjoint set $W, U \subseteq V'$
     (i.e. $W, U \neq \emptyset$ and $W \cap U = \emptyset$)
     such that for every $w \in W$ and $u \in U$,
-    $w \not\rightsquigarrow u$ and $u \not\rightsquigarrow w$
+    $w \not\leadsto u$ and $u \not\leadsto w$
     in $G'$.
 
     Suppose that $v \in V$ is the only one child $s$ has in $G.\pi$,
@@ -2250,7 +2250,7 @@ in this problem.
     Then $u$ is a descendant of $v$ in $G.\pi$
     since $G.\pi$ is a tree 
     where $s$ is the root and $v$ is the only child of $s$.
-    Then there exist a path $v \rightsquigarrow u$ in $G.\pi$
+    Then there exist a path $v \leadsto u$ in $G.\pi$
     that does not visit $s$.
     Thus, such path is in $G.\pi'$ also.
     Since $E.\pi' \subseteq E'$,
@@ -2264,10 +2264,10 @@ in this problem.
     Let $U$ contains vertices in the subtree rooted at $u$.
     Let $W$ contains vertices in the subtree rooted at $w$.
     We claim for all $x \in U$ and $y \in W$,
-    $x \rightsquigarrow y$ in $G$ must visit $s$.
+    $x \leadsto y$ in $G$ must visit $s$.
     Then removing $s$ will lead to disconnection of $U$ and $W$.
 
-    Suppose that there exist a path $x \rightsquigarrow y$ in $G$
+    Suppose that there exist a path $x \leadsto y$ in $G$
     that does not visit $s$, for the purpose of contradiction.
     Then $(a,b) \in E$ for some $a \in U$ and $b \in W$.
     WLOG, assume $u$ is explored before $w$ in DFS.
@@ -2542,22 +2542,22 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     and $(x,y)$ and $(a,b)$ lies on a common simple cycle $C_2$.
 
     Define symbol
-    $u \overset{P}{\rightsquigarrow} v$
+    $u \overset{P}{\leadsto} v$
     as the path from $u$ to $v$ ($u,v \notin P$)
     where $P$ is the set contains vertices on the path from $u$ to $v$.
 
     WLOG (we can swap ``u'' and ``v'' or swap ``x'' and ``y''), 
-    let $u \overset{P_1}{\rightsquigarrow} x$ 
-    and $v \overset{P_2}{\rightsquigarrow} y$ be the simple paths
+    let $u \overset{P_1}{\leadsto} x$ 
+    and $v \overset{P_2}{\leadsto} y$ be the simple paths
     that formed cycle $C_1$, so we have $P_1 \cap P_2 = \emptyset$.
-    WLOG, let $x \overset{P_3}{\rightsquigarrow} a$ 
-    and $y \overset{P_4}{\rightsquigarrow} b$ be the simple paths
+    WLOG, let $x \overset{P_3}{\leadsto} a$ 
+    and $y \overset{P_4}{\leadsto} b$ be the simple paths
     that formed cycle $C_2$, so we have $P_3 \cap P_4 = \emptyset$.
     Our goal is to form a simple cycle contains $(u,v)$ and $(a,b)$
-    by forming path $u \overset{A}{\rightsquigarrow} a$
-    and $v \overset{B}{\rightsquigarrow} b$
-    or forming path $u \overset{A}{\rightsquigarrow} b$
-    and $v \overset{B}{\rightsquigarrow} a$
+    by forming path $u \overset{A}{\leadsto} a$
+    and $v \overset{B}{\leadsto} b$
+    or forming path $u \overset{A}{\leadsto} b$
+    and $v \overset{B}{\leadsto} a$
     where $A \cap B = \emptyset$
     Note that we can find non-simple paths 
     for $A$ and $B$
@@ -2568,27 +2568,27 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
 
     \textbf{Case 1.}
     Construct
-    $u \overset{P_5}{\rightsquigarrow} a
-    = u \overset{P_1}{\rightsquigarrow} x \overset{P_3}{\rightsquigarrow} a$,
+    $u \overset{P_5}{\leadsto} a
+    = u \overset{P_1}{\leadsto} x \overset{P_3}{\leadsto} a$,
     and construct
-    $v \overset{P_6}{\rightsquigarrow} b
-    = v \overset{P_2}{\rightsquigarrow} y \overset{P_4}{\rightsquigarrow} b$.
+    $v \overset{P_6}{\leadsto} b
+    = v \overset{P_2}{\leadsto} y \overset{P_4}{\leadsto} b$.
     We have $P_5 \cap P_6 = \emptyset$.
     Transforming $P_5$ and $P_6$ into simple path,
     we can construct the simple cycle by using path $P_5$ and $P_6$.
 
     \textbf{Case 2.}
     $P_5 \cap P_6 \neq \emptyset$.
-    Then $u \overset{P_5}{\rightsquigarrow} a
-    = u \overset{P_{5.1}}{\rightsquigarrow} I_1 \overset{P_{5.2}}{\rightsquigarrow} a$
-    and $v \overset{P_6}{\rightsquigarrow} b
-    = v \overset{P_{6.1}}{\rightsquigarrow} I_2 \overset{P_{6.2}}{\rightsquigarrow} b$
+    Then $u \overset{P_5}{\leadsto} a
+    = u \overset{P_{5.1}}{\leadsto} I_1 \overset{P_{5.2}}{\leadsto} a$
+    and $v \overset{P_6}{\leadsto} b
+    = v \overset{P_{6.1}}{\leadsto} I_2 \overset{P_{6.2}}{\leadsto} b$
     where $I_1,I_2$ are sets of vertices 
     and $P_5 \cap P_6 \subseteq I_1$, $P_5 \cap P_6 \subseteq I_2$,
     so $(P_{5.1} \cup P_{5.2}) \cap (P_{6.1} \cup P_{6.2}) = \emptyset$.
-    Let $I_1.f$ be the first vertex in $I_1$ on the path $u \overset{P_5}{\rightsquigarrow} a$
+    Let $I_1.f$ be the first vertex in $I_1$ on the path $u \overset{P_5}{\leadsto} a$
     and $I_1.l$ be the last vertex in $I_1$ on the path.
-    Let $I_2.f$ be the first vertex in $I_2$ on the path $v \overset{P_6}{\rightsquigarrow} b$
+    Let $I_2.f$ be the first vertex in $I_2$ on the path $v \overset{P_6}{\leadsto} b$
     and $I_2.l$ be the last vertex in $I_2$ on the path.
     WLOG, assume $I_1.f, I_1.l \in I_2$ and $I_2.f, I_2.l \in I_1$.
     We claim \textcircled{1} $x \in P_{5.1}$ and $y \in P_{6.2}$,
@@ -2597,9 +2597,9 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     show it by contradiction.
     
     Suppose that $x \in I_1$ and $y \notin I_2$, for the purpose of contradiction.
-    Then $u \overset{P_5}{\rightsquigarrow} a = u \overset{P_{5.1}}{\rightsquigarrow} I_{1.1} 
-    \overset{\emptyset}{\rightsquigarrow} x \overset{\emptyset}{\rightsquigarrow}
-    I_{1.2} \overset{P_{5.2}}{\rightsquigarrow} a$ where $I_1 = I_{1.1} \cup \{ x \} \cup I_{1.2}$.
+    Then $u \overset{P_5}{\leadsto} a = u \overset{P_{5.1}}{\leadsto} I_{1.1} 
+    \overset{\emptyset}{\leadsto} x \overset{\emptyset}{\leadsto}
+    I_{1.2} \overset{P_{5.2}}{\leadsto} a$ where $I_1 = I_{1.1} \cup \{ x \} \cup I_{1.2}$.
     We have $P_1 = P_{5.1} \cup I_{1.1}$, $P_3 = I_{1.2} \cup P_{5.2}$, 
     and $I_1.f \in I_{1.1}$, $I_1.l \in I_{1.2}$.
     Since $y \notin I_2$, there are two cases: $I_2 \subseteq P_2$ or $I_2 \subseteq P_4$.
@@ -2634,15 +2634,15 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     Then there are two subsubcases according to whether or not 
     $P_1 \cap P_{5.2} = \emptyset \wedge P_4 \cap P_{6.1} = \emptyset$.
     If $P_1 \cap P_{5.2} = \emptyset \wedge P_4 \cap P_{6.1} = \emptyset$,
-    we consider paths $u \overset{A}{\rightsquigarrow} b = u \overset{P_1}{\rightsquigarrow} x 
-    \overset{\emptyset}{\rightsquigarrow} y \overset{P_4}{\rightsquigarrow} b$ and 
-    $v \overset{B}{\rightsquigarrow} a = 
-    v \overset{P_{6.1}}{\rightsquigarrow} I \overset{P_{5.2}}{\rightsquigarrow} a$.
+    we consider paths $u \overset{A}{\leadsto} b = u \overset{P_1}{\leadsto} x 
+    \overset{\emptyset}{\leadsto} y \overset{P_4}{\leadsto} b$ and 
+    $v \overset{B}{\leadsto} a = 
+    v \overset{P_{6.1}}{\leadsto} I \overset{P_{5.2}}{\leadsto} a$.
     We claim $A \cap B = \emptyset$ so we have a simple cycle contains $(u,v)$ and $(a,b)$.
     We need to show that $(P_1 \cup \{ x, y \} \cup P_4) \cap (P_{6.1} \cup I \cup P_{5.2}) = \emptyset$.
     Since $P_1 \cap P_2 = \emptyset$, $P_3 \cap P_4 = \emptyset$, 
-    and $u \overset{P_1}{\rightsquigarrow} x$, $v \overset{P_2}{\rightsquigarrow} y$,
-    $x \overset{P_3}{\rightsquigarrow} a$, $y \overset{P_4}{\rightsquigarrow} b$
+    and $u \overset{P_1}{\leadsto} x$, $v \overset{P_2}{\leadsto} y$,
+    $x \overset{P_3}{\leadsto} a$, $y \overset{P_4}{\leadsto} b$
     are simple paths,
     We just need to show that $(P_1 \cup P_4) \cap (P_{6.1} \cup P_{5.2}) = \emptyset$.
     Since $(P_{5.1} \cup P_{5.2}) \cap (P_{6.1} \cup P_{6.2}) = \emptyset$,
@@ -2653,9 +2653,9 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     If $P_1 \cap P_{5.2} \neq \emptyset \vee P_4 \cap P_{6.1} \neq \emptyset$,
     and, WLOG, we assume $P_4 \cap P_{6.1} \neq \emptyset$,
     then $\exists s \in P_4 \cap P_{6.1}$.
-    Consider paths $u \overset{A}{\rightsquigarrow} a = u \overset{P_5}{\rightsquigarrow} a$
-    and $v \overset{B}{\rightsquigarrow} b = 
-    v \overset{P_7}{\rightsquigarrow} s \overset{P_8}{\rightsquigarrow} a$
+    Consider paths $u \overset{A}{\leadsto} a = u \overset{P_5}{\leadsto} a$
+    and $v \overset{B}{\leadsto} b = 
+    v \overset{P_7}{\leadsto} s \overset{P_8}{\leadsto} a$
     where $P_7 \subseteq P_{6.1}$ and $P_8 \subseteq P_4$.
     We claim $A \cap B = \emptyset$ so we have a simple cycle contains $(u,v)$ and $(a,b)$.
     We need to show that $P_5 \cap (P_7 \cup \{ s \} \cup P_8) = \emptyset$.
@@ -2673,13 +2673,13 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
 
     \textcircled{3} Suppose that $x \in I_1$ and $y \in I_2$.
     Then we have 
-    $u \overset{P_5}{\rightsquigarrow} a = u \overset{P_{5.1}}{\rightsquigarrow} I_{1.1} 
-    \overset{\emptyset}{\rightsquigarrow} x \overset{\emptyset}{\rightsquigarrow}
-    I_{1.2} \overset{P_{5.2}}{\rightsquigarrow} a$ where $I_1 = I_{1.1} \cup \{ x \} \cup I_{1.2}$
+    $u \overset{P_5}{\leadsto} a = u \overset{P_{5.1}}{\leadsto} I_{1.1} 
+    \overset{\emptyset}{\leadsto} x \overset{\emptyset}{\leadsto}
+    I_{1.2} \overset{P_{5.2}}{\leadsto} a$ where $I_1 = I_{1.1} \cup \{ x \} \cup I_{1.2}$
     and
-    $v \overset{P_6}{\rightsquigarrow} b = v \overset{P_{6.1}}{\rightsquigarrow} I_{2.1} 
-    \overset{\emptyset}{\rightsquigarrow} y \overset{\emptyset}{\rightsquigarrow}
-    I_{2.2} \overset{P_{6.2}}{\rightsquigarrow} b$ where $I_2 = I_{2.1} \cup \{ y \} \cup I_{2.2}$.
+    $v \overset{P_6}{\leadsto} b = v \overset{P_{6.1}}{\leadsto} I_{2.1} 
+    \overset{\emptyset}{\leadsto} y \overset{\emptyset}{\leadsto}
+    I_{2.2} \overset{P_{6.2}}{\leadsto} b$ where $I_2 = I_{2.1} \cup \{ y \} \cup I_{2.2}$.
     We have $I_{1.1} \subseteq P_1$, $I_{2.1} \subseteq P_2$, 
     $I_{1.2} \subseteq P_3$, and $I_{2.2} \subseteq P_4$.
     Since $P_1 \cap P_2 = \emptyset$ and $P_3 \cap P_4 = \emptyset$,
@@ -2692,18 +2692,18 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     and, WLOG, assume $I = I_{1.2} = I_{2.1}$ and $I' = I_{1.1} = I_{2.2}$,
     there are two subsubcases: 
     if $P_1 \cap P_{5.2} = \emptyset \wedge P_4 \cap P_{6.1} = \emptyset$,
-    we have two paths $u \overset{A}{\rightsquigarrow} b = u \overset{P_1}{\rightsquigarrow} x 
-    \overset{\emptyset}{\rightsquigarrow} y \overset{P_4}{\rightsquigarrow} b$ and 
-    $v \overset{B}{\rightsquigarrow} a = 
-    v \overset{P_{6.1}}{\rightsquigarrow} I \overset{P_{5.2}}{\rightsquigarrow} a$
+    we have two paths $u \overset{A}{\leadsto} b = u \overset{P_1}{\leadsto} x 
+    \overset{\emptyset}{\leadsto} y \overset{P_4}{\leadsto} b$ and 
+    $v \overset{B}{\leadsto} a = 
+    v \overset{P_{6.1}}{\leadsto} I \overset{P_{5.2}}{\leadsto} a$
     and $A \cap B = \emptyset$;
     if $P_1 \cap P_{5.2} \neq \emptyset \vee P_4 \cap P_{6.1} \neq \emptyset$,
     and, WLOG, we assume $P_4 \cap P_{6.1} \neq \emptyset$,
     then $\exists s \in P_4 \cap P_{6.1}$,
     so we have two paths 
-    $u \overset{A}{\rightsquigarrow} a = u \overset{P_5}{\rightsquigarrow} a$
-    and $v \overset{B}{\rightsquigarrow} b = 
-    v \overset{P_7}{\rightsquigarrow} s \overset{P_8}{\rightsquigarrow} a$
+    $u \overset{A}{\leadsto} a = u \overset{P_5}{\leadsto} a$
+    and $v \overset{B}{\leadsto} b = 
+    v \overset{P_7}{\leadsto} s \overset{P_8}{\leadsto} a$
     where $P_7 \subseteq P_{6.1}$ and $P_8 \subseteq P_{6.2} \subseteq P_4$
     ($P_8 \cap I' = \emptyset$ since $s \notin I'$; 
     otherwise $s \in I' \wedge I' \subseteq P_1 \wedge s \in P_{6.1} \wedge P_{6.1} \subseteq P_2
@@ -2722,7 +2722,7 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     and $x,y \in V$.
     After DFS, we have
     $(x.d \leq y.d) \Longrightarrow (\exists$ simple path
-    $x \overset{A}{\rightsquigarrow} y$
+    $x \overset{A}{\leadsto} y$
     such that $(\forall a \in A, a.d < y.d))$.
 \end{lemma}
 
@@ -2734,11 +2734,11 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     then let $s$ be the vertex where $s$ is the ancestor of $x$ and $y$
     with the grestest possible $s.d$.
     Note that such $s$ must exist since $G$ is a connected graph.
-    Construct $x \overset{A}{\rightsquigarrow} y = 
-    x \overset{B}{\rightsquigarrow} s \overset{C}{\rightsquigarrow} y$
-    where $x \overset{B}{\rightsquigarrow} s$ is formed by connecting
+    Construct $x \overset{A}{\leadsto} y = 
+    x \overset{B}{\leadsto} s \overset{C}{\leadsto} y$
+    where $x \overset{B}{\leadsto} s$ is formed by connecting
     all tree edges from $x$ to $s$
-    and $s \overset{C}{\rightsquigarrow} y$ is formed by connecting
+    and $s \overset{C}{\leadsto} y$ is formed by connecting
     all tree edges from $s$ to $y$,
     so $A = B \cup \{ s \} \cup C$, and
     $B$ and $C$ are simple paths.
@@ -2746,7 +2746,7 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     We also have $B \cap C = \emptyset$
     since otherwise $p.d > s.d$ where $p \in B \cap C$,
     which contradicts $s$ is the candidate with the grestest possible $s.d$.
-    Thus, $x \overset{A}{\rightsquigarrow} y$ is a simple path.
+    Thus, $x \overset{A}{\leadsto} y$ is a simple path.
 \end{proof}
 
 \begin{lemma}
@@ -2759,18 +2759,18 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
 
 \begin{proof}
     Consider the cycle formed by the path
-    $v \overset{A}{\rightsquigarrow} u.\pi 
-    \overset{\emptyset}{\rightsquigarrow} u 
-    \overset{\emptyset}{\rightsquigarrow} v$.
-    We construct $u \overset{\emptyset}{\rightsquigarrow} v$
+    $v \overset{A}{\leadsto} u.\pi 
+    \overset{\emptyset}{\leadsto} u 
+    \overset{\emptyset}{\leadsto} v$.
+    We construct $u \overset{\emptyset}{\leadsto} v$
     by using the back edge $(u,v)$
-    and construct $u.\pi \overset{\emptyset}{\rightsquigarrow}$
+    and construct $u.\pi \overset{\emptyset}{\leadsto}$
     by using the tree edge $(u.\pi,u)$ simply.
     Since $(u,v)$ is a back edge,
     we have $v.d < u.d$,
     so $v.d \leq u.\pi.d$.
     By lemma 18, $\exists$ simple path
-    $v \overset{A}{\rightsquigarrow} u.\pi$
+    $v \overset{A}{\leadsto} u.\pi$
     such that $(\forall a \in A, a.d < u.\pi.d)$.
     Hence $(u,v)$ and $(u.\pi,u)$ lies on the common simple cycle,
     which means $(u,v).bcc = (u.\pi,u).bcc$.
@@ -2797,15 +2797,15 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     $\wedge$ $w.d < u.d$.
     Hence $w.d \leq u.\pi.d$.
     By lemma 18, $\exists$ simple path
-    $w.d \overset{A}{\rightsquigarrow} u.\pi$
+    $w.d \overset{A}{\leadsto} u.\pi$
     such that $(\forall a \in A, a.d < u.\pi.d)$.
     Consider the cycle formed by the path
-    $w.d \overset{A}{\rightsquigarrow} u.\pi 
-    \overset{\emptyset}{\rightsquigarrow} u 
-    \overset{\emptyset}{\rightsquigarrow} v
-    \overset{B}{\rightsquigarrow} z
-    \overset{\emptyset}{\rightsquigarrow} w$
-    where $v \overset{B}{\rightsquigarrow} z$
+    $w.d \overset{A}{\leadsto} u.\pi 
+    \overset{\emptyset}{\leadsto} u 
+    \overset{\emptyset}{\leadsto} v
+    \overset{B}{\leadsto} z
+    \overset{\emptyset}{\leadsto} w$
+    where $v \overset{B}{\leadsto} z$
     is formed by connecting all tree edges from $v$ to $z$
     Since $(\forall a \in A, a.d < u.\pi.d)$,
     $(\forall b \in B, b.d > v.d)$, and $u.\pi.d + 1 = u.d = v.d - 1$,
@@ -2844,8 +2844,8 @@ std::list< std::pair<int, int> > DFS(Graph& graph)
     Suppose that $(u,v).bcc = (u.\pi,u).bcc$,
     for the purpose of contradiction.
     Then $(u,v)$ and $(u.\pi,u)$ lies on a common simple cycle.
-    We already have $u.\pi \overset{\emptyset}{\rightsquigarrow} u 
-    \overset{\emptyset}{\rightsquigarrow} v$
+    We already have $u.\pi \overset{\emptyset}{\leadsto} u 
+    \overset{\emptyset}{\leadsto} v$
     formed by tree edges.
     We also need a back edge $(z,w)$ such that
     $z$ is a descendant of $v$ and $w.d \leq u.\pi.d$.
@@ -3267,9 +3267,9 @@ vertex of the tree.
 The root has the minimum $L$ value due to the order we consider vertices.
 The root of the tree of $G^T$ is reachable in $G$ by each vertex 
 in the tree of $G^T$. 
-The main idea is $u \rightsquigarrow v$ in $G$
+The main idea is $u \leadsto v$ in $G$
 $\Longleftrightarrow$
-$v \rightsquigarrow u$ in $G^T$.
+$v \leadsto u$ in $G^T$.
 Note that DFS will visit all reachable unvisited vertices.
 Hence considering vertices in the increasing order of $L(u)$
 makes the algorithm work correctly.
