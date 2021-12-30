@@ -31,9 +31,11 @@ cost $\Theta(nk)$ in total.
 
 \subsection*{17.1-3}
 
-$n + \sum\limits_{i = 1}^{\lfloor \lg n \rfloor} (2^i - 1)
-\leq n + \sum\limits_{i = 0}^{\lg n} 2^i
-= n + 2^{\lg n + 1} - 1 = n + 2n - 1 = 3n - 1$
+\begin{equation*}
+    n + \sum\limits_{i = 1}^{\lfloor \lg n \rfloor} (2^i - 1)
+    \leq n + \sum\limits_{i = 0}^{\lg n} 2^i
+    = n + 2^{\lg n + 1} - 1 = n + 2n - 1 = 3n - 1
+\end{equation*}
 
 Hence the amortized cost per operation is $O(1)$.
 
@@ -63,14 +65,11 @@ is greater than the total actual cost at all times.
 
 Let the amortized cost of each operation be $3$.
 We want to show that
-
 \begin{equation*}
     \sum\limits_{i = 1}^{n} \hat{c_i} \geq \sum\limits_{i = 1}^{n} c_i
 \end{equation*}
-
 for all integers $n$
 where 
-
 \begin{equation*}
     c_i = 
     \begin{cases}
@@ -78,21 +77,16 @@ where
         1 & \text{otherwise}
     \end{cases}
 \end{equation*}
-
 and $\hat{c_i} = 3$ for all integers $i$.
 That is we want to show that
-
 \begin{equation*}
     3n \geq n + \sum\limits_{i = 1}^{\lfloor \lg n \rfloor} (2^i - 1).
 \end{equation*}
-
 By exercise 17.1-3, we have 
-
 \begin{equation*}
     n + \sum\limits_{i = 1}^{\lfloor \lg n \rfloor} (2^i - 1)
     \leq 3n - 1.
 \end{equation*}
-
 Hence the amortized cost per operation is $O(1)$.
 
 \subsection*{17.2-3}
@@ -156,7 +150,415 @@ void Reset(Counter& counter)
     counter.high_order_one = -1;
 }
 \end{minted}
+
+\section*{17.3}
+
+\subsection*{17.3-1}
+
+Let $\Phi'(D_i) = \Phi(D_i) - \Phi(D_0)$.
+Clearly, $\Phi'(D_0) = 0$.
+We claim the amortized costs using $\Phi'$ are the same
+as the amortized costs using $\Phi$.
+
+\begin{equation*}
+    \begin{split}
+        \hat{c_i} & = c_i + \Phi'(D_i) - \Phi(D_{i-1}) \\
+        & = c_i + (\Phi(D_i) - \Phi(D_0)) - (\Phi(D_{i-1}) - \Phi(D_0)) \\
+        & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
+    \end{split}
+\end{equation*}
     
+\subsection*{17.3-2}
+
+Let $\Phi(D_0) = 0$ and $\Phi(D_i) = 2(i - 2^{\lfloor \lg i \rfloor})$
+for $i \geq 1$.
+
+\begin{equation*}
+\begin{split}
+    \Phi(D_i) - \Phi(D_{i - 1}) 
+    & = 2(i - 2^{\lfloor \lg i \rfloor}) - 2((i - 1) - 2^{\lfloor \lg (i - 1) \rfloor}) \\
+    & = 2 - 2(2^{\lfloor \lg i \rfloor} - 2^{\lfloor \lg (i - 1) \rfloor}) \\
+\end{split}
+\end{equation*}
+
+Note that
+\begin{equation*}
+    c_i = 
+    \begin{cases}
+        i & \text{if $i$ is an exact power of 2,} \\
+        1 & \text{otherwise} \\
+    \end{cases}
+\end{equation*}
+
+\textbf{Case 1.}
+$i$ is an exact power of 2.
+
+\begin{equation*}
+\begin{split}
+    \Phi(D_i) - \Phi(D_{i - 1}) 
+    & = 2 - 2(i - \frac{i}{2}) \\
+    & = 2 - i \\
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i - 1}) \\
+    & = i + 2 - i \\
+    & = 2 \\
+\end{split}
+\end{equation*}
+
+\textbf{Case 2.}
+$i$ is not an exact power of 2.
+
+Then $2^{\lfloor \lg i \rfloor} = 2^{\lfloor \lg (i - 1) \rfloor}$.
+
+\begin{equation*}
+    \Phi(D_i) - \Phi(D_{i - 1}) = 2
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i - 1}) \\
+    & = 1 + 2 \\
+    & = 3 \\
+\end{split}
+\end{equation*}
+
+Hence the amortized cost per operation is $O(1)$.
+
+\subsection*{17.3-3}
+
+The idea is to let the potential be proportional to 
+the sum of the height of every node in the min-heap.
+Note that an binary heap is a complete binary tree.
+
+\begin{equation*}
+    \sum\limits_{j=1}^n \lfloor \lg j \rfloor
+    \leq \lg (n!) \leq n \lg n
+\end{equation*}
+
+Let $\Phi$ be 
+\begin{equation*}
+    \Phi(D_i) = 
+    \begin{cases}
+        0 & \text{if $n_i = 0$,} \\
+        k n_i \lg n_i & \text{if $n_i > 0$} \\
+    \end{cases}
+\end{equation*}
+
+for some constant $k$
+where $n_i$ is the number of nodes in $D_i$.
+Also, we have
+\begin{equation*}
+    c_i \leq 
+    \begin{cases}
+        k_1 \lg n_i & \text{if $\proc{Insert}$ is performed in the $i$th operation 
+            and $n_i \geq 2$,} \\
+        k_2 \lg n_{i-1} & \text{if $\proc{Extract-Min}$ is performed in the $i$th operation 
+            and $n_{i-1} \geq 2$} \\
+    \end{cases}
+\end{equation*}
+
+Let $k = \func{max}(k_1,k_2)$.
+
+\textbf{Case 1.}
+$\proc{Insert}$ is performed in the $i$th operation.
+Then $n_i - 1 = n_{i-1}$.
+
+If $n_i = 1$,
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i - 1}) \\
+    & = c_i \\
+\end{split}
+\end{equation*}
+
+If $n_i \geq 2$,
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i - 1}) \\
+    & \leq k \lg n_i + k n_i \lg n_i - k n_{i-1} \lg n_{i-1} \\
+    & = k (\lg n_i + n_i \lg n_i - n_{i-1} \lg n_{i-1}) \\
+    & = k (\lg n_i + n_i \lg n_i - (n_i - 1) \lg (n_i - 1)) \\
+    & = k(\lg n_i + n_i \lg n_i - n_i \lg (n_i - 1) + \lg (n_i - 1)) \\
+    & < k(2\lg n_i + n_i (\lg n_i - \lg (n_i - 1))) \\
+\end{split}
+\end{equation*}
+
+Note that $\forall x \in \RR$, $1 + x \leq e^x$.
+Then
+\begin{equation*}
+\begin{split}
+    n_i (\lg n_i - \lg (n_i - 1)) & = n_i \lg \frac{n_i}{n_i - 1} \\
+    & = n_i \lg (1 + \frac{1}{n_i - 1}) \\
+    & \leq n_i \lg (e^{\frac{1}{n_i - 1}}) \\
+    & = \frac{n_i}{n_i - 1} \lg e \\
+    & = (1 + \frac{1}{n_i - 1}) \lg e \\
+    & \leq 2 \lg e \\
+\end{split}
+\end{equation*}
+
+Hence
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & < k(2\lg n_i + 2 \lg e)
+\end{split}
+\end{equation*}
+
+We conclude $\hat{c_i} = O(\lg n)$ for $\proc{Insert}$.
+
+\textbf{Case 2.}
+$\proc{Extract-Min}$ is performed in the $i$th operation.
+Then $n_{i-1} - 1 = n_i$.
+
+If $n_{i-1} = 1$,
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i - 1}) \\
+    & = c_i \\
+\end{split}
+\end{equation*}
+
+If $n_{i-1} \geq 2$,
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i - 1}) \\
+    & \leq k \lg n_{i-1} + k n_i \lg n_i - k n_{i-1} \lg n_{i-1} \\
+    & = k (\lg n_{i-1} + n_i \lg n_i - n_{i-1} \lg n_{i-1}) \\
+    & = k (\lg n_{i-1} + (n_{i-1} - 1) \lg (n_{i-1} - 1) - n_{i-1} \lg n_{i-1}) \\
+    & < k (\lg n_{i-1} - \lg (n_{i-1} - 1)) \\
+    & = k \lg (1 + \frac{1}{n_{i-1} - 1}) \\
+    & \leq k \lg e^{\frac{1}{n_{i-1} - 1}} \\
+    & = \frac{k}{n_{i-1} - 1} \lg e \\
+\end{split}
+\end{equation*}
+
+We conclude $\hat{c_i} = O(1)$ for $\proc{Extract-Min}$.
+
+\subsection*{17.3-4}
+
+\begin{equation*}
+    \Phi(D_{n}) - \Phi(D_{0}) = s_n - s_0
+\end{equation*}
+
+Since $\hat{c_i} = 2$,
+\begin{equation*}
+\begin{split}
+    \sum\limits_{i = 1}^n c_i
+    & = \sum\limits_{i = 1}^n \hat{c_i}
+    - \Phi(D_{n}) + \Phi(D_{0}) \\
+    & = 2n + s_0 - s_n
+\end{split}
+\end{equation*}
+
+\subsection*{17.3-5}
+
+\begin{equation*}
+    \Phi(D_0) = b
+\end{equation*}
+
+Since $\hat{c_i} \leq 2$,
+\begin{equation*}
+\begin{split}
+    \sum\limits_{i = 1}^n c_i
+    & = \sum\limits_{i = 1}^n \hat{c_i}
+    - \Phi(D_{n}) + \Phi(D_{0}) \\
+    & \leq 2n + b - \Phi(D_{n})
+\end{split}
+\end{equation*}
+
+Since $\Phi(D_{n}) \geq 0$,
+\begin{equation*}
+    \sum\limits_{i = 1}^n c_i \leq 2n + b
+\end{equation*}
+
+Since $n = \Omega(b)$,
+\begin{equation*}
+    \sum\limits_{i = 1}^n c_i = O(n)
+\end{equation*}
+
+\subsection*{17.3-6}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+template <typename T>
+class Queue
+{
+public:
+    void Enqueue(T& x);
+    void Enqueue(T&& x);
+    T Dequeue();
+private:
+    std::stack<T> s_a_;
+    std::stack<T> s_b_;
+};
+
+template <typename T>
+void Queue<T>::Enqueue(T& x)
+{
+    s_a_.push(x);
+}
+
+template <typename T>
+void Queue<T>::Enqueue(T&& x)
+{
+    s_a_.emplace(std::move(x));
+}
+
+template <typename T>
+T Queue<T>::Dequeue()
+{
+    if (s_b_.empty())
+    {
+        while (s_a_.empty() == false)
+        {
+            s_b_.emplace(std::move(s_a_.top()));
+            s_a_.pop();
+        }
+    }
+    T top = std::move(s_b_.top());
+    s_b_.pop();
+    return std::move(top);
+}
+\end{minted}
+
+Assume each of $s\_a\_.push$ (or $emplace$), $s\_a\_.pop$, 
+$s\_b\_.push$ (or $emplace$), $s\_b\_.pop$ costs $\$1$.
+Then
+\begin{equation*}
+    c_i = 
+    \begin{cases}
+        1 & \text{if $\proc{Enqueue}$ is performed in the $i$th operation,} \\
+        1 & \text{if $\proc{Dequeue}$ is performed in the $i$th operation
+            and $D_{i-1}.s\_b\_$ is not empty,} \\
+        2 \cdot (D_{i-1}.s\_a\_.size()) + 1 
+            & \text{if $\proc{Dequeue}$ is performed in the $i$th operation
+            and $D_{i-1}.s\_b\_$ is empty} \\
+    \end{cases}
+\end{equation*}
+
+Let 
+\begin{equation*}
+    \Phi(D_i) = 3 \cdot (D_i.s\_a\_.size()) + (D_i.s\_b\_.size())
+\end{equation*}
+
+\textbf{Case 1.} 
+$\proc{Enqueue}$ is performed in the $i$th operation.
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
+    & = 1 + 3 \cdot (D_i.s\_a\_.size() - D_{i-1}.s\_a\_.size()) 
+        + (D_i.s\_b\_.size() - D_{i-1}.s\_b\_.size())\\
+    & = 1 + 3 \cdot 1 + 0 \\
+    & = 4 \\
+\end{split}
+\end{equation*}
+
+\textbf{Case 2.} 
+$\proc{Dequeue}$ is performed in the $i$th operation
+and $D_{i-1}.s\_b\_$ is not empty.
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
+    & = 1 + 3 \cdot (D_i.s\_a\_.size() - D_{i-1}.s\_a\_.size()) 
+        + (D_i.s\_b\_.size() - D_{i-1}.s\_b\_.size())\\
+    & = 1 + 3 \cdot 0 - 1 \\
+    & = 0 \\
+\end{split}
+\end{equation*}
+
+\textbf{Case 3.} 
+$\proc{Dequeue}$ is performed in the $i$th operation
+and $D_{i-1}.s\_b\_$ is empty.
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
+    & = (2 \cdot (D_{i-1}.s\_a\_.size()) + 1)
+         + 3 \cdot (D_i.s\_a\_.size() - D_{i-1}.s\_a\_.size()) 
+        + (D_i.s\_b\_.size() - D_{i-1}.s\_b\_.size())\\
+    & = (2 \cdot (D_{i-1}.s\_a\_.size()) + 1) 
+        - 3 \cdot (D_{i-1}.s\_a\_.size()) + (D_{i-1}.s\_a\_.size() - 1) \\
+    & = 0 \\
+\end{split}
+\end{equation*}
+
+Thus, we conclude that the amortized cost of each
+$\proc{Enqueue}$ and each $\proc{Dequeue}$ operation
+is $O(1)$.
+
+\subsection*{17.3-7}
+
+Note that section 9.3 provides an approach of selection in worst-case linear time.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+class DataStructure
+{
+public:
+    void Insert(int x);
+    void DeleteLargerHalf();
+    const std::vector<int>& Get() const;
+private:
+    std::vector<int> arr_;
+};
+
+void DataStructure::Insert(int x)
+{
+    arr_.push_back(x);
+}
+
+void DataStructure::DeleteLargerHalf()
+{
+    size_t median = arr_.size() >> 1;
+    LinearSelect(arr_, 0, arr_.size() - 1, (arr_.size() - 1) >> 1);
+    arr_.erase(arr_.begin() + median, arr_.end());
+}
+
+const std::vector<int>& DataStructure::Get() const
+{
+    return arr_;
+}
+\end{minted}
+
+Assume
+\begin{equation*}
+    c_i = 
+    \begin{cases}
+        1 & \text{if $\proc{Insert}$ is performed in the $i$th operation,} \\
+        n_{i-1} & \text{if $\proc{Delete-Larger-Half}$ 
+            is performed in the $i$th operation} \\
+    \end{cases}
+\end{equation*}
+where $n_i$ is $|S|$ after the $i$th operation.
+Let
+\begin{equation*}
+    \Phi(D_i) = 2n_i
+\end{equation*}
+be the potential function of the data structure.
+
+\textbf{Case 1.}
+$\proc{Insert}$ is performed in the $i$th operation.
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
+    & = c_i+ 2(n_i - n_{i-1}) \\
+    & = 1 + 2 \cdot 1 \\
+    & = 3 \\
+\end{split}
+\end{equation*}
+
+\textbf{Case 2.}
+$\proc{Delete-Larger-Half}$ is performed in the $i$th operation.
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
+    & = c_i + 2(n_i - n_{i-1}) \\
+    & = n_{i-1} + 2(\frac{n_{i-1}}{2} - n_{i-1}) \\
+    & = n_{i-1} - n_{i-1} \\
+    & = 0 \\
+\end{split}
+\end{equation*}
+
 % \section*{Chapter 17 Problems}
 
 % \subsection*{17-1}
