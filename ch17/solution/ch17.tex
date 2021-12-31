@@ -559,6 +559,369 @@ $\proc{Delete-Larger-Half}$ is performed in the $i$th operation.
 \end{split}
 \end{equation*}
 
+\section*{17.4}
+
+\subsection*{17.4-1}
+
+By Theorem 11.6 and Theorem 11.8, assuming uniform hashing,
+for $alpha < 1$, we know the expected number of probes 
+in an unsuccessful search is at most $\frac{1}{1 - \alpha}$
+and in an successful search is at most 
+$\frac{1}{\alpha} \ln \frac{1}{1 - \alpha}$.
+
+\begin{equation*}
+    \lim\limits_{\alpha \rightarrow 1^-} \frac{1}{1 - \alpha} = \infty
+\end{equation*}
+
+\begin{equation*}
+    \lim\limits_{\alpha \rightarrow 1^-} 
+    \frac{1}{\alpha} \ln \frac{1}{1 - \alpha} = \infty
+\end{equation*}
+
+Actually, when $\alpha = 1$, an unsuccessful search costs 
+$\Theta(m) = \Theta(n)$.
+If we can bound $\alpha$ above by some constant 
+that is strictly less than $1$,
+the expected time of an unsuccessful or successful search is bounded above
+by some constant also.
+
+Consider the function
+\begin{equation*}
+    \Phi_i = 2 \cdot num_i - \beta \cdot size_i
+\end{equation*}
+Let $\Phi_0 = 0$.
+
+We just need to simply modify the conditional statement 
+in line 4 of $\proc{Table-Insert}$ to 
+\begin{codebox}
+    \zi \If $T.num + 1 > \beta \cdot T.size$
+\end{codebox}
+where $\beta$ is some constant that is strictly less than $1$
+and modify the base case of resizing table
+by modifing line 3 of $\proc{Table-Insert}$ to 
+\begin{codebox}
+    \zi \If $T.size = \lceil \frac{1}{\beta} \rceil$
+\end{codebox}
+
+We want to show that one expansion (twice the size) is enough
+in order to insert an element into a full table ($T.num + 1 > \beta \cdot T.size$).
+
+\begin{lemma}
+    Assume $num \geq 1$.
+    $num \leq \beta \cdot size \Longrightarrow
+    num + 1 \leq 2 \beta \cdot size$ 
+\end{lemma}
+
+\begin{proof}
+    Note that $\forall x \geq 1, x + 1 \leq 2x$.
+    \begin{equation*}
+    \begin{split}
+        num \leq \beta \cdot size & \Longleftrightarrow 2 \cdot num \leq 2 \beta \cdot size \\
+        & \Longleftrightarrow num + 1 \leq 2 \cdot num \leq 2 \beta \cdot size \\
+    \end{split}
+    \end{equation*}
+\end{proof}
+
+\begin{claim}
+    $num_i \leq \beta \cdot size_i$ for all $i$.
+\end{claim}
+
+\begin{proof}
+    We prove by induction.
+    WLOG, assume inserts are performed for all $i$.
+    Then $num_{i+1} = i + 1$.
+    
+    \textit{(Base)}
+    $k = 0$: $num_0 = 0 \leq \beta \cdot 0 = \beta \cdot size_i$
+
+    $k = 1$: $num_1 = 1 \leq \beta \cdot \lceil \frac{1}{\beta} \rceil = \beta \cdot size_i$
+    since $x \cdot \lceil \frac{1}{x} \rceil \geq x \cdot \frac{1}{x} = 1$ for all $x > 0$.
+
+    \textit{(Induction)}
+    Fix $k \geq 1$.
+    Suppose that $num_k \leq \beta \cdot size_k$.
+
+    \textbf{Case 1.}
+    $num_k + 1 \leq \beta \cdot size_k$
+
+    Then $size_{k+1} = size_k$.
+    \begin{equation*}
+        num_{k+1} = num_k + 1 \leq \beta \cdot size_k = \beta \cdot size_{k+1}
+    \end{equation*}
+
+    \textbf{Case 2.}
+    $num_k + 1 > \beta \cdot size_k$
+    
+    Then $size_{k+1} = 2 \cdot size_k$.
+    By lemma 1 and inductive hypothesis, we have
+    $num_k + 1 \leq 2\beta \cdot size_k$.
+
+    \begin{equation*}
+        num_{k+1} = num_k + 1 \leq 2\beta \cdot size_k = \beta \cdot size_{k+1}
+    \end{equation*}
+\end{proof}
+
+We also want to show that $\Phi(T)$ is always nonnegative.
+
+\begin{claim}
+    $\Phi_i \geq 0$ for all $i$
+\end{claim}
+
+\begin{proof}
+    We prove by induction.
+    WLOG, assume inserts are performed for all $i$.
+    Then $num_{i+1} = i + 1$.
+
+    \textit{(Base)}
+    \begin{equation*}
+        \Phi_0 = 0
+    \end{equation*}
+    \begin{equation*}
+        \Phi_1 = 2 \cdot num_1 - \beta \cdot size_1
+        = 2 \cdot 1 - \beta \cdot \lceil \frac{1}{\beta} \rceil
+        > 2 - \beta \cdot (\frac{1}{\beta} + 1)
+        = 1 - \beta > 0
+    \end{equation*}
+
+    \textit{(Induction)}
+    Fix $k \geq 1$.
+    Suppose that $\Phi_k = 2 \cdot num_k - \beta \cdot size_k \geq 0$.
+    
+    \textbf{Case 1.}
+    $num_k + 1 \leq \beta \cdot size_k$
+
+    Then $size_{k+1} = size_k$.
+    \begin{equation*}
+        \Phi_{k+1} = 2 \cdot num_{k+1} - \beta \cdot size_{k+1} 
+        = 2 \cdot (num_k + 1) - \beta \cdot size_k 
+        > 2 \cdot num_k - \beta \cdot size_k \overset{\text{IH}}{\geq} 0
+    \end{equation*}
+    
+    \textbf{Case 2.}
+    $num_k + 1 > \beta \cdot size_k$
+    
+    Then $size_{k+1} = 2 \cdot size_k$.
+    \begin{equation*}
+        \Phi_{k+1} = 2 \cdot num_{k+1} - \beta \cdot size_{k+1} 
+        = 2 \cdot (num_k + 1) - 2 \beta \cdot size_k
+        = 2 \cdot (num_k + 1 - \beta \cdot size_k)
+        > 0
+    \end{equation*}
+    Since $num_k + 1 - \beta \cdot size_k > 0$
+\end{proof}
+
+We want to analysis the expected amortized cost.
+By Theorem 11.6,
+we assume
+\begin{equation*}
+    E[c_i] = 
+    \begin{cases}
+        1 & \text{if the $i$th insert operation does not trigger an expansion,} \\
+        num_i & \text{if the $i$th insert operation does trigger an expansion} \\
+    \end{cases}
+\end{equation*}
+
+If the $i$th insert operation does not trigger an expansion,
+then we have $size_i = size_{i-1}$, and 
+the expected amortized cost of the operation is
+\begin{equation*}
+\begin{split}
+    E[\hat{c_i}] & = E[c_i] + \Phi_i - \Phi_{i-1} \\
+    & = 1 + (2 \cdot num_i - \beta \cdot size_i) - (2 \cdot num_{i-1} - \beta \cdot size_{i-1}) \\
+    & = 1 + (2 \cdot num_i - \beta \cdot size_i) - (2 \cdot (num_i - 1) - \beta \cdot size_i) \\
+    & = 3 \text{ .} 
+\end{split}
+\end{equation*}
+
+If the $i$th insert operation does trigger an expansion,
+then we have $size_i = 2 \cdot size_{i-1}$, and 
+the expected amortized cost of the operation is
+\begin{equation*}
+\begin{split}
+    E[\hat{c_i}] & = E[c_i] + \Phi_i - \Phi_{i-1} \\
+    & = num_i + (2 \cdot num_i - \beta \cdot size_i) - (2 \cdot num_{i-1} - \beta \cdot size_{i-1}) \\
+    & = (num_{i-1} + 1) + (2 \cdot (num_{i-1} + 1) - \beta \cdot 2 \cdot size_{i-1}) 
+        - (2 \cdot num_{i-1} - \beta \cdot size_{i-1}) \\
+    & = 3 + num_{i-1} - \beta \cdot size_{i-1} \\
+    & < 3 \text{. \quad\quad\quad\quad\quad (by claim 2)}
+\end{split}
+\end{equation*}
+Note that $E[c_i] = num_i$, which is linear, in this case
+because we need to copy all $num_{i-1}$ elements 
+to the new allocated table.
+
+\subsection*{17.4-2}
+
+\begin{claim}
+    $\forall num \geq 2, \frac{num}{size} \geq \frac{1}{2}
+    \Longrightarrow \frac{num - 1}{size} \geq \frac{1}{4}$
+\end{claim}
+
+\begin{proof}
+    \begin{equation*}
+    \begin{split}
+        \frac{num}{size} \geq \frac{1}{2}
+        & \Longleftrightarrow
+        2 \cdot num \geq size \\
+        & \Longleftrightarrow
+        4(num - 1) \geq 2 \cdot num \geq size 
+        \text{ \quad\quad\quad\quad\quad 
+        (since $num \geq 2$)}\\
+        & \Longleftrightarrow
+        \frac{num - 1}{size} \geq \frac{1}{4} \\
+    \end{split}
+    \end{equation*}
+\end{proof}
+
+Suppose that $\alpha_{i-1} \geq \frac{1}{2}$
+and the $i$th operation is $\proc{Table-Delete}$.
+Then $num_i = num_{i-1} - 1$.
+By the claim, we know that a contraction will not be triggered
+in the $i$th operation
+if $\alpha_{i-1} \geq \frac{1}{2}$ and 
+$num_{i-1} \geq 2$.
+If $num_{i-1} = 1$, then $num_i = 0$, which is trivial.
+Assume $num_{i-1} \geq 2$ in the following analysis.
+Then $c_i = 1$ and $size_i = size_{i-1}$.
+
+\textbf{Case 1.}
+$\alpha_i < \frac{1}{2}$.
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+    & = 1 + (\frac{size_i}{2} - num_i) - (2 \cdot num_{i-1} - size_{i-1}) \\
+    & = 1 + (\frac{size_{i-1}}{2} - (num_{i-1} - 1)) - (2 \cdot num_{i-1} - size_{i-1}) \\
+    & = 2 + \frac{3}{2} \cdot size_{i-1} - 3 \cdot num_{i-1} \\
+    & = 2 + \frac{3}{2} \cdot size_{i-1} - 3 \alpha_{i-1} \cdot size_{i-1} \\
+    & \leq 2 + \frac{3}{2} \cdot size_{i-1} - \frac{3}{2} \cdot size_{i-1} \\
+    & = 2 \\
+\end{split}
+\end{equation*}
+
+\textbf{Case 2.}
+$\alpha_i \geq \frac{1}{2}$.
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+    & = 1 + (2 \cdot num_i - size_i) - (2 \cdot num_{i-1} - size_{i-1}) \\
+    & = 1 + (2 \cdot (num_{i-1} - 1) - size_{i-1}) - (2 \cdot num_{i-1} - size_{i-1}) \\
+    & = -1 \\
+\end{split}
+\end{equation*}
+
+\subsection*{17.4-3}
+
+Suppose that $\proc{Table-Delete}$ is performed in the $i$th operation.
+Then $num_i = num_{i-1} - 1$.
+
+\textbf{Case 1.}
+$\frac{num_{i-1}-1}{size_{i-1}} \geq \frac{1}{3}$
+(a contraction is not triggered in the $i$th operation).
+
+Then we have $c_i = 1$ and $size_i = size_{i-1}$.
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+    & = c_i + | 2 \cdot num_i - size_i | - | 2 \cdot num_{i-1} - size_{i-1} | \\
+    & = 1 + | 2 \cdot (num_{i-1} - 1) - size_{i-1} | - | 2 \cdot num_{i-1} - size_{i-1} | \\
+    & \overset{\triangle}{\leq} 1 + (| 2 \cdot num_{i-1} - size_{i-1} | + | - 2 |) 
+        - | 2 \cdot num_{i-1} - size_{i-1} | \\
+    & = 3 \\
+\end{split}
+\end{equation*}
+
+\textbf{Case 2.}
+$\frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}$
+(a contraction is triggered in the $i$th operation).
+
+Then we have $c_i = num_i + 1 = num_{i-1}$ and $size_i = \frac{2}{3} \cdot size_{i-1}$.
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+    & = c_i + | 2 \cdot num_i - size_i | - | 2 \cdot num_{i-1} - size_{i-1} | \\
+    & = num_{i-1} + | 2 \cdot (num_{i-1} - 1) - \frac{2}{3} \cdot size_{i-1} | 
+        - | 2 \cdot num_{i-1} - size_{i-1} | \\
+    & = num_{i-1} + | 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 | 
+        - | 2 \cdot num_{i-1} - size_{i-1} | \\
+\end{split}
+\end{equation*}
+
+\begin{lemma}
+    \begin{equation*}
+        2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 < 0
+    \end{equation*}
+\end{lemma}
+
+\begin{proof}
+    \begin{equation*}
+    \begin{split}
+        \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
+        & \Longrightarrow 3 \cdot (num_{i-1} - 1) < size_{i-1} \\
+        & \Longrightarrow 2 \cdot (num_{i-1} - 1) < \frac{2}{3} \cdot size_{i-1} \\
+        & \Longrightarrow 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 < 0 \\
+    \end{split}
+    \end{equation*}
+\end{proof}
+
+\begin{lemma}
+    \begin{equation*}
+        \forall num_{i-1} \geq 3, 
+        2 \cdot num_{i-1} - size_{i-1} < 0
+    \end{equation*}
+\end{lemma}
+
+\begin{proof}
+    \begin{equation*}
+    \begin{split}
+        \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
+        & \Longrightarrow 3 \cdot (num_{i-1} - 1) < size_{i-1} \\
+        & \Longrightarrow 2 \cdot num_{i-1} - 3 + num_{i-1} < size_{i-1} \\
+        & \Longrightarrow 2 \cdot num_{i-1} - size_{i-1} + (num_{i-1} - 3) < 0 \\
+        & \Longrightarrow 2 \cdot num_{i-1} - size_{i-1} < 3 - num_{i-1} \\
+    \end{split}
+    \end{equation*}
+    Clearly, $\forall num_{i-1} \geq 3, 3 - num_{i-1} \leq 0$.
+\end{proof}
+
+The subcase of $num_{i-1} < 3$ is trivial.
+Assume $num_{i-1} \geq 3$ in the later analysis.
+
+Then
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = num_{i-1} + | 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 | 
+        - | 2 \cdot num_{i-1} - size_{i-1} | \\
+    & = num_{i-1} - ( 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 ) 
+        \overset{(--)}{+} ( 2 \cdot num_{i-1} - size_{i-1} ) \\
+    & = (num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1) + 3 \\
+\end{split}
+\end{equation*}
+
+\begin{lemma}
+    \begin{equation*}
+        num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1 < 0
+    \end{equation*}
+\end{lemma}
+
+\begin{proof}
+    \begin{equation*}
+    \begin{split}
+        \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
+        & \Longrightarrow num_{i-1} - 1 < \frac{1}{3} \cdot size_{i-1} \\
+        & \Longrightarrow num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1 < 0 \\
+    \end{split}
+    \end{equation*}
+\end{proof}
+
+Hence
+\begin{equation*}
+    \hat{c_i} = (num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1) + 3 < 3
+\end{equation*}
+
 % \section*{Chapter 17 Problems}
 
 % \subsection*{17-1}
