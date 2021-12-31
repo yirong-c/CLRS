@@ -922,9 +922,82 @@ Hence
     \hat{c_i} = (num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1) + 3 < 3
 \end{equation*}
 
-% \section*{Chapter 17 Problems}
+\section*{Chapter 17 Problems}
 
-% \subsection*{17-1}
+\subsection*{17-1}
+
+\subsubsection*{(a)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+template <typename T>
+void BitReversal(std::vector<T>& arr)
+{
+    size_t k, tmp, i, n, rev;
+    n = arr.size();
+    std::vector<bool> counter(n, false);
+    tmp = n;
+    k = -1;
+    while (tmp)
+    {
+        tmp = tmp >> 1;
+        ++k;
+    }
+    for (i = 0; i < n; ++i)
+    {
+        if (counter[i] == false)
+        {
+            rev = Rev(k, i);
+            std::swap(arr[i], arr[rev]);
+            counter[i] = true;
+            counter[rev] = true;
+        }
+    }
+}
+\end{minted}
+
+\subsubsection*{(b)}
+
+Note that
+\begin{equation*}
+    \func{rev}_k(\langle a_{k-1}, a_{k-2}, \cdots, a_0 \rangle)
+     = \langle a_0, a_1, \cdots, a_{k-1} \rangle
+\end{equation*}
+
+In order to find $rev_k(a) + 1$, 
+we just need to call $\proc{Increment}$ on $rev_k(a)$.
+We observed that we can modify $\proc{Increment}$
+by starting iteration from the high order bit to the low order bit
+in order to find $rev_k( rev_k(a) + 1 ) + 1$.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+size_t BitReversedIncrement(size_t k, size_t a)
+{
+    size_t i;
+    i = 1 << (k - 1);
+    while (i > 0 && (a & i) != 0)
+    {
+        a = a & ( ~ i );
+        i = i >> 1;
+    }
+    a = a | i;
+    return a;
+}
+\end{minted}
+
+Similar to the analysis of $\proc{Increment}$,
+successive call to $\proc{Bit-Reversed-Increment}$
+produce the sequence in a total of $O(n)$ time.
+
+\subsection*{(c)}
+
+Yes.
+We can modify our $\proc{Bit-Reversed-Increment}$
+by precompute value of $1 << (k - 1)$ before the first call
+in order to prevent recomputing this value in each call. 
+
+Observed the operation of $i = i >> 1$ always following 
+flipping the bit back to $0$.
+Hence we can use the same analysis in this situation.
 
 \centerline{\textbf{Updating...}}
 
