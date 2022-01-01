@@ -999,6 +999,187 @@ Observed the operation of $i = i >> 1$ always following
 flipping the bit back to $0$.
 Hence we can use the same analysis in this situation.
 
+\subsection*{17-2}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+template <typename T>
+class DynamicBinarySearch
+{
+public:
+    using Iterators = std::pair
+        <typename std::list< std::vector<T> >::iterator, 
+        typename std::vector<T>::iterator>;
+    Iterators Search(const T& key);
+    void Insert(const T& key);
+    void Delete(const Iterators& its);
+private:
+    std::list< std::vector<T> > arrays_;
+};
+\end{minted}
+    
+\subsubsection*{(a)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+template <typename T>
+typename DynamicBinarySearch<T>::Iterators 
+    DynamicBinarySearch<T>::Search(const T& key)
+{
+    size_t n, i;
+    n = arrays_.size();
+    for (typename std::list< std::vector<T> >::iterator it = arrays_.begin(); 
+        it != arrays_.end(); ++it)
+    {
+        typename std::vector<T>::iterator sub_it = 
+            std::lower_bound(it->begin(), it->end(), key);
+        if (sub_it != it->end() && *sub_it == key)
+            return std::make_pair(it, sub_it);
+    }
+    throw std::out_of_range("the container does not have an element "
+                            "with the specified key");
+}
+\end{minted}
+
+In the worst case, $n_i = 1$ for all $i = 0, 1, \cdots, k - 1$
+and the binary search is unsuccessful.
+Then the running time in the worst case is 
+\begin{equation*}
+    \Theta(\sum\limits_{i = 0}^{k - 1} n_i \lg(2^i))
+    = \Theta(\sum\limits_{i = 0}^{k - 1} i)
+    = \Theta(k^2)
+    = \Theta(\lg^2 n)
+\end{equation*}
+
+\subsubsection*{(b)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+template <typename T>
+void DynamicBinarySearch<T>::Insert(const T& key)
+{
+    size_t n;
+    std::vector<T> merged_arr, tmp;
+    typename std::list< std::vector<T> >::iterator it = arrays_.begin();
+    n = 1;
+    merged_arr.push_back(key);
+    while (it != arrays_.end() && it->size() > 0)
+    {
+        n >>= 1;
+        tmp = std::move(merged_arr);
+        merged_arr.reserve(n);
+        std::merge(tmp.begin(), tmp.end(), 
+            it->begin(), it->end(), 
+            std::back_inserter(merged_arr));
+        it->clear();
+        ++it;
+    }
+    if (it != arrays_.end())
+        *it = std::move(merged_arr);
+    else
+        arrays_.emplace_back(std::move(merged_arr));
+}
+\end{minted}
+
+Suppose that the $i$th operation clears (or merges) $t_i$ arrays. 
+We have $0 \leq t_i \leq k - 1$ for all $i$.
+Note that merge two arrays with size $m$ and $n$ runs in $\Theta(m + n)$.
+The sum of the sizes of arrays $A_0, A_1, \cdots, A_{j-1}$ is
+\begin{equation*}
+    total\_size(0,j-1) = \sum\limits_{h = 0}^{j - 1} 2^h = 2^j - 1
+\end{equation*}
+In $i$th operation, we merge arrays $A_0, A_1, \cdots, A_{t_i-1}$
+and insert the new element,
+and the running time is
+\begin{equation*}
+\begin{split}
+    \Theta(1 + \sum_{j = 0}^{t_i - 1} (2^j + total\_size(0, j - 1)))
+    & = \Theta(1 + \sum_{j = 0}^{t_i - 1} (2^j + 2^j - 1)) \\
+    & = \Theta(1 - t_i + 2 \cdot \sum_{j = 0}^{t_i - 1} 2^j) \\
+    & = \Theta(1 - t_i + 2 \cdot (2^{t_i} - 1)) \\ 
+    & = \Theta(2^{t_i + 1} - t_i - 1) \\
+    & = \Theta(2^{t_i}) \\
+\end{split}
+\end{equation*}
+Clearly, the running time of the worst case is 
+\begin{equation*}
+    \Theta(2^{k - 1}) = \Theta(2^{\lceil \lg (n + 1) \rceil - 1})
+    = \Theta(n)
+\end{equation*}
+when $t_i = k - 1$.
+
+We analysis amortized cost by using aggregate analysis.
+Similar to the analysis of $\proc{Increment}$,
+array $A[j]$ clears (merge with another $2^j$ elements 
+and insert them into $A[j+1]$) 
+$\lfloor n / 2^j \rfloor$ times
+in a sequence of $n$ $\proc{Insert}$ operations on an initially
+empty container (array of arrays),
+and the running time of each time in $\Theta(2 \cdot 2^j) = \Theta(2^j)$.
+Hence the total cost of a sequence of $n$ $\proc{Insert}$ operations is
+\begin{equation*}
+    \Theta(\sum\limits_{j = 0}^{k - 1} \lfloor \frac{n}{2^j} \rfloor 2^j)
+    = \Theta(n k) = \Theta(n \lg n)
+\end{equation*}
+Then the amortized cost of each $\proc{Insert}$ is $\Theta(\lg n)$.
+
+\subsubsection*{(c)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+template <typename T>
+void DynamicBinarySearch<T>::Delete(const Iterators& its)
+{
+    size_t n;
+    // find the full array with the smallest size 
+    // (i.e. the full array with smallest index in arrays_)
+    typename std::list< std::vector<T> >::iterator 
+        first_full_it = arrays_.begin();
+    while (first_full_it->size() == 0)
+    {
+        ++first_full_it;
+    }
+    // delete the element and refill the array with first_full_it->back()
+    typename std::vector<T>::iterator processing_element_it = its.second,
+        target_element_it = std::lower_bound
+        (its.first->begin(), its.first->end(), first_full_it->back());
+    if (target_element_it > processing_element_it)
+    {
+        ++processing_element_it;
+        while (target_element_it != processing_element_it)
+        {
+            *(processing_element_it - 1) = std::move(*processing_element_it);
+            ++processing_element_it;
+        }
+        *(processing_element_it - 1) = std::move(first_full_it->back());
+    }
+    else
+    {
+        while (target_element_it != processing_element_it)
+        {
+            *processing_element_it = std::move(*(processing_element_it - 1));
+            --processing_element_it;
+        }
+        *processing_element_it = std::move(first_full_it->back());
+    }
+    // split first_full_it and assign them into arrays with smaller index in arrays_
+    n = 1;
+    typename std::vector<T>::iterator element_it = first_full_it->begin();
+    for (typename std::list< std::vector<T> >::iterator it = arrays_.begin();
+        it != first_full_it; ++it)
+    {
+        it->assign(std::move_iterator(element_it), 
+            std::move_iterator(element_it) + n);
+        element_it = element_it + n;
+        n <<= 1;
+    }
+    first_full_it->clear();
+    // remove empty arrays (optional)
+    if (arrays_.back().empty())
+    {
+        arrays_.pop_back();
+    }
+}
+\end{minted}
+
+In the worst case, delete operation takes $\Theta(n)$ time.
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
