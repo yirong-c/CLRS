@@ -988,7 +988,7 @@ Similar to the analysis of $\proc{Increment}$,
 successive call to $\proc{Bit-Reversed-Increment}$
 produce the sequence in a total of $O(n)$ time.
 
-\subsection*{(c)}
+\subsubsection*{(c)}
 
 Yes.
 We can modify our $\proc{Bit-Reversed-Increment}$
@@ -1179,6 +1179,163 @@ void DynamicBinarySearch<T>::Delete(const Iterators& its)
 \end{minted}
 
 In the worst case, delete operation takes $\Theta(n)$ time.
+
+\subsection*{17-3}
+
+\subsubsection*{(a)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void RebuildTreeTranverse(Node* root, std::vector<Node*>& elements)
+{
+    if (root != nullptr)
+    {
+        RebuildTreeTranverse(root->left, elements);
+        elements.push_back(root);
+        RebuildTreeTranverse(root->right, elements);
+    }
+}
+
+Node* RebuildTreeBuild(std::vector<Node*>& elements, int lower, int upper)
+{
+    int middle;
+    if (lower > upper)
+        return nullptr;
+    middle = lower + ((upper - lower) >> 1);
+    elements[middle]->size = upper - lower + 1;
+    elements[middle]->left = RebuildTreeBuild(elements, lower, middle - 1);
+    elements[middle]->right = RebuildTreeBuild(elements, middle + 1, upper);
+    return elements[middle];
+}
+
+Node* RebuildTree(Node* root)
+{
+    std::vector<Node*> elements;
+    elements.reserve(root->size);
+    RebuildTreeTranverse(root, elements);
+    return RebuildTreeBuild(elements, 0, root->size - 1);
+}
+\end{minted}
+
+\subsubsection*{(b)}
+
+Let $T(n)$ be the running time of a search on 
+a $\alpha$-balanced binary search tree with $n$ elements.
+We have
+\begin{equation*}
+    T(n) \leq T(\alpha \cdot n) + \Theta(1)
+    = T(\frac{n}{1/\alpha}) + \Theta(1)
+\end{equation*}
+Since $\alpha < 1$, we have $1/\alpha > 1$.
+By the master theorem,
+we have
+\begin{equation*}
+    T(\frac{n}{1/\alpha}) + \Theta(1) = \Theta(\lg n)
+\end{equation*}
+Hence we have
+\begin{equation*}
+    T(n) = O(\lg n)
+\end{equation*}
+
+\subsubsection*{(c)}
+
+Since $c$ is a sufficiently large constant, 
+we may assume $c > 0$.
+$\Delta(x)$ is an absolute value.
+Obviously, $\Phi(T)$ is always nonnegative. 
+
+In order to show that a $1/2$-balanced tree $T$ has potential $0$,
+we need to show that 
+\begin{equation*}
+    \Delta(x) = | x.left.size - x.right.size | \leq 1
+\end{equation*}
+for all $x \in T$.
+
+Let $x \in T$.
+WLOG, assume $x.left.size \geq x.right.size$,
+so we want to show that 
+\begin{equation*}
+    x.left.size - x.right.size \leq 1
+\end{equation*}
+Note that 
+\begin{equation*}
+    x.size = x.left.size + x.right.size + 1
+\end{equation*}
+Since $T$ is a $1/2$-balanced tree,
+we have 
+\begin{equation*}
+    x.left.size \leq \frac{1}{2} \cdot x.size
+\end{equation*}
+Then
+\begin{equation*}
+\begin{split}
+    x.left.size - x.right.size 
+    & = x.left.size - (x.size - x.left.size - 1) \\
+    & = 2 \cdot x.left.size - x.size + 1 \\
+    & \leq 2 \cdot \frac{1}{2} \cdot x.size - x.size + 1 \\
+    & = 1 \\
+\end{split}
+\end{equation*}
+
+\subsubsection*{(d)}
+
+Note that we rebuild the subtree to be $1/2$-balanced,
+instead to $\alpha$-balanced.
+
+Denote $\Phi_j$ as the potential of $T$ after the $j$th operation.
+Denote $size_j(w)$ as the $w.size$ after the $j$th operation 
+for all $w \in T$.
+Denote $\Delta_j(w)$ as the $\Delta(w)$ after the $j$th operation 
+for all $w \in T$.
+Suppose that $T$ is not $\alpha$-balanced after the $(i-1)$th operation
+and is $1/2$-balanced after the $i$th operation.
+By part (c), we have $\Phi_i = 0$.
+Let $x$ be the root node of $T$ after the $(i-1)$th operation.
+We have
+\begin{equation*}
+    \Phi_{i-1} \geq c \cdot \Delta_{i-1}(x)
+\end{equation*}
+WLOG, assume $size_{i-1}(x.left) \geq size_{i-1}(x.right)$.
+Since $T$ is not $\alpha$-balanced after the $(i-1)$th operation,
+\begin{equation*}
+    size_{i-1}(x.left) > \alpha \cdot size_{i-1}(x)
+\end{equation*}
+must be true.
+Then
+\begin{equation*}
+\begin{split}
+    \Delta_{i-1}(x) & = size_{i-1}(x.left) - size_{i-1}(x.right) \\
+    & = size_{i-1}(x.left) - (size_{i-1}(x) - size_{i-1}(x.left) - 1) \\
+    & = 2 \cdot size_{i-1}(x.left) - size_{i-1}(x) + 1 \\
+    & > 2 \alpha \cdot size_{i-1}(x) - size_{i-1}(x) + 1 \\
+    & = (2 \alpha - 1) \cdot size_{i-1}(x) + 1 \\
+    & > (2 \alpha - 1) \cdot size_{i-1}(x) \\
+\end{split}
+\end{equation*}
+Suppose that $size_{i-1}(x) = m$.
+That is we are rebuilding an $m$-node subtree in the $i$th operation.
+Hence the amortized cost of the $i$th operation is 
+\begin{equation*}
+\begin{split}
+    m + \Phi_i - \Phi_{i-1} & = m - \Phi_{i-1} \\
+    & \leq m - c \cdot \Delta_{i-1}(x) \\
+    & < m - c \cdot (2 \alpha - 1) \cdot m \\
+\end{split}
+\end{equation*}
+In order to let the amortized time be $O(1)$,
+we let $c \geq \frac{1}{2 \alpha - 1}$.
+
+\subsubsection*{(e)}
+
+Suppose that we perform insert or delete in the $i$th operation.
+Let $h$ be the height of $T$,
+By part (b), we derive the $h = O(\lg n)$.
+Then we pay $O(\lg n)$ for actual inserting or deleting the node.
+If we do not rebuild the tree, 
+then $\Phi_i - \Phi_{i-1} \leq h + 1 = O(\lg n)$.
+If we rebuild the tree,
+then we rebuild the subtreee rooted at the highest 
+non-$\alpha$-balanced node, and, by part (d), 
+the amortized cost of rebuild is $O(1)$.
 
 \centerline{\textbf{Updating...}}
 
