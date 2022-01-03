@@ -1337,6 +1337,165 @@ then we rebuild the subtreee rooted at the highest
 non-$\alpha$-balanced node, and, by part (d), 
 the amortized cost of rebuild is $O(1)$.
 
+\subsection*{17-4}
+
+\subsubsection*{(a)}
+
+We notice that the only locations to have repeated coloring 
+are fixup functions 
+($\proc{RB-Insert-Fixup}$ and $\proc{RB-Delete-Fixup}$)
+and, by the analysis of insert and delete,
+we know the $\While$ loop of fixup functions repeat
+only if case 1 of $\proc{RB-Insert-Fixup}$ or
+case 2 of $\proc{RB-Delete-Fixup}$ occurs.
+
+\textbf{insert}
+
+In order to causes $\Omega(\lg n)$ color changes,
+we want the case 1 of $\proc{RB-Insert-Fixup}$ 
+occurs $\Omega(\lg n)$ times.
+Consider the situation of the case 1 occurs every iteration.
+This situation occurs only if
+the color of parent of $z$ is RED
+and the color of uncle of $z$ is RED
+unless the parent of $z$ is the root node in every iteration;
+i.e. ($z == T.root$ or ($z.p.color == RED$ and $y.color == RED$));
+equivalent to ($z == T.root$ or 
+($z.p.p.left.color == RED$ and $z.p.p.right.color == RED$))
+in every iteration.
+For instance, consider a full, complete red-black tree where 
+all nodes on level $0$ are black,
+all nodes on level $1$ are red, 
+all nodes on level $2$ are black, 
+all nodes on level $3$ are red, 
+all nodes on level $4$ are black, 
+all nodes on level $5$ are red\dots
+
+\textbf{delete}
+
+In order to causes $\Omega(\lg n)$ color changes,
+we want the case 2 of $\proc{RB-Delete-Fixup}$ 
+occurs $\Omega(\lg n)$ times.
+Consider the situation of we are deleting a leaf node,
+and the case 2 occurs every iteration.
+For instance, consider a full, complete red-black tree where 
+all nodes in the tree are black.
+
+\subsubsection*{(b)}
+
+By the analysis of insert and delete.
+the answer is case 2 and 3 for $\proc{RB-Insert}$
+and case 1, 3, and 4 for $\proc{RB-Delete}$.
+
+\subsubsection*{(c)}
+
+Suppose that the current iteration in $\proc{RB-Insert-Fixup}$ are applying case 1.
+Right before the case 1 is applied
+(right before line 5),
+we know $z.p.color == RED$ and $y.color == RED$,
+so $z.p.p.color == BLACK$.
+After the case 1 is applied 
+(excluede the changing of identity of $z$;
+i.e. right asfter line 7),
+we blacken two red nodes and redden one black nodes.
+Hence the number of red nodes in $T$ decreases by 1.
+That is $\Phi(T') = \Phi(T) - 1$.
+
+\subsubsection*{(d)}
+
+\begin{tabular}{c|c|c}
+    type & location & potential change \\ 
+    \hline
+    node insertion & $\proc{RB-Insert}$: line 9 - 16 & $+1$ \\
+    color change & $\proc{RB-Insert-Fixup}$: line 5 - 7 (case 1) & $-1$ \\
+    rotation & $\proc{RB-Insert-Fixup}$: line 11 (case 2) & $0$ \\
+    color change & $\proc{RB-Insert-Fixup}$: line 12 - 13 (case 3) & $0$ \\
+    rotation & $\proc{RB-Insert-Fixup}$: line 14 (case 3) & $0$ \\
+\end{tabular}
+
+Note that we assume that $1$ unit of potential can pay for
+the structural modifications performed 
+by any of the three cases of $\proc{RB-Insert-Fixup}$.
+
+We conclude that insertion costs $1$ and causes potential increases by $1$,
+applying case 1 costs $1$ and causes potential decreases by $1$,
+applying case 2 costs $1$ and potential unchanged,
+and applying case 3 costs $1$ and potential unchanged.
+
+\subsubsection*{(e)}
+
+Each time case 1 (nonterminating) is applied
+we use the potential change of $-1$ to 
+pay the cost of structural modifications in applying case 1.
+Case 2 and 3 (terminating) can be performed at most once 
+in each call since they are terminating cases,
+so the structural modifications of applying cases 2 and 3 are at most $2$.
+Hence the amortized number of structural modifications for each call is
+\begin{equation*}
+\begin{split}
+    & (\text{insertion cost}) + (\text{insertion potential change}) + 
+    m \cdot ((\text{case 1 cost}) + (\text{case 1 potential change})) + \\
+    & (\text{case 2 cost}) + (\text{case 2 potential change}) + 
+    (\text{case 3 cost}) + (\text{case 3 potential change}) \\
+    \leq & (1) + (1) + m \cdot ((1) + (-1)) + (1) + (0) + (1) + (0)
+    = 4
+\end{split}
+\end{equation*}
+
+\subsubsection*{(f)}
+
+Suppose that the current iteration in $\proc{RB-Insert-Fixup}$ are applying case 1.
+In this case, the color of $z.p$ will change from RED to BLACK at line 5,
+the color of $y$ will change from RED to BLACK at line 6,
+and the color of $z.p.p$ will change from BLACK to RED at line 7.
+We know $z.p$ has one red child $z$ since $z.p.color$ is RED before applying case 1
+and $z$ is the processing node (so we allow $z$ to be red temporary),
+so $w(z.p)$ unchanged ($z.p$ is red $\rightarrow$ $z.p$ is black and has one red child).
+We know $y$ has no red children since $y.color$ is RED before applying case 1,
+so $w(y)$ increases by $1$ ($y$ is red $\rightarrow$ $y$ is black and has no red child).
+We know $z.p.p$ has two red children ($z.p$ and $y$) before applying case 1
+and become red after applying case 1,
+so $w(z.p.p)$ decreases by $2$ 
+($z.p.p$ is black and has two red children $\rightarrow$ $z.p.p$ is red).
+We assume the color of $z.p.p.p$ is red here;
+otherwise, the loop will terminate after this iteration.
+Hence $\Phi(T') = \Phi(T) - 1$.
+
+We use this potential change of $-1$ to 
+pay the cost of structural modifications in applying case 1 each time,
+so the amortized number of structural modifications in nonterminating cases is $0$.
+Since we only perform constant times structural modifications in the terminating cases,
+and potential changes are bounded by constant also,
+we conclude that the amortized number of structural modifications is $O(1)$.
+
+\subsubsection*{(g)}
+
+Suppose that the current iteration in $\proc{RB-Delete-Fixup}$ are applying case 2.
+Since case 2 are applied, we know that $x.color == BLACK$ by line 1,
+$w.left.color == BLACK$ and $w.left.color == BLACK$ by line 9,
+and $w.color == BLACK$ by line 4-5.
+In this case, the color of $w$ will change from BLACK to RED at line 10.
+Thus, we have 
+$w(w)$ decreases by $1$ ($w$ is black and has no red children $\rightarrow$ $w$ is red).
+If $x.p$ is black, then we have $w(x.p)$ decreases by $1$ 
+($x.p$ is black and has no red children $\rightarrow$ $x.p$ is black and has one red child).
+If $x.p$ is red (actually, the loop will terminate after this iteration if $x.p$ is red), 
+then we have $w(x.p)$ unchanged ($x.p$ is red $\rightarrow$ $x.p$ is red).
+Hence $\Phi(T') \leq \Phi(T) - 1$.
+
+By the similar approach of part (f),
+we conclude that the amortized number of structural modifications is $O(1)$.
+
+\subsubsection*{(h)}
+
+By part (f) and (g), we know the \textbf{amorted} number of structural modifications performed by
+any call of $\proc{RB-Insert-Fixup}$ or $\proc{RB-Delete-Fixup}$ is $O(1)$.
+Also, the \textbf{amorted} number of structural modifications performed by 
+lines 1 - 16 of $\proc{RB-Insert}$ and lines 1 - 21 of $\proc{RB-Delete}$ is $O(1)$.
+Therefore, in the worst case, 
+any sequence of $m$ $\proc{RB-Insert}$ and $\proc{RB-Delete}$ operations
+on an initially empty red-black tree causes $O(m)$ structural modifications in total.
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
