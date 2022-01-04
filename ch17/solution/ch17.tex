@@ -1496,6 +1496,155 @@ Therefore, in the worst case,
 any sequence of $m$ $\proc{RB-Insert}$ and $\proc{RB-Delete}$ operations
 on an initially empty red-black tree causes $O(m)$ structural modifications in total.
 
-\centerline{\textbf{Updating...}}
+\subsection*{17-5}
 
-\end{document}
+\subsubsection*{(a)}
+
+In the worst case, $H$ find the key at the end of the list each time,
+and the cost to find such element is $n$ since the linked liest has $n$ elements.
+We know the size of access sequence is $m$, 
+so the access cost of sequence $\sigma$ is $mn$ in the worst case.
+
+\subsubsection*{(b)}
+
+The cost to find element $x$ is $rank_L(x)$,
+and the cost to move $x$ to the first position on the list is $rank_L(x) - 1$
+since we need to transpose adjacent list elements $rank_L(x) - 1$ times.
+Hence $c_i = (rank_L(x)) + (rank_L(x) - 1) = 2 \cdot rank_L(x) - 1$.
+
+\subsubsection*{(c)}
+
+Similarly, the cost to find element $x$ is $rank_{L_{i-1}^*}(x)$,
+and we know the cost to transpose $x$ is $t_i^*$ 
+since $H$ performs $t_i^*$ tranpositions during access $\sigma_i$.
+Hence $c_i^* = (rank_{L_{i-1}^*}(x)) + (t_i^*) = rank_{L_{i-1}^*}(x) + t_i^*$.
+
+\subsubsection*{(d)}
+
+Note that we are tranposing adjacent list elements.
+Let $L_i = \langle a_1, a_2, \cdots, a_j, a_{j+1}, \cdots, a_n \rangle$ 
+be a linked list.
+Suppose that we are tranposing element $a_j$ and $a_{j+1}$
+for some integer $j \in [1,n-1]$.
+Let $L_i' = \langle a_1, a_2, \cdots, a_{j+1}, a_j, \cdots, a_n \rangle$,
+which is the result of the tranposition.
+Clearly, for all integer $h \in [1,j-1]$, 
+$a_h$ precedes $a_j$ and $a_{j+1}$ in $L_i$ and $L_i'$,
+and for all integer $h \in [j+2,n]$, 
+$a_j$ and $a_{j+1}$ precedes $a_h$ in $L_i$ and $L_i'$.
+Then for all integer $h \in [1,j-1] \cup [j+2,n]$, 
+$(a_h,a_j)$ and $(a_h,a_{j+1})$ are inversions in $L_i'$
+if and only if 
+$(a_h,a_j)$ and $(a_h,a_{j+1})$ are inversions in $L_i$.
+Hence the only pair causes $q_i$, the number of inversions, changes
+is $(a_j,a_{j+1})$.
+If $(a_j,a_{j+1})$ is an inversion in $L_i$,
+then it is not an inversion in $L_i'$,
+which causes $q_i$ decreases by $1$.
+If $(a_j,a_{j+1})$ is not an inversion in $L_i$,
+then it is an inversion in $L_i'$,
+which causes $q_i$ increases by $1$.
+Since $\Phi(L_i) = 2 q_i$,
+we conclude a tranposition either increases the potential by $2$
+or decreases the potential by $2$.
+
+\subsubsection*{(e)}
+
+Since $A \cap B = \emptyset$, we have $|A \cup B| = |A| + |B|$,
+which is the number of elements that precede $x$ in $L_{i-1}$,
+so $rank_{L_{i-1}}(x) = |A \cup B| + 1 = |A| + |B| + 1$. 
+
+Since $A \cap C = \emptyset$, we have $|A \cup C| = |A| + |C|$,
+which is the number of elements that precede $x$ in $L_{i-1}^*$,
+so $rank_{L_{i-1}^*}(x) = |A \cup C| + 1 = |A| + |C| + 1$. 
+
+\subsubsection*{(f)}
+
+\begin{lemma}
+    Access $\sigma_i$ only causes the changes of 
+    the number of inversions that include $x$ 
+    (i.e. access $\sigma_i$ does not cause the changes of 
+    the number of inversions that do not include $x$).
+\end{lemma}
+
+\begin{proof}
+    We claim that access $\sigma_i$ only causes the number of inversions that include $x$ changes
+    Let $a,b \in L$ where $a \neq x$ and $b \neq x$.
+    Suppose that $(a,b)$ is an inversion in list $L_{i-1}$ and is not an inversion in list $L_i$,
+    for the purpose of contraction.
+    WLOG, assume $a$ precedes $b$ in $L_{i-1}$ and $b$ precedes $a$ in $L_{i-1}*$.
+    Obviously, tranposing $x$ will never change the order between $a$ and $b$ 
+    by both move-to-front and heuristic $H$.
+    Hence $(a,b)$ must be an inversion in list $L_i$ also. Contraction.
+    Suppose that $(a,b)$ is not an inversion in list $L_{i-1}$ and is an inversion in list $L_i$,
+    and we can have the contraction by the similar approach.
+\end{proof}
+
+In order to show that $\Phi(L_i) - \Phi(L_{i-1}) \leq 2 (|A| - |B| + t_i^*)$,
+we need to show that access $\sigma_i$ causes the number of inversions increases 
+at most $|A| - |B| + t_i^*$ (i.e. $q_i - q_{i-1} \leq |A| - |B| + t_i^*$).
+By the lemma, we only care about the changes of the number of inversions that include $x$.
+Clearly, the number of inversions include $x$ in $L_{i-1}$ is $|B| + |C|$.
+In order to find the upper bound of $q_i - q_{i-1}$,
+we want to maximize the number of inversions that include $x$ in $L_i$.
+With the move-to-front heuristic, we move $x$ to the first position on $L_i$,
+so we want to move backward $x$ with the heuristic $H$.
+Since henuristic $H$ performs $t_i^*$ transpositions durning access $\Phi_i$,
+we know there are $|A| + |C| + t_i^*$ elements precede $x$ in $L_i^*$ by our scheme,
+which implies there are $|A| + |C| + t_i^*$ inversions that include $x$ in $L_i$.
+Hence $q_i - q_{i-1} \leq (|A| + |C| + t_i^*) - (|B| + |C|) = |A| - |B| + t_i^*$.
+
+\subsubsection*{(g)}
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & = c_i + \Phi(L_i) - \Phi(L_{i - 1}) \\
+    & \leq (2 \cdot \func{rank}_{L_{i-1}}(x) - 1) + 2 (|A| - |B| + t_i^*) 
+    \text{\quad\quad\quad(by parts (b) and (f))} \\
+    & = (2 \cdot (|A| + |B| + 1) - 1) + 2 (|A| - |B| + t_i^*) 
+    \text{\quad\quad\quad(by part (e))} \\
+    & = 4 \cdot |A| + 2t_i^* + 1 \\
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+    c_i^* & = \func{rank}_{L_{i-1}^*}(x) + t_i^* 
+    \text{\quad\quad\quad(by part (c))} \\
+    & = (|A| + |C| + 1) + t_i^*
+    \text{\quad\quad\quad(by part (e))} \\
+    & = |A| + |C| + t_i^* + 1 \\
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+    \hat{c_i} & \leq 4 \cdot |A| + 2t_i^* + 1 \\
+    & < 4 \cdot |A| + 4 \cdot |C| + 4t_i^* + 4 \\
+    & = 4(|A| + |C| + t_i^* + 1) \\
+    & = 4 c_i^* \\
+\end{split}
+\end{equation*}
+
+\subsubsection*{(h)}
+
+Since
+\begin{equation*}
+    C_{\text{MTF}}(\sigma) = \sum\limits_{i = 1}^m c_i
+    \leq \sum\limits_{i = 1}^m \hat{c_i}
+\end{equation*}
+and
+\begin{equation*}
+    C_H(\sigma) = \sum\limits_{i = 1}^m c_i^* \text{ ,}
+\end{equation*}
+we have
+\begin{equation*}
+\begin{split}
+    C_{\text{MTF}}(\sigma) & \leq \sum\limits_{i = 1}^m \hat{c_i} \\
+    & \leq \sum\limits_{i = 1}^m 4 c_i^* \text{\quad\quad\quad(by part (g))} \\
+    & = 4 \sum\limits_{i = 1}^m c_i^* \\
+    & = 4 C_H(\sigma) \\
+\end{split}
+\end{equation*}
+
+\end{document} 
