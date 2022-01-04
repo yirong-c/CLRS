@@ -21,13 +21,15 @@ of stack operations.
 
 \subsection*{17.1-2}
 
-Consider a $k$-bit counter where each bit in the counter is $1$.
-Now, we perform $\proc{Increment}$ which flips $k+1$ bits.
-Then, we perform $\proc{Decrement}$ which flips $k+1$ bits again.
-Hence perform a sequence of length $n$ operations 
-$\langle \proc{Increment}, \proc{Decrement}, 
-\proc{Increment}, \proc{Decrement}, \cdots \rangle$
-cost $\Theta(nk)$ in total.
+\begin{proof}
+    Consider a $k$-bit counter where each bit in the counter is $1$.
+    Now, we perform $\proc{Increment}$ which flips $k+1$ bits.
+    Then, we perform $\proc{Decrement}$ which flips $k+1$ bits again.
+    Hence perform a sequence of length $n$ operations 
+    $\langle \proc{Increment}, \proc{Decrement}, 
+    \proc{Increment}, \proc{Decrement}, \cdots \rangle$
+    cost $\Theta(nk)$ in total.
+\end{proof}
 
 \subsection*{17.1-3}
 
@@ -43,23 +45,25 @@ Hence the amortized cost per operation is $O(1)$.
 
 \subsection*{17.2-1}
 
-\begin{tabular}{c|c|c}
-    operation & actual cost & amortized cost \\
-    \hline
-    \proc{Push} & 1     & 2 \\
-    \proc{Pop}  & 1     & 2 \\
-    Copy        & $s$   & 0 \\
-\end{tabular}
-
-where $s$ is the stack size when it is called 
-which has an upper bound $k$.
-
-Each operation ($\proc{Push}$ or $\proc{Pop}$) 
-charges an amortized cost of $2$ and actual use $1$.
-After $k$ operations, we have $k$ credits,
-and copy operation cost at most $k$.
-Hence we conclude the total amortized cost 
-is greater than the total actual cost at all times.
+\begin{proof} 
+    \begin{tabular}{c|c|c}
+        operation & actual cost & amortized cost \\
+        \hline
+        \proc{Push} & 1     & 2 \\
+        \proc{Pop}  & 1     & 2 \\
+        Copy        & $s$   & 0 \\
+    \end{tabular}
+    
+    where $s$ is the stack size when it is called 
+    which has an upper bound $k$.
+    
+    Each operation ($\proc{Push}$ or $\proc{Pop}$) 
+    charges an amortized cost of $2$ and actual use $1$.
+    After $k$ operations, we have $k$ credits,
+    and copy operation cost at most $k$.
+    Hence we conclude the total amortized cost 
+    is greater than the total actual cost at all times.
+\end{proof}
 
 \subsection*{17.2-2}
 
@@ -155,18 +159,20 @@ void Reset(Counter& counter)
 
 \subsection*{17.3-1}
 
-Let $\Phi'(D_i) = \Phi(D_i) - \Phi(D_0)$.
-Clearly, $\Phi'(D_0) = 0$.
-We claim the amortized costs using $\Phi'$ are the same
-as the amortized costs using $\Phi$.
+\begin{proof}
+    Let $\Phi'(D_i) = \Phi(D_i) - \Phi(D_0)$.
+    Clearly, $\Phi'(D_0) = 0$.
+    We claim the amortized costs using $\Phi'$ are the same
+    as the amortized costs using $\Phi$.
 
-\begin{equation*}
-    \begin{split}
-        \hat{c_i} & = c_i + \Phi'(D_i) - \Phi(D_{i-1}) \\
-        & = c_i + (\Phi(D_i) - \Phi(D_0)) - (\Phi(D_{i-1}) - \Phi(D_0)) \\
-        & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
-    \end{split}
-\end{equation*}
+    \begin{equation*}
+        \begin{split}
+            \hat{c_i} & = c_i + \Phi'(D_i) - \Phi(D_{i-1}) \\
+            & = c_i + (\Phi(D_i) - \Phi(D_0)) - (\Phi(D_{i-1}) - \Phi(D_0)) \\
+            & = c_i + \Phi(D_i) - \Phi(D_{i-1}) \\
+        \end{split}
+    \end{equation*}
+\end{proof}
     
 \subsection*{17.3-2}
 
@@ -355,29 +361,31 @@ Since $\hat{c_i} = 2$,
 
 \subsection*{17.3-5}
 
-\begin{equation*}
-    \Phi(D_0) = b
-\end{equation*}
-
-Since $\hat{c_i} \leq 2$,
-\begin{equation*}
-\begin{split}
-    \sum\limits_{i = 1}^n c_i
-    & = \sum\limits_{i = 1}^n \hat{c_i}
-    - \Phi(D_{n}) + \Phi(D_{0}) \\
-    & \leq 2n + b - \Phi(D_{n})
-\end{split}
-\end{equation*}
-
-Since $\Phi(D_{n}) \geq 0$,
-\begin{equation*}
-    \sum\limits_{i = 1}^n c_i \leq 2n + b
-\end{equation*}
-
-Since $n = \Omega(b)$,
-\begin{equation*}
-    \sum\limits_{i = 1}^n c_i = O(n)
-\end{equation*}
+\begin{proof}
+    \begin{equation*}
+        \Phi(D_0) = b
+    \end{equation*}
+    
+    Since $\hat{c_i} \leq 2$,
+    \begin{equation*}
+    \begin{split}
+        \sum\limits_{i = 1}^n c_i
+        & = \sum\limits_{i = 1}^n \hat{c_i}
+        - \Phi(D_{n}) + \Phi(D_{0}) \\
+        & \leq 2n + b - \Phi(D_{n})
+    \end{split}
+    \end{equation*}
+    
+    Since $\Phi(D_{n}) \geq 0$,
+    \begin{equation*}
+        \sum\limits_{i = 1}^n c_i \leq 2n + b
+    \end{equation*}
+    
+    Since $n = \Omega(b)$,
+    \begin{equation*}
+        \sum\limits_{i = 1}^n c_i = O(n)
+    \end{equation*}
+\end{proof}
 
 \subsection*{17.3-6}
 
@@ -752,175 +760,179 @@ to the new allocated table.
 
 \subsection*{17.4-2}
 
-\begin{claim}
-    $\forall num \geq 2, \frac{num}{size} \geq \frac{1}{2}
-    \Longrightarrow \frac{num - 1}{size} \geq \frac{1}{4}$
-\end{claim}
-
 \begin{proof}
+    \begin{claim}
+        $\forall num \geq 2, \frac{num}{size} \geq \frac{1}{2}
+        \Longrightarrow \frac{num - 1}{size} \geq \frac{1}{4}$
+    \end{claim}
+    
+    \begin{proof}
+        \begin{equation*}
+        \begin{split}
+            \frac{num}{size} \geq \frac{1}{2}
+            & \Longleftrightarrow
+            2 \cdot num \geq size \\
+            & \Longleftrightarrow
+            4(num - 1) \geq 2 \cdot num \geq size 
+            \text{ \quad\quad\quad\quad\quad 
+            (since $num \geq 2$)}\\
+            & \Longleftrightarrow
+            \frac{num - 1}{size} \geq \frac{1}{4} \\
+        \end{split}
+        \end{equation*}
+    \end{proof}
+    
+    Suppose that $\alpha_{i-1} \geq \frac{1}{2}$
+    and the $i$th operation is $\proc{Table-Delete}$.
+    Then $num_i = num_{i-1} - 1$.
+    By the claim, we know that a contraction will not be triggered
+    in the $i$th operation
+    if $\alpha_{i-1} \geq \frac{1}{2}$ and 
+    $num_{i-1} \geq 2$.
+    If $num_{i-1} = 1$, then $num_i = 0$, which is trivial.
+    Assume $num_{i-1} \geq 2$ in the following analysis.
+    Then $c_i = 1$ and $size_i = size_{i-1}$.
+    
+    \textbf{Case 1.}
+    $\alpha_i < \frac{1}{2}$.
+    
     \begin{equation*}
     \begin{split}
-        \frac{num}{size} \geq \frac{1}{2}
-        & \Longleftrightarrow
-        2 \cdot num \geq size \\
-        & \Longleftrightarrow
-        4(num - 1) \geq 2 \cdot num \geq size 
-        \text{ \quad\quad\quad\quad\quad 
-        (since $num \geq 2$)}\\
-        & \Longleftrightarrow
-        \frac{num - 1}{size} \geq \frac{1}{4} \\
+        \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+        & = 1 + (\frac{size_i}{2} - num_i) - (2 \cdot num_{i-1} - size_{i-1}) \\
+        & = 1 + (\frac{size_{i-1}}{2} - (num_{i-1} - 1)) - (2 \cdot num_{i-1} - size_{i-1}) \\
+        & = 2 + \frac{3}{2} \cdot size_{i-1} - 3 \cdot num_{i-1} \\
+        & = 2 + \frac{3}{2} \cdot size_{i-1} - 3 \alpha_{i-1} \cdot size_{i-1} \\
+        & \leq 2 + \frac{3}{2} \cdot size_{i-1} - \frac{3}{2} \cdot size_{i-1} \\
+        & = 2 \\
+    \end{split}
+    \end{equation*}
+    
+    \textbf{Case 2.}
+    $\alpha_i \geq \frac{1}{2}$.
+    
+    \begin{equation*}
+    \begin{split}
+        \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+        & = 1 + (2 \cdot num_i - size_i) - (2 \cdot num_{i-1} - size_{i-1}) \\
+        & = 1 + (2 \cdot (num_{i-1} - 1) - size_{i-1}) - (2 \cdot num_{i-1} - size_{i-1}) \\
+        & = -1 \\
     \end{split}
     \end{equation*}
 \end{proof}
-
-Suppose that $\alpha_{i-1} \geq \frac{1}{2}$
-and the $i$th operation is $\proc{Table-Delete}$.
-Then $num_i = num_{i-1} - 1$.
-By the claim, we know that a contraction will not be triggered
-in the $i$th operation
-if $\alpha_{i-1} \geq \frac{1}{2}$ and 
-$num_{i-1} \geq 2$.
-If $num_{i-1} = 1$, then $num_i = 0$, which is trivial.
-Assume $num_{i-1} \geq 2$ in the following analysis.
-Then $c_i = 1$ and $size_i = size_{i-1}$.
-
-\textbf{Case 1.}
-$\alpha_i < \frac{1}{2}$.
-
-\begin{equation*}
-\begin{split}
-    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
-    & = 1 + (\frac{size_i}{2} - num_i) - (2 \cdot num_{i-1} - size_{i-1}) \\
-    & = 1 + (\frac{size_{i-1}}{2} - (num_{i-1} - 1)) - (2 \cdot num_{i-1} - size_{i-1}) \\
-    & = 2 + \frac{3}{2} \cdot size_{i-1} - 3 \cdot num_{i-1} \\
-    & = 2 + \frac{3}{2} \cdot size_{i-1} - 3 \alpha_{i-1} \cdot size_{i-1} \\
-    & \leq 2 + \frac{3}{2} \cdot size_{i-1} - \frac{3}{2} \cdot size_{i-1} \\
-    & = 2 \\
-\end{split}
-\end{equation*}
-
-\textbf{Case 2.}
-$\alpha_i \geq \frac{1}{2}$.
-
-\begin{equation*}
-\begin{split}
-    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
-    & = 1 + (2 \cdot num_i - size_i) - (2 \cdot num_{i-1} - size_{i-1}) \\
-    & = 1 + (2 \cdot (num_{i-1} - 1) - size_{i-1}) - (2 \cdot num_{i-1} - size_{i-1}) \\
-    & = -1 \\
-\end{split}
-\end{equation*}
 
 \subsection*{17.4-3}
 
-Suppose that $\proc{Table-Delete}$ is performed in the $i$th operation.
-Then $num_i = num_{i-1} - 1$.
-
-\textbf{Case 1.}
-$\frac{num_{i-1}-1}{size_{i-1}} \geq \frac{1}{3}$
-(a contraction is not triggered in the $i$th operation).
-
-Then we have $c_i = 1$ and $size_i = size_{i-1}$.
-
-\begin{equation*}
-\begin{split}
-    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
-    & = c_i + | 2 \cdot num_i - size_i | - | 2 \cdot num_{i-1} - size_{i-1} | \\
-    & = 1 + | 2 \cdot (num_{i-1} - 1) - size_{i-1} | - | 2 \cdot num_{i-1} - size_{i-1} | \\
-    & \overset{\triangle}{\leq} 1 + (| 2 \cdot num_{i-1} - size_{i-1} | + | - 2 |) 
-        - | 2 \cdot num_{i-1} - size_{i-1} | \\
-    & = 3 \\
-\end{split}
-\end{equation*}
-
-\textbf{Case 2.}
-$\frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}$
-(a contraction is triggered in the $i$th operation).
-
-Then we have $c_i = num_i + 1 = num_{i-1}$ and $size_i = \frac{2}{3} \cdot size_{i-1}$.
-
-\begin{equation*}
-\begin{split}
-    \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
-    & = c_i + | 2 \cdot num_i - size_i | - | 2 \cdot num_{i-1} - size_{i-1} | \\
-    & = num_{i-1} + | 2 \cdot (num_{i-1} - 1) - \frac{2}{3} \cdot size_{i-1} | 
-        - | 2 \cdot num_{i-1} - size_{i-1} | \\
-    & = num_{i-1} + | 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 | 
-        - | 2 \cdot num_{i-1} - size_{i-1} | \\
-\end{split}
-\end{equation*}
-
-\begin{lemma}
-    \begin{equation*}
-        2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 < 0
-    \end{equation*}
-\end{lemma}
-
 \begin{proof}
+    Suppose that $\proc{Table-Delete}$ is performed in the $i$th operation.
+    Then $num_i = num_{i-1} - 1$.
+
+    \textbf{Case 1.}
+    $\frac{num_{i-1}-1}{size_{i-1}} \geq \frac{1}{3}$
+    (a contraction is not triggered in the $i$th operation).
+
+    Then we have $c_i = 1$ and $size_i = size_{i-1}$.
+
     \begin{equation*}
     \begin{split}
-        \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
-        & \Longrightarrow 3 \cdot (num_{i-1} - 1) < size_{i-1} \\
-        & \Longrightarrow 2 \cdot (num_{i-1} - 1) < \frac{2}{3} \cdot size_{i-1} \\
-        & \Longrightarrow 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 < 0 \\
+        \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+        & = c_i + | 2 \cdot num_i - size_i | - | 2 \cdot num_{i-1} - size_{i-1} | \\
+        & = 1 + | 2 \cdot (num_{i-1} - 1) - size_{i-1} | - | 2 \cdot num_{i-1} - size_{i-1} | \\
+        & \overset{\triangle}{\leq} 1 + (| 2 \cdot num_{i-1} - size_{i-1} | + | - 2 |) 
+            - | 2 \cdot num_{i-1} - size_{i-1} | \\
+        & = 3 \\
     \end{split}
     \end{equation*}
-\end{proof}
 
-\begin{lemma}
-    \begin{equation*}
-        \forall num_{i-1} \geq 3, 
-        2 \cdot num_{i-1} - size_{i-1} < 0
-    \end{equation*}
-\end{lemma}
+    \textbf{Case 2.}
+    $\frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}$
+    (a contraction is triggered in the $i$th operation).
 
-\begin{proof}
+    Then we have $c_i = num_i + 1 = num_{i-1}$ and $size_i = \frac{2}{3} \cdot size_{i-1}$.
+
     \begin{equation*}
     \begin{split}
-        \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
-        & \Longrightarrow 3 \cdot (num_{i-1} - 1) < size_{i-1} \\
-        & \Longrightarrow 2 \cdot num_{i-1} - 3 + num_{i-1} < size_{i-1} \\
-        & \Longrightarrow 2 \cdot num_{i-1} - size_{i-1} + (num_{i-1} - 3) < 0 \\
-        & \Longrightarrow 2 \cdot num_{i-1} - size_{i-1} < 3 - num_{i-1} \\
+        \hat{c_i} & = c_i + \Phi_i - \Phi_{i-1} \\
+        & = c_i + | 2 \cdot num_i - size_i | - | 2 \cdot num_{i-1} - size_{i-1} | \\
+        & = num_{i-1} + | 2 \cdot (num_{i-1} - 1) - \frac{2}{3} \cdot size_{i-1} | 
+            - | 2 \cdot num_{i-1} - size_{i-1} | \\
+        & = num_{i-1} + | 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 | 
+            - | 2 \cdot num_{i-1} - size_{i-1} | \\
     \end{split}
     \end{equation*}
-    Clearly, $\forall num_{i-1} \geq 3, 3 - num_{i-1} \leq 0$.
-\end{proof}
 
-The subcase of $num_{i-1} < 3$ is trivial.
-Assume $num_{i-1} \geq 3$ in the later analysis.
+    \begin{lemma}
+        \begin{equation*}
+            2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 < 0
+        \end{equation*}
+    \end{lemma}
 
-Then
-\begin{equation*}
-\begin{split}
-    \hat{c_i} & = num_{i-1} + | 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 | 
-        - | 2 \cdot num_{i-1} - size_{i-1} | \\
-    & = num_{i-1} - ( 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 ) 
-        \overset{(--)}{+} ( 2 \cdot num_{i-1} - size_{i-1} ) \\
-    & = (num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1) + 3 \\
-\end{split}
-\end{equation*}
+    \begin{proof}
+        \begin{equation*}
+        \begin{split}
+            \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
+            & \Longrightarrow 3 \cdot (num_{i-1} - 1) < size_{i-1} \\
+            & \Longrightarrow 2 \cdot (num_{i-1} - 1) < \frac{2}{3} \cdot size_{i-1} \\
+            & \Longrightarrow 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 < 0 \\
+        \end{split}
+        \end{equation*}
+    \end{proof}
 
-\begin{lemma}
-    \begin{equation*}
-        num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1 < 0
-    \end{equation*}
-\end{lemma}
+    \begin{lemma}
+        \begin{equation*}
+            \forall num_{i-1} \geq 3, 
+            2 \cdot num_{i-1} - size_{i-1} < 0
+        \end{equation*}
+    \end{lemma}
 
-\begin{proof}
+    \begin{proof}
+        \begin{equation*}
+        \begin{split}
+            \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
+            & \Longrightarrow 3 \cdot (num_{i-1} - 1) < size_{i-1} \\
+            & \Longrightarrow 2 \cdot num_{i-1} - 3 + num_{i-1} < size_{i-1} \\
+            & \Longrightarrow 2 \cdot num_{i-1} - size_{i-1} + (num_{i-1} - 3) < 0 \\
+            & \Longrightarrow 2 \cdot num_{i-1} - size_{i-1} < 3 - num_{i-1} \\
+        \end{split}
+        \end{equation*}
+        Clearly, $\forall num_{i-1} \geq 3, 3 - num_{i-1} \leq 0$.
+    \end{proof}
+
+    The subcase of $num_{i-1} < 3$ is trivial.
+    Assume $num_{i-1} \geq 3$ in the later analysis.
+
+    Then
     \begin{equation*}
     \begin{split}
-        \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
-        & \Longrightarrow num_{i-1} - 1 < \frac{1}{3} \cdot size_{i-1} \\
-        & \Longrightarrow num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1 < 0 \\
+        \hat{c_i} & = num_{i-1} + | 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 | 
+            - | 2 \cdot num_{i-1} - size_{i-1} | \\
+        & = num_{i-1} - ( 2 \cdot num_{i-1} - \frac{2}{3} \cdot size_{i-1} - 2 ) 
+            \overset{(--)}{+} ( 2 \cdot num_{i-1} - size_{i-1} ) \\
+        & = (num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1) + 3 \\
     \end{split}
     \end{equation*}
-\end{proof}
 
-Hence
-\begin{equation*}
-    \hat{c_i} = (num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1) + 3 < 3
-\end{equation*}
+    \begin{lemma}
+        \begin{equation*}
+            num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1 < 0
+        \end{equation*}
+    \end{lemma}
+
+    \begin{proof}
+        \begin{equation*}
+        \begin{split}
+            \frac{num_{i-1}-1}{size_{i-1}} < \frac{1}{3}
+            & \Longrightarrow num_{i-1} - 1 < \frac{1}{3} \cdot size_{i-1} \\
+            & \Longrightarrow num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1 < 0 \\
+        \end{split}
+        \end{equation*}
+    \end{proof}
+
+    Hence
+    \begin{equation*}
+        \hat{c_i} = (num_{i-1} - \frac{1}{3} \cdot size_{i-1} - 1) + 3 < 3
+    \end{equation*}
+\end{proof}
 
 \section*{Chapter 17 Problems}
 
@@ -1218,63 +1230,67 @@ Node* RebuildTree(Node* root)
 
 \subsubsection*{(b)}
 
-Let $T(n)$ be the running time of a search on 
-a $\alpha$-balanced binary search tree with $n$ elements.
-We have
-\begin{equation*}
-    T(n) \leq T(\alpha \cdot n) + \Theta(1)
-    = T(\frac{n}{1/\alpha}) + \Theta(1)
-\end{equation*}
-Since $\alpha < 1$, we have $1/\alpha > 1$.
-By the master theorem,
-we have
-\begin{equation*}
-    T(\frac{n}{1/\alpha}) + \Theta(1) = \Theta(\lg n)
-\end{equation*}
-Hence we have
-\begin{equation*}
-    T(n) = O(\lg n)
-\end{equation*}
+\begin{proof}
+    Let $T(n)$ be the running time of a search on 
+    a $\alpha$-balanced binary search tree with $n$ elements.
+    We have
+    \begin{equation*}
+        T(n) \leq T(\alpha \cdot n) + \Theta(1)
+        = T(\frac{n}{1/\alpha}) + \Theta(1)
+    \end{equation*}
+    Since $\alpha < 1$, we have $1/\alpha > 1$.
+    By the master theorem,
+    we have
+    \begin{equation*}
+        T(\frac{n}{1/\alpha}) + \Theta(1) = \Theta(\lg n)
+    \end{equation*}
+    Hence we have
+    \begin{equation*}
+        T(n) = O(\lg n)
+    \end{equation*}
+\end{proof}
 
 \subsubsection*{(c)}
 
-Since $c$ is a sufficiently large constant, 
-we may assume $c > 0$.
-$\Delta(x)$ is an absolute value.
-Obviously, $\Phi(T)$ is always nonnegative. 
+\begin{proof}
+    Since $c$ is a sufficiently large constant, 
+    we may assume $c > 0$.
+    $\Delta(x)$ is an absolute value.
+    Obviously, $\Phi(T)$ is always nonnegative. 
 
-In order to show that a $1/2$-balanced tree $T$ has potential $0$,
-we need to show that 
-\begin{equation*}
-    \Delta(x) = | x.left.size - x.right.size | \leq 1
-\end{equation*}
-for all $x \in T$.
+    In order to show that a $1/2$-balanced tree $T$ has potential $0$,
+    we need to show that 
+    \begin{equation*}
+        \Delta(x) = | x.left.size - x.right.size | \leq 1
+    \end{equation*}
+    for all $x \in T$.
 
-Let $x \in T$.
-WLOG, assume $x.left.size \geq x.right.size$,
-so we want to show that 
-\begin{equation*}
-    x.left.size - x.right.size \leq 1
-\end{equation*}
-Note that 
-\begin{equation*}
-    x.size = x.left.size + x.right.size + 1
-\end{equation*}
-Since $T$ is a $1/2$-balanced tree,
-we have 
-\begin{equation*}
-    x.left.size \leq \frac{1}{2} \cdot x.size
-\end{equation*}
-Then
-\begin{equation*}
-\begin{split}
-    x.left.size - x.right.size 
-    & = x.left.size - (x.size - x.left.size - 1) \\
-    & = 2 \cdot x.left.size - x.size + 1 \\
-    & \leq 2 \cdot \frac{1}{2} \cdot x.size - x.size + 1 \\
-    & = 1 \\
-\end{split}
-\end{equation*}
+    Let $x \in T$.
+    WLOG, assume $x.left.size \geq x.right.size$,
+    so we want to show that 
+    \begin{equation*}
+        x.left.size - x.right.size \leq 1
+    \end{equation*}
+    Note that 
+    \begin{equation*}
+        x.size = x.left.size + x.right.size + 1
+    \end{equation*}
+    Since $T$ is a $1/2$-balanced tree,
+    we have 
+    \begin{equation*}
+        x.left.size \leq \frac{1}{2} \cdot x.size
+    \end{equation*}
+    Then
+    \begin{equation*}
+    \begin{split}
+        x.left.size - x.right.size 
+        & = x.left.size - (x.size - x.left.size - 1) \\
+        & = 2 \cdot x.left.size - x.size + 1 \\
+        & \leq 2 \cdot \frac{1}{2} \cdot x.size - x.size + 1 \\
+        & = 1 \\
+    \end{split}
+    \end{equation*}
+\end{proof}
 
 \subsubsection*{(d)}
 
@@ -1326,16 +1342,18 @@ we let $c \geq \frac{1}{2 \alpha - 1}$.
 
 \subsubsection*{(e)}
 
-Suppose that we perform insert or delete in the $i$th operation.
-Let $h$ be the height of $T$,
-By part (b), we derive the $h = O(\lg n)$.
-Then we pay $O(\lg n)$ for actual inserting or deleting the node.
-If we do not rebuild the tree, 
-then $\Phi_i - \Phi_{i-1} \leq h + 1 = O(\lg n)$.
-If we rebuild the tree,
-then we rebuild the subtreee rooted at the highest 
-non-$\alpha$-balanced node, and, by part (d), 
-the amortized cost of rebuild is $O(1)$.
+\begin{proof}
+    Suppose that we perform insert or delete in the $i$th operation.
+    Let $h$ be the height of $T$,
+    By part (b), we derive the $h = O(\lg n)$.
+    Then we pay $O(\lg n)$ for actual inserting or deleting the node.
+    If we do not rebuild the tree, 
+    then $\Phi_i - \Phi_{i-1} \leq h + 1 = O(\lg n)$.
+    If we rebuild the tree,
+    then we rebuild the subtreee rooted at the highest 
+    non-$\alpha$-balanced node, and, by part (d), 
+    the amortized cost of rebuild is $O(1)$.
+\end{proof}
 
 \subsection*{17-4}
 
@@ -1389,17 +1407,19 @@ and case 1, 3, and 4 for $\proc{RB-Delete}$.
 
 \subsubsection*{(c)}
 
-Suppose that the current iteration in $\proc{RB-Insert-Fixup}$ are applying case 1.
-Right before the case 1 is applied
-(right before line 5),
-we know $z.p.color == RED$ and $y.color == RED$,
-so $z.p.p.color == BLACK$.
-After the case 1 is applied 
-(excluede the changing of identity of $z$;
-i.e. right asfter line 7),
-we blacken two red nodes and redden one black nodes.
-Hence the number of red nodes in $T$ decreases by 1.
-That is $\Phi(T') = \Phi(T) - 1$.
+\begin{proof}
+    Suppose that the current iteration in $\proc{RB-Insert-Fixup}$ are applying case 1.
+    Right before the case 1 is applied
+    (right before line 5),
+    we know $z.p.color == RED$ and $y.color == RED$,
+    so $z.p.p.color == BLACK$.
+    After the case 1 is applied 
+    (excluede the changing of identity of $z$;
+    i.e. right asfter line 7),
+    we blacken two red nodes and redden one black nodes.
+    Hence the number of red nodes in $T$ decreases by 1.
+    That is $\Phi(T') = \Phi(T) - 1$.
+\end{proof}
 
 \subsubsection*{(d)}
 
@@ -1424,139 +1444,157 @@ and applying case 3 costs $1$ and potential unchanged.
 
 \subsubsection*{(e)}
 
-Each time case 1 (nonterminating) is applied
-we use the potential change of $-1$ to 
-pay the cost of structural modifications in applying case 1.
-Case 2 and 3 (terminating) can be performed at most once 
-in each call since they are terminating cases,
-so the structural modifications of applying cases 2 and 3 are at most $2$.
-Hence the amortized number of structural modifications for each call is
-\begin{equation*}
-\begin{split}
-    & (\text{insertion cost}) + (\text{insertion potential change}) + 
-    m \cdot ((\text{case 1 cost}) + (\text{case 1 potential change})) + \\
-    & (\text{case 2 cost}) + (\text{case 2 potential change}) + 
-    (\text{case 3 cost}) + (\text{case 3 potential change}) \\
-    \leq & (1) + (1) + m \cdot ((1) + (-1)) + (1) + (0) + (1) + (0)
-    = 4
-\end{split}
-\end{equation*}
+\begin{proof}
+    Each time case 1 (nonterminating) is applied
+    we use the potential change of $-1$ to 
+    pay the cost of structural modifications in applying case 1.
+    Case 2 and 3 (terminating) can be performed at most once 
+    in each call since they are terminating cases,
+    so the structural modifications of applying cases 2 and 3 are at most $2$.
+    Hence the amortized number of structural modifications for each call is
+    \begin{equation*}
+    \begin{split}
+        & (\text{insertion cost}) + (\text{insertion potential change}) + 
+        m \cdot ((\text{case 1 cost}) + (\text{case 1 potential change})) + \\
+        & (\text{case 2 cost}) + (\text{case 2 potential change}) + 
+        (\text{case 3 cost}) + (\text{case 3 potential change}) \\
+        \leq & (1) + (1) + m \cdot ((1) + (-1)) + (1) + (0) + (1) + (0)
+        = 4
+    \end{split}
+    \end{equation*}
+\end{proof}
 
 \subsubsection*{(f)}
 
-Suppose that the current iteration in $\proc{RB-Insert-Fixup}$ are applying case 1.
-In this case, the color of $z.p$ will change from RED to BLACK at line 5,
-the color of $y$ will change from RED to BLACK at line 6,
-and the color of $z.p.p$ will change from BLACK to RED at line 7.
-We know $z.p$ has one red child $z$ since $z.p.color$ is RED before applying case 1
-and $z$ is the processing node (so we allow $z$ to be red temporary),
-so $w(z.p)$ unchanged ($z.p$ is red $\rightarrow$ $z.p$ is black and has one red child).
-We know $y$ has no red children since $y.color$ is RED before applying case 1,
-so $w(y)$ increases by $1$ ($y$ is red $\rightarrow$ $y$ is black and has no red child).
-We know $z.p.p$ has two red children ($z.p$ and $y$) before applying case 1
-and become red after applying case 1,
-so $w(z.p.p)$ decreases by $2$ 
-($z.p.p$ is black and has two red children $\rightarrow$ $z.p.p$ is red).
-We assume the color of $z.p.p.p$ is red here;
-otherwise, the loop will terminate after this iteration.
-Hence $\Phi(T') = \Phi(T) - 1$.
+\begin{proof}
+    Suppose that the current iteration in $\proc{RB-Insert-Fixup}$ are applying case 1.
+    In this case, the color of $z.p$ will change from RED to BLACK at line 5,
+    the color of $y$ will change from RED to BLACK at line 6,
+    and the color of $z.p.p$ will change from BLACK to RED at line 7.
+    We know $z.p$ has one red child $z$ since $z.p.color$ is RED before applying case 1
+    and $z$ is the processing node (so we allow $z$ to be red temporary),
+    so $w(z.p)$ unchanged ($z.p$ is red $\rightarrow$ $z.p$ is black and has one red child).
+    We know $y$ has no red children since $y.color$ is RED before applying case 1,
+    so $w(y)$ increases by $1$ ($y$ is red $\rightarrow$ $y$ is black and has no red child).
+    We know $z.p.p$ has two red children ($z.p$ and $y$) before applying case 1
+    and become red after applying case 1,
+    so $w(z.p.p)$ decreases by $2$ 
+    ($z.p.p$ is black and has two red children $\rightarrow$ $z.p.p$ is red).
+    We assume the color of $z.p.p.p$ is red here;
+    otherwise, the loop will terminate after this iteration.
+    Hence $\Phi(T') = \Phi(T) - 1$.
 
-We use this potential change of $-1$ to 
-pay the cost of structural modifications in applying case 1 each time,
-so the amortized number of structural modifications in nonterminating cases is $0$.
-Since we only perform constant times structural modifications in the terminating cases,
-and potential changes are bounded by constant also,
-we conclude that the amortized number of structural modifications is $O(1)$.
+    We use this potential change of $-1$ to 
+    pay the cost of structural modifications in applying case 1 each time,
+    so the amortized number of structural modifications in nonterminating cases is $0$.
+    Since we only perform constant times structural modifications in the terminating cases,
+    and potential changes are bounded by constant also,
+    we conclude that the amortized number of structural modifications is $O(1)$.
+\end{proof}
 
 \subsubsection*{(g)}
 
-Suppose that the current iteration in $\proc{RB-Delete-Fixup}$ are applying case 2.
-Since case 2 are applied, we know that $x.color == BLACK$ by line 1,
-$w.left.color == BLACK$ and $w.left.color == BLACK$ by line 9,
-and $w.color == BLACK$ by line 4-5.
-In this case, the color of $w$ will change from BLACK to RED at line 10.
-Thus, we have 
-$w(w)$ decreases by $1$ ($w$ is black and has no red children $\rightarrow$ $w$ is red).
-If $x.p$ is black, then we have $w(x.p)$ decreases by $1$ 
-($x.p$ is black and has no red children $\rightarrow$ $x.p$ is black and has one red child).
-If $x.p$ is red (actually, the loop will terminate after this iteration if $x.p$ is red), 
-then we have $w(x.p)$ unchanged ($x.p$ is red $\rightarrow$ $x.p$ is red).
-Hence $\Phi(T') \leq \Phi(T) - 1$.
+\begin{proof}
+    Suppose that the current iteration in $\proc{RB-Delete-Fixup}$ are applying case 2.
+    Since case 2 are applied, we know that $x.color == BLACK$ by line 1,
+    $w.left.color == BLACK$ and $w.left.color == BLACK$ by line 9,
+    and $w.color == BLACK$ by line 4-5.
+    In this case, the color of $w$ will change from BLACK to RED at line 10.
+    Thus, we have 
+    $w(w)$ decreases by $1$ ($w$ is black and has no red children $\rightarrow$ $w$ is red).
+    If $x.p$ is black, then we have $w(x.p)$ decreases by $1$ 
+    ($x.p$ is black and has no red children $\rightarrow$ $x.p$ is black and has one red child).
+    If $x.p$ is red (actually, the loop will terminate after this iteration if $x.p$ is red), 
+    then we have $w(x.p)$ unchanged ($x.p$ is red $\rightarrow$ $x.p$ is red).
+    Hence $\Phi(T') \leq \Phi(T) - 1$.
 
-By the similar approach of part (f),
-we conclude that the amortized number of structural modifications is $O(1)$.
+    By the similar approach of part (f),
+    we conclude that the amortized number of structural modifications is $O(1)$.
+\end{proof}
 
 \subsubsection*{(h)}
 
-By part (f) and (g), we know the \textbf{amorted} number of structural modifications performed by
-any call of $\proc{RB-Insert-Fixup}$ or $\proc{RB-Delete-Fixup}$ is $O(1)$.
-Also, the \textbf{amorted} number of structural modifications performed by 
-lines 1 - 16 of $\proc{RB-Insert}$ and lines 1 - 21 of $\proc{RB-Delete}$ is $O(1)$.
-Therefore, in the worst case, 
-any sequence of $m$ $\proc{RB-Insert}$ and $\proc{RB-Delete}$ operations
-on an initially empty red-black tree causes $O(m)$ structural modifications in total.
+\begin{proof}
+    By part (f) and (g), we know the \textbf{amorted} number of structural modifications performed by
+    any call of $\proc{RB-Insert-Fixup}$ or $\proc{RB-Delete-Fixup}$ is $O(1)$.
+    Also, the \textbf{amorted} number of structural modifications performed by 
+    lines 1 - 16 of $\proc{RB-Insert}$ and lines 1 - 21 of $\proc{RB-Delete}$ is $O(1)$.
+    Therefore, in the worst case, 
+    any sequence of $m$ $\proc{RB-Insert}$ and $\proc{RB-Delete}$ operations
+    on an initially empty red-black tree causes $O(m)$ structural modifications in total.
+\end{proof}
 
 \subsection*{17-5}
 
 \subsubsection*{(a)}
 
-In the worst case, $H$ find the key at the end of the list each time,
-and the cost to find such element is $n$ since the linked liest has $n$ elements.
-We know the size of access sequence is $m$, 
-so the access cost of sequence $\sigma$ is $mn$ in the worst case.
+\begin{proof}
+    In the worst case, $H$ find the key at the end of the list each time,
+    and the cost to find such element is $n$ since the linked liest has $n$ elements.
+    We know the size of access sequence is $m$, 
+    so the access cost of sequence $\sigma$ is $mn$ in the worst case.
+\end{proof}
 
 \subsubsection*{(b)}
 
-The cost to find element $x$ is $rank_L(x)$,
-and the cost to move $x$ to the first position on the list is $rank_L(x) - 1$
-since we need to transpose adjacent list elements $rank_L(x) - 1$ times.
-Hence $c_i = (rank_L(x)) + (rank_L(x) - 1) = 2 \cdot rank_L(x) - 1$.
+\begin{proof}
+    The cost to find element $x$ is $rank_L(x)$,
+    and the cost to move $x$ to the first position on the list is $rank_L(x) - 1$
+    since we need to transpose adjacent list elements $rank_L(x) - 1$ times.
+    Hence $c_i = (rank_L(x)) + (rank_L(x) - 1) = 2 \cdot rank_L(x) - 1$.
+\end{proof}
 
 \subsubsection*{(c)}
 
-Similarly, the cost to find element $x$ is $rank_{L_{i-1}^*}(x)$,
-and we know the cost to transpose $x$ is $t_i^*$ 
-since $H$ performs $t_i^*$ tranpositions during access $\sigma_i$.
-Hence $c_i^* = (rank_{L_{i-1}^*}(x)) + (t_i^*) = rank_{L_{i-1}^*}(x) + t_i^*$.
+\begin{proof}
+    Similarly, the cost to find element $x$ is $rank_{L_{i-1}^*}(x)$,
+    and we know the cost to transpose $x$ is $t_i^*$ 
+    since $H$ performs $t_i^*$ tranpositions during access $\sigma_i$.
+    Hence $c_i^* = (rank_{L_{i-1}^*}(x)) + (t_i^*) = rank_{L_{i-1}^*}(x) + t_i^*$.
+\end{proof}
 
 \subsubsection*{(d)}
 
-Note that we are tranposing adjacent list elements.
-Let $L_i = \langle a_1, a_2, \cdots, a_j, a_{j+1}, \cdots, a_n \rangle$ 
-be a linked list.
-Suppose that we are tranposing element $a_j$ and $a_{j+1}$
-for some integer $j \in [1,n-1]$.
-Let $L_i' = \langle a_1, a_2, \cdots, a_{j+1}, a_j, \cdots, a_n \rangle$,
-which is the result of the tranposition.
-Clearly, for all integer $h \in [1,j-1]$, 
-$a_h$ precedes $a_j$ and $a_{j+1}$ in $L_i$ and $L_i'$,
-and for all integer $h \in [j+2,n]$, 
-$a_j$ and $a_{j+1}$ precedes $a_h$ in $L_i$ and $L_i'$.
-Then for all integer $h \in [1,j-1] \cup [j+2,n]$, 
-$(a_h,a_j)$ and $(a_h,a_{j+1})$ are inversions in $L_i'$
-if and only if 
-$(a_h,a_j)$ and $(a_h,a_{j+1})$ are inversions in $L_i$.
-Hence the only pair causes $q_i$, the number of inversions, changes
-is $(a_j,a_{j+1})$.
-If $(a_j,a_{j+1})$ is an inversion in $L_i$,
-then it is not an inversion in $L_i'$,
-which causes $q_i$ decreases by $1$.
-If $(a_j,a_{j+1})$ is not an inversion in $L_i$,
-then it is an inversion in $L_i'$,
-which causes $q_i$ increases by $1$.
-Since $\Phi(L_i) = 2 q_i$,
-we conclude a tranposition either increases the potential by $2$
-or decreases the potential by $2$.
+\begin{proof}
+    Note that we are tranposing adjacent list elements.
+    Let $L_i = \langle a_1, a_2, \cdots, a_j, a_{j+1}, \cdots, a_n \rangle$ 
+    be a linked list.
+    Suppose that we are tranposing element $a_j$ and $a_{j+1}$
+    for some integer $j \in [1,n-1]$.
+    Let $L_i' = \langle a_1, a_2, \cdots, a_{j+1}, a_j, \cdots, a_n \rangle$,
+    which is the result of the tranposition.
+    Clearly, for all integer $h \in [1,j-1]$, 
+    $a_h$ precedes $a_j$ and $a_{j+1}$ in $L_i$ and $L_i'$,
+    and for all integer $h \in [j+2,n]$, 
+    $a_j$ and $a_{j+1}$ precedes $a_h$ in $L_i$ and $L_i'$.
+    Then for all integer $h \in [1,j-1] \cup [j+2,n]$, 
+    $(a_h,a_j)$ and $(a_h,a_{j+1})$ are inversions in $L_i'$
+    if and only if 
+    $(a_h,a_j)$ and $(a_h,a_{j+1})$ are inversions in $L_i$.
+    Hence the only pair causes $q_i$, the number of inversions, changes
+    is $(a_j,a_{j+1})$.
+    If $(a_j,a_{j+1})$ is an inversion in $L_i$,
+    then it is not an inversion in $L_i'$,
+    which causes $q_i$ decreases by $1$.
+    If $(a_j,a_{j+1})$ is not an inversion in $L_i$,
+    then it is an inversion in $L_i'$,
+    which causes $q_i$ increases by $1$.
+    Since $\Phi(L_i) = 2 q_i$,
+    we conclude a tranposition either increases the potential by $2$
+    or decreases the potential by $2$.
+\end{proof}
 
 \subsubsection*{(e)}
 
-Since $A \cap B = \emptyset$, we have $|A \cup B| = |A| + |B|$,
-which is the number of elements that precede $x$ in $L_{i-1}$,
-so $rank_{L_{i-1}}(x) = |A \cup B| + 1 = |A| + |B| + 1$. 
-
-Since $A \cap C = \emptyset$, we have $|A \cup C| = |A| + |C|$,
-which is the number of elements that precede $x$ in $L_{i-1}^*$,
-so $rank_{L_{i-1}^*}(x) = |A \cup C| + 1 = |A| + |C| + 1$. 
+\begin{proof}
+    Since $A \cap B = \emptyset$, we have $|A \cup B| = |A| + |B|$,
+    which is the number of elements that precede $x$ in $L_{i-1}$,
+    so $rank_{L_{i-1}}(x) = |A \cup B| + 1 = |A| + |B| + 1$. 
+    
+    Since $A \cap C = \emptyset$, we have $|A \cup C| = |A| + |C|$,
+    which is the number of elements that precede $x$ in $L_{i-1}^*$,
+    so $rank_{L_{i-1}^*}(x) = |A \cup C| + 1 = |A| + |C| + 1$. 
+\end{proof}
 
 \subsubsection*{(f)}
 
@@ -1580,71 +1618,81 @@ so $rank_{L_{i-1}^*}(x) = |A \cup C| + 1 = |A| + |C| + 1$.
     and we can have the contraction by the similar approach.
 \end{proof}
 
-In order to show that $\Phi(L_i) - \Phi(L_{i-1}) \leq 2 (|A| - |B| + t_i^*)$,
-we need to show that access $\sigma_i$ causes the number of inversions increases 
-at most $|A| - |B| + t_i^*$ (i.e. $q_i - q_{i-1} \leq |A| - |B| + t_i^*$).
-By the lemma, we only care about the changes of the number of inversions that include $x$.
-Clearly, the number of inversions include $x$ in $L_{i-1}$ is $|B| + |C|$.
-In order to find the upper bound of $q_i - q_{i-1}$,
-we want to maximize the number of inversions that include $x$ in $L_i$.
-With the move-to-front heuristic, we move $x$ to the first position on $L_i$,
-so we want to move backward $x$ with the heuristic $H$.
-Since henuristic $H$ performs $t_i^*$ transpositions durning access $\Phi_i$,
-we know there are $|A| + |C| + t_i^*$ elements precede $x$ in $L_i^*$ by our scheme,
-which implies there are $|A| + |C| + t_i^*$ inversions that include $x$ in $L_i$.
-Hence $q_i - q_{i-1} \leq (|A| + |C| + t_i^*) - (|B| + |C|) = |A| - |B| + t_i^*$.
+\begin{claim}
+    See part (f).
+\end{claim}
+
+\begin{proof}
+    In order to show that $\Phi(L_i) - \Phi(L_{i-1}) \leq 2 (|A| - |B| + t_i^*)$,
+    we need to show that access $\sigma_i$ causes the number of inversions increases 
+    at most $|A| - |B| + t_i^*$ (i.e. $q_i - q_{i-1} \leq |A| - |B| + t_i^*$).
+    By the lemma, we only care about the changes of the number of inversions that include $x$.
+    Clearly, the number of inversions include $x$ in $L_{i-1}$ is $|B| + |C|$.
+    In order to find the upper bound of $q_i - q_{i-1}$,
+    we want to maximize the number of inversions that include $x$ in $L_i$.
+    With the move-to-front heuristic, we move $x$ to the first position on $L_i$,
+    so we want to move backward $x$ with the heuristic $H$.
+    Since henuristic $H$ performs $t_i^*$ transpositions durning access $\Phi_i$,
+    we know there are $|A| + |C| + t_i^*$ elements precede $x$ in $L_i^*$ by our scheme,
+    which implies there are $|A| + |C| + t_i^*$ inversions that include $x$ in $L_i$.
+    Hence $q_i - q_{i-1} \leq (|A| + |C| + t_i^*) - (|B| + |C|) = |A| - |B| + t_i^*$.
+\end{proof}
 
 \subsubsection*{(g)}
 
-\begin{equation*}
-\begin{split}
-    \hat{c_i} & = c_i + \Phi(L_i) - \Phi(L_{i - 1}) \\
-    & \leq (2 \cdot \func{rank}_{L_{i-1}}(x) - 1) + 2 (|A| - |B| + t_i^*) 
-    \text{\quad\quad\quad(by parts (b) and (f))} \\
-    & = (2 \cdot (|A| + |B| + 1) - 1) + 2 (|A| - |B| + t_i^*) 
-    \text{\quad\quad\quad(by part (e))} \\
-    & = 4 \cdot |A| + 2t_i^* + 1 \\
-\end{split}
-\end{equation*}
-
-\begin{equation*}
-\begin{split}
-    c_i^* & = \func{rank}_{L_{i-1}^*}(x) + t_i^* 
-    \text{\quad\quad\quad(by part (c))} \\
-    & = (|A| + |C| + 1) + t_i^*
-    \text{\quad\quad\quad(by part (e))} \\
-    & = |A| + |C| + t_i^* + 1 \\
-\end{split}
-\end{equation*}
-
-\begin{equation*}
-\begin{split}
-    \hat{c_i} & \leq 4 \cdot |A| + 2t_i^* + 1 \\
-    & < 4 \cdot |A| + 4 \cdot |C| + 4t_i^* + 4 \\
-    & = 4(|A| + |C| + t_i^* + 1) \\
-    & = 4 c_i^* \\
-\end{split}
-\end{equation*}
+\begin{proof}
+    \begin{equation*}
+    \begin{split}
+        \hat{c_i} & = c_i + \Phi(L_i) - \Phi(L_{i - 1}) \\
+        & \leq (2 \cdot \func{rank}_{L_{i-1}}(x) - 1) + 2 (|A| - |B| + t_i^*) 
+        \text{\quad\quad\quad(by parts (b) and (f))} \\
+        & = (2 \cdot (|A| + |B| + 1) - 1) + 2 (|A| - |B| + t_i^*) 
+        \text{\quad\quad\quad(by part (e))} \\
+        & = 4 \cdot |A| + 2t_i^* + 1 \\
+    \end{split}
+    \end{equation*}
+    
+    \begin{equation*}
+    \begin{split}
+        c_i^* & = \func{rank}_{L_{i-1}^*}(x) + t_i^* 
+        \text{\quad\quad\quad(by part (c))} \\
+        & = (|A| + |C| + 1) + t_i^*
+        \text{\quad\quad\quad(by part (e))} \\
+        & = |A| + |C| + t_i^* + 1 \\
+    \end{split}
+    \end{equation*}
+    
+    \begin{equation*}
+    \begin{split}
+        \hat{c_i} & \leq 4 \cdot |A| + 2t_i^* + 1 \\
+        & < 4 \cdot |A| + 4 \cdot |C| + 4t_i^* + 4 \\
+        & = 4(|A| + |C| + t_i^* + 1) \\
+        & = 4 c_i^* \\
+    \end{split}
+    \end{equation*}
+\end{proof}
 
 \subsubsection*{(h)}
 
-Since
-\begin{equation*}
-    C_{\text{MTF}}(\sigma) = \sum\limits_{i = 1}^m c_i
-    \leq \sum\limits_{i = 1}^m \hat{c_i}
-\end{equation*}
-and
-\begin{equation*}
-    C_H(\sigma) = \sum\limits_{i = 1}^m c_i^* \text{ ,}
-\end{equation*}
-we have
-\begin{equation*}
-\begin{split}
-    C_{\text{MTF}}(\sigma) & \leq \sum\limits_{i = 1}^m \hat{c_i} \\
-    & \leq \sum\limits_{i = 1}^m 4 c_i^* \text{\quad\quad\quad(by part (g))} \\
-    & = 4 \sum\limits_{i = 1}^m c_i^* \\
-    & = 4 C_H(\sigma) \\
-\end{split}
-\end{equation*}
+\begin{proof}
+    Since
+    \begin{equation*}
+        C_{\text{MTF}}(\sigma) = \sum\limits_{i = 1}^m c_i
+        \leq \sum\limits_{i = 1}^m \hat{c_i}
+    \end{equation*}
+    and
+    \begin{equation*}
+        C_H(\sigma) = \sum\limits_{i = 1}^m c_i^* \text{ ,}
+    \end{equation*}
+    we have
+    \begin{equation*}
+    \begin{split}
+        C_{\text{MTF}}(\sigma) & \leq \sum\limits_{i = 1}^m \hat{c_i} \\
+        & \leq \sum\limits_{i = 1}^m 4 c_i^* \text{\quad\quad\quad(by part (g))} \\
+        & = 4 \sum\limits_{i = 1}^m c_i^* \\
+        & = 4 C_H(\sigma) \\
+    \end{split}
+    \end{equation*}
+\end{proof}
 
 \end{document} 
