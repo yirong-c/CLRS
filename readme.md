@@ -24,6 +24,7 @@ Chapter 2 - 11 Contents are Uploading and Migrating
 | Chpater 14 | [Code](https://github.com/frc123/CLRS/tree/master/ch14/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
 | Chpater 15 | [Code](https://github.com/frc123/CLRS/tree/master/ch15/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
 | Chpater 17 | [Code](https://github.com/frc123/CLRS/tree/master/ch17/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch17/solution/ch17.pdf) (LaTeX)
+| Chpater 21 | [Code](https://github.com/frc123/CLRS/tree/master/ch21/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch21/solution/ch21.pdf) (LaTeX)
 | Chpater 22 | [Code](https://github.com/frc123/CLRS/tree/master/ch22/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch22/solution/ch22.pdf) (LaTeX)
 
 ## Submodules of the Project
