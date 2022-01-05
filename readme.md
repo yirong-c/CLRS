@@ -8,6 +8,9 @@ This repo includes
 (in LaTeX and handwriting)
 (the handwriting part will be updated to LaTeX)
 
+If you have any issues or want to discuss anything,
+you are welcome to new an issue or discussion.
+
 For those who starred the repo, we really appreciate it.
 Your star is our motivation to do better.
 
@@ -73,6 +76,10 @@ that support operations on intervals.
 - [Chained Hash](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch11/chained_hash.hpp)
 
 - [Open Addressing](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch11/open_addressing.hpp)
+
+### [Disjoint Sets](https://github.com/frc123/CLRS/tree/master/ch21/code)
+
+- [Linked-list Representation](https://github.com/frc123/CLRS/tree/master/ch21/code/list_representation_of_disjoint_sets.cpp)
 
 ## More Code Implementation in C++
 

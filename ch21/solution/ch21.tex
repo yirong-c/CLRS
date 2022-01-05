@@ -53,23 +53,333 @@
 
 \subsection*{21.1-2}
 
-By contents in B.4, we know that the connected components of a graph
-are the equivalence classes of vertices under the ``is reachable from'' relation.
-The collection of the disjoint sets is exactly 
-the quotient set of $G.V$ by the ``is reachable from'' relation.
-It is not hard to find out that $\proc{Connected-Components}$
-construct such the quotient set 
-since the procedure unions vertices based on all edges, 
-and edges connect two reachable vertices with the smallest length of the path
-(recall that a equivalence relation must be transitive).
-Two vertices are in the same connected component if and only if 
-they are reachable from each other.
+\begin{proof}
+    By contents in B.4, we know that the connected components of a graph
+    are the equivalence classes of vertices under the ``is reachable from'' relation.
+    The collection of the disjoint sets is exactly 
+    the quotient set of $G.V$ by the ``is reachable from'' relation.
+    It is not hard to find out that $\proc{Connected-Components}$
+    construct such the quotient set 
+    since the procedure unions vertices based on all edges, 
+    and edges connect two reachable vertices with the smallest length of the path
+    (recall that a equivalence relation must be transitive).
+    Two vertices are in the same connected component if and only if 
+    they are reachable from each other.
+\end{proof}
 
 \subsection*{21.1-3}
 
 $\proc{Find-Set}$: $2 \cdot |E|$
 
 $\proc{Union}$: $|V| - k$
+
+\section*{21.2}
+
+\subsection*{21.2-1}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+struct Set
+{
+    Node *head;
+    Node *tail;
+    int size;
+};
+
+struct Node
+{
+    int key;
+    Set *set;
+    Node *next;
+};
+
+void MakeSet(Node *x)
+{
+    x->next = nullptr;
+    x->set = new Set;// need to be freed
+    x->set->head = x;
+    x->set->tail = x;
+    x->set->size = 1;
+}
+
+Node* FindSet(Node *x)
+{
+    return x->set->head;
+}
+
+void Union(Node *x, Node *y)
+{
+    Node *node;
+    if (x->set->size < y->set->size)
+    {
+        Union(y, x);
+    }
+    else
+    {
+        node = y->set->head;
+        x->set->size += y->set->size;
+        x->set->tail->next = node;
+        x->set->tail = y->set->tail;
+        delete y->set;
+        while (node)
+        {
+            node->set = x->set;
+            node = node->next;
+        }
+    }
+}
+\end{minted}
+
+\subsection*{21.2-2}
+
+collection before line 3: 
+\begin{equation*}
+    \{ \{ x_{1} \}, \{ x_{2} \}, \{ x_{3} \}, \{ x_{4} \}, \{ x_{5} \}, 
+    \{ x_{6} \}, \{ x_{7} \}, \{ x_{8} \}, \{ x_{9} \}, \{ x_{10} \}, 
+    \{ x_{11} \}, \{ x_{12} \}, \{ x_{13} \}, \{ x_{14} \}, \{ x_{15} \}, 
+    \{ x_{16} \} \}
+\end{equation*}
+
+collection before line 5: 
+\begin{equation*}
+    \{ \{ x_{1}, x_{2} \}, \{ x_{3}, x_{4} \}, \{ x_{5}, x_{6} \}, 
+    \{ x_{7}, x_{8} \}, \{ x_{9}, x_{10} \}, 
+    \{ x_{11}, x_{12} \}, \{ x_{13}, x_{14} \}, \{ x_{15}, x_{16} \} \}
+\end{equation*}
+
+collection before line 7: 
+\begin{equation*}
+    \{ \{ x_{1}, x_{2}, x_{3}, x_{4} \}, \{ x_{5}, x_{6}, x_{7}, x_{8} \}, 
+    \{ x_{9}, x_{10}, x_{11}, x_{12} \}, \{ x_{13}, x_{14}, x_{15}, x_{16} \} \}
+\end{equation*}
+
+collection before line 8: 
+\begin{equation*}
+    \{ \{ x_{1}, x_{2}, x_{3}, x_{4}, x_{5}, x_{6}, x_{7}, x_{8} \}, 
+    \{ x_{9}, x_{10}, x_{11}, x_{12} \}, \{ x_{13}, x_{14}, x_{15}, x_{16} \} \}
+\end{equation*}
+
+collection before line 9: 
+\begin{equation*}
+    \{ \{ x_{1}, x_{2}, x_{3}, x_{4}, x_{5}, x_{6}, x_{7}, x_{8} \}, 
+    \{ x_{9}, x_{10}, x_{11}, x_{12}, x_{13}, x_{14}, x_{15}, x_{16} \} \}
+\end{equation*}
+
+collection before line 10: 
+\begin{equation*}
+    \{ \{ x_{1}, x_{2}, x_{3}, x_{4}, x_{5}, x_{6}, x_{7}, x_{8},
+    x_{9}, x_{10}, x_{11}, x_{12}, x_{13}, x_{14}, x_{15}, x_{16} \} \}
+\end{equation*}
+
+Hence $\proc{Find-Set}(x_2)$ and $\proc{Find-Set}(x_11)$
+return a pointer points to $x_1$.
+
+\subsection*{21.2-3}
+
+\begin{lemma}
+    Using the linked-list representation of disjoint sets and the weighted-union heuristic,
+    a sequence of $h$ $\proc{Union}$ operations on a disjoint set 
+    that has never been operated $\proc{Union}$
+    takes $O(h \lg h)$ time.
+\end{lemma}
+
+\begin{proof}
+    We claim that, after $h$ $\proc{Union}$ operations,
+    the largest set has at most $h + 1$ members. 
+    Notice that the number of sets decreases by one each time $\proc{Union}$ is called.
+    Suppose that we have $n$ sets in which each set contains one member in the beginning.
+    After the $h$ $\proc{Union}$ operations, we have $(n - h)$ sets.
+    Note that each set must contain one member.
+    In order to maximize the number of members in the the largest set,
+    we let $(n - h - 1)$ sets contains one member, 
+    and let the remaining set contains all remaining members.
+    Then the remaining set contains
+    \begin{equation*}
+        n - (n - h - 1) = h + 1
+    \end{equation*}
+    members.
+
+    We claim that each object's pointer back to its set object 
+    is updated at most $\lceil \lg h \rceil$ times
+    over all the $\proc{Union}$ operations.
+    Let $x$ be an arbitrary object.
+    By the similar approach in the proof of Theorem 21.1,
+    we know that for any $k \leq h + 1$, 
+    after $x$'s pointers has been updated $\lceil \lg k \rceil$ times,
+    the resulting set must have at least $k$ members.
+    Since the largest set has at most $h + 1$ members,
+    each object's pointer is updated at most $\lg (h + 1)$ times 
+    over all the $\proc{Union}$ operations.
+
+    We claim that there are $h$ elements have been updated their pointers 
+    back to their set objects at least once.
+    Consider a set contains $k$ members.
+    Then within this set, there are $(k - 1)$ members have been updated their pointers 
+    back to their set objects at least once
+    since there must exists exactly $(k - 1)$ members updated their pointers 
+    from the initial pointer to the current one.
+    Let $\mathcal{S}$ be our collection of sets.
+    Then after the $h$ $\proc{Union}$ operations, 
+    the number of elements have been updated their pointers is
+    \begin{equation*}
+        \sum\limits_{A \in \mathcal{S}} (|A| - 1)
+        = \sum\limits_{A \in \mathcal{S}} |A| - |\mathcal{S}|
+        = n - (n - h) 
+        = h
+    \end{equation*}
+    
+    Since each object's pointer is updated at most $\lceil \lg h \rceil$ times
+    and there are $h$ elements have been updated their pointers,
+    we conclude $h$ $\proc{Union}$ operations on a disjoint set 
+    that has never been operated $\proc{Union}$
+    takes $O(h \lg h)$ time.
+\end{proof}
+
+\begin{claim}
+    The amortized time of $\proc{Make-Set}$ and $\proc{Find-Set}$ is $O(1)$,
+    and the amortized time of $\proc{Union}$ is $O(\lg n)$.
+\end{claim}
+
+\begin{proof}
+    Suppose that we performed $h$ $\proc{Union}$ operations.
+    Since $n$ $\proc{Make-Set}$ operations are performed,
+    we know $(m - n - h)$ $\proc{Find-Set}$ operations are performed
+    By the lemma, we know that the total actual cost of $\proc{Union}$ is $O(h \lg h)$.
+    Hence the total actual cost of the sequence is 
+    \begin{equation*}
+        O(\underbrace{n}_{\proc{Make-Set}} + \underbrace{(m - n - h)}_{\proc{Find-Set}} + 
+        \underbrace{h \lg h}_{\proc{Union}}) = O(m - h + h \lg h)
+    \end{equation*}
+    The total amortized cost of the sequence is
+    \begin{equation*}
+        O(\underbrace{n}_{\proc{Make-Set}} + \underbrace{(m - n - h)}_{\proc{Find-Set}} + 
+        \underbrace{h \lg n}_{\proc{Union}}) = O(m - h + h \lg n)
+    \end{equation*}
+    Since $h < n$, we have showed the claim successfully.
+\end{proof}
+
+\subsection*{21.2-4}
+
+In the $i$th $\proc{Union}$ operation,
+we call $\proc{Union}(x_{i+1},x_i)$.
+At this time, 
+the size of set contains $x_i$ contains $i$ members,
+and the size of set contains $x_{i+1}$ contains $1$ members.
+Then we notice, for all $i \geq 2$,
+we append the list contains $x_{i+1}$
+onto the list contains $x_i$
+with the weighted-union heuristic,
+and this only takes $\Theta(1)$ time for each operation.
+We operate $n$ times $\proc{Make-Set}$
+and $(n - 1)$ times $\proc{Union}$,
+so the sequence takes $\Theta(n + (n - 1)) = \Theta(n)$ time.
+
+\subsection*{21.2-5}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+struct Node
+{
+    int key;
+    Node *next;
+    // let the tail element be the set's representative
+    union
+    {
+        Node *tail;// for non-tail elements
+        Node *head;// for the tail element
+    } representative;
+    int size;// only for the tail element
+};
+
+void MakeSet(Node *x)
+{
+    x->next = nullptr;
+    x->representative.head = x;
+    x->size = 1;
+}
+
+Node* FindSet(Node *x)
+{
+    return x->next ? x->representative.tail : x;
+}
+
+void Union(Node *x, Node *y)
+{
+    Node **node, *x_head, *y_head, *x_representative, *y_representative;
+    if (x->representative.tail->size < y->representative.tail->size)
+    {
+        Union(y, x);
+    }
+    else
+    {
+        x_representative = FindSet(x);
+        y_representative = FindSet(y);
+        x_head = x_representative->representative.head;
+        y_head = y_representative->representative.head;
+        x_representative->size += y_representative->size;
+        node = &y_head;
+        while (*node)
+        {
+            (*node)->representative.tail = x_representative;
+            node = &((*node)->next);
+        }
+        *node = x_head;
+        x_representative->representative.head = y_head;
+    }
+}
+\end{minted}
+
+\subsection*{21.2-6}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+struct Set
+{
+    Node *head;
+    int size;
+};
+
+struct Node
+{
+    int key;
+    Set *set;
+    Node *next;
+};
+
+void MakeSet(Node *x)
+{
+    x->next = nullptr;
+    x->set = new Set;// need to be freed
+    x->set->head = x;
+    x->set->size = 1;
+}
+
+Node* FindSet(Node *x)
+{
+    return x->set->head;
+}
+
+void Union(Node *x, Node *y)
+{
+    Node **node, *x_second;
+    if (x->set->size < y->set->size)
+    {
+        Union(y, x);
+    }
+    else
+    {
+        x->set->size += y->set->size;
+        x_second = x->next;
+        x->next = y->set->head;
+        node = &(x->next);
+        delete y->set;
+        while (*node)
+        {
+            (*node)->set = x->set;
+            node = &((*node)->next);
+        }
+        *node = x_second;
+    }
+}
+\end{minted}
+    
 
 % \section*{Chapter 21 Problems}
 
