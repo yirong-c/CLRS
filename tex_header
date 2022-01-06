@@ -10,6 +10,8 @@
 \usepackage{tikz-qtree}
 \usepackage{fancyhdr}
 \usepackage{diagbox}
+\usepackage[hidelinks]{hyperref}
+\usepackage{ulem}
 
 \usetikzlibrary{matrix,arrows,fit} 
 
@@ -31,10 +33,10 @@
 \def\QQ{\mathbb{Q}}
 \def\implies{\Longrightarrow}
 
-\author{https://github.com/frc123/CLRS}
+\author{\href{https://github.com/frc123/CLRS}{\uline{github.com/frc123/CLRS}}}
 
 \pagestyle{fancy}
-\chead{https://github.com/frc123/CLRS\\Thank you very much for starring and contributing}
-\cfoot{https://github.com/frc123/CLRS\\Check out the repo for the most recent update}
+\chead{\href{https://github.com/frc123/CLRS}{\uline{github.com/frc123/CLRS}}\\Thank you very much for starring and contributing}
+\cfoot{\href{https://github.com/frc123/CLRS}{\uline{github.com/frc123/CLRS}}\\Check out the repo for the most recent update}
 
 \newcommand*\quot[2]{{^{\textstyle #1}\big/_{\textstyle #2}}}

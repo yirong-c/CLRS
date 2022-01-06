@@ -8,3 +8,4 @@
 **/.VSCodeCounter/**
 bin/**
 .vscode/**
+*.out
