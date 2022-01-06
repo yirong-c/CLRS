@@ -379,7 +379,232 @@ void Union(Node *x, Node *y)
     }
 }
 \end{minted}
-    
+
+\section*{21.3}
+
+\subsection*{21.3-1}
+
+The data structure in the end (rank of each node is in the parentheses): 
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=1em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[vertex] (x1) at (2,0) {$x_1 (0)$};
+    \node[vertex] (x2) at (0,5) {$x_2 (1)$};
+    \node[vertex] (x3) at (0,0) {$x_3 (0)$};
+    \node[vertex] (x4) at (2,5) {$x_4 (2)$};
+    \node[vertex] (x5) at (4,0) {$x_5 (0)$};
+    \node[vertex] (x6) at (6,0) {$x_6 (1)$};
+    \node[vertex] (x7) at (8,0) {$x_7 (0)$};
+    \node[vertex] (x8) at (4,5) {$x_8 (3)$};
+    \node[vertex] (x9) at (6,5) {$x_9 (0)$};
+    \node[vertex] (x10) at (8,5) {$x_{10} (1)$};
+    \node[vertex] (x11) at (10,0) {$x_{11} (0)$};
+    \node[vertex] (x12) at (10,5) {$x_{12} (2)$};
+    \node[vertex] (x13) at (12,5) {$x_{13} (0)$};
+    \node[vertex] (x14) at (14,5) {$x_{14} (1)$};
+    \node[vertex] (x15) at (16,5) {$x_{15} (0)$};
+    \node[vertex] (x16) at (8,10) {$x_{16} (4)$};
+    \draw[->] (x1) to (x8);
+    \draw[->] (x2) to (x16);
+    \draw[->] (x3) to (x4);
+    \draw[->] (x4) to (x16);
+    \draw[->] (x5) to (x8);
+    \draw[->] (x6) to (x8);
+    \draw[->] (x7) to (x8);
+    \draw[->] (x8) to (x16);
+    \draw[->] (x9) to (x16);
+    \draw[->] (x10) to (x16);
+    \draw[->] (x11) to (x12);
+    \draw[->] (x12) to (x16);
+    \draw[->] (x13) to (x16);
+    \draw[->] (x14) to (x16);
+    \draw[->] (x15) to (x16);
+    \draw[->, loop above] (x16) to (x16);
+\end{tikzpicture}
+
+Hence $\proc{Find-Set}(x_2)$ and $\proc{Find-Set}(x_11)$
+return a pointer points to $x_16$.
+
+\subsection*{21.3-2}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+Node* FindSet(Node *x)
+{
+    Node *representative, *tmp;
+    representative = x;
+    while (representative != representative->p)
+    {
+        representative = representative->p;
+    }
+    while (x->p != representative)
+    {
+        tmp = x->p;
+        x->p = representative;
+        x = tmp;
+    }
+    return representative;
+}
+\end{minted}
+
+\subsection*{21.3-3}
+
+Note that we are proving that the upper bound $O(m \lg n)$ is tight (least upper bound),
+instead of prove it is a tight bound $\Theta(m \lg n)$.
+In order to prove it, we just need to find an example that takes $\Omega(m \lg n)$ time,
+which is what the question is asking for.
+We want our sequence to take as much as possible time.
+WLOG, assume that $n = 2^k$ for some $k \in \NN$.
+Consider the following sequence:
+\begin{equation*}
+\begin{split}
+    \langle 
+    & \proc{Make-Set}(x_1), \proc{Make-Set}(x_2), \cdots, \proc{Make-Set}(x_n), \\
+    & \proc{Union}(x_1, x_2), \proc{Union}(x_3, x_4), \cdots, \proc{Union}(x_{n-1}, x_{n}), \\ 
+    & \proc{Union}(x_1, x_3), \proc{Union}(x_5, x_7), \cdots, \proc{Union}(x_{n-3}, x_{n-1}), \\ 
+    & \proc{Union}(x_1, x_5), \proc{Union}(x_9, x_13), \cdots, \proc{Union}(x_{n-7}, x_{n-3}), \\ 
+    & \quad\quad\quad\quad\quad \vdots \\
+    & \proc{Union}(x_1, x_{n / 2 + 1}), \\ 
+    & \proc{Find-Set}(x_1) \cdots \quad\quad\quad \text{(until all $m$ operations are performed)} 
+    \rangle
+\end{split}
+\end{equation*}
+We performed $n$ $\proc{Make-Set}$, $(n-1)$ $\proc{Union}$, and $(m - 2n + 1)$ $\proc{Find-Set}$.
+We observed we performed $n / 2$ $\proc{Union}(x_i, x_{i+1})$, $n / 4$ $\proc{Union}(x_i, x_{i+2})$,
+$n / 8$ $\proc{Union}(x_i, x_{i+4})$, $\cdots$.
+We conclude we performed $n / 2^j$ $\proc{Union}(x_i, x_{i+2^{j-1}})$ 
+for all $j = \{ 1, 2, \cdots, \lg n \}$.
+For each $j$, the height of each tree increases by $1$.
+Hence after all $(n-1)$ $\proc{Union}$ operations,
+the height of the tree (for the only set) is $\lg n$.
+Note that $x_1$ is the deepest element in the tree.
+Then, each of $\proc{Find-Set}(x_1)$ operation takes $\Theta(\lg n)$ time, 
+and we perform $(m - 2n + 1)$ times $\proc{Find-Set}(x_1)$ operation.
+Hence all of $\proc{Find-Set}(x_1)$ take $(m - 2n + 1)\Theta(\lg n) = \Theta(m \lg n)$ time.
+We successfully find a sequence that takes $\Omega(m \lg n)$ time.
+
+\subsection*{21.3-4}
+
+We just need to modify $\proc{Link}$ procedure to maintain the data structure.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void Link(Node *x, Node *y)
+{
+    Node *y_next;
+    if (x->rank > y->rank)
+    {
+        y->p = x;
+    }
+    else
+    {
+        x->p = y;
+        if (x->rank == y->rank)
+            ++y->rank;
+    }
+    // maintain the circular list
+    y_next = y->next;
+    y->next = x->next;
+    x->next = y_next;
+}
+
+std::list<Node*> PrintSet(Node *x)
+{
+    Node *node;
+    std::list<Node*> result;
+    result.push_back(x);
+    for (node = x->next; node != x; node = node->next)
+    {
+        result.push_back(node);
+    }
+    return result;
+}
+\end{minted}
+
+\subsection*{21.3-5}
+
+Let $a_i$ be the number of nodes with depth greater than 0 
+(i.e. non-root) in the forest after the $i$th operation.
+Let $b_i$ be the number of nodes with depth greater than 1 
+(i.e. non-root and non-child-of-root) in the forest after the $i$th operation.
+Suppose that we start to perform $\proc{Find-Set}$ operations in the $k$th operation.
+Let the potential function be
+\begin{equation*}
+    \Phi(D_i)
+    \begin{cases}
+        a_i & \text{if } i < k \text{ ,} \\
+        b_i & \text{if } i \geq k \\
+    \end{cases}
+\end{equation*}
+where $D_i$ is the disjoint forest after the $i$th operation.
+Let $\Phi(D_0) = 0$.
+Observed each of $\proc{Make-Set}$ and $\proc{Link}$ takes $O(1)$ time.
+Denote $depth_i(x)$ as the depth of the node $x$ in the tree after the $i$th operation.
+Then $\proc{Find-Set}(x)$ moves $\func{max}(0,depth_{i-1}(x) - 1)$ nodes 
+to be the children of the root node.
+Denote $c_i$ as the cost of the $i$th operation.
+Then we assume
+\begin{equation*}
+    c_i = 
+    \begin{cases}
+        1 & \text{if $\proc{Make-Set}$ is performed in the $i$th operation,} \\
+        1 & \text{if $\proc{Link}$ is performed in the $i$th operation,} \\
+        \func{max}(1,depth_{i-1}(x)) & \text{if $\proc{Find-Set}(x)$ is performed in the $i$th operation} \\
+    \end{cases}
+\end{equation*}
+
+\textbf{Case 1.}
+$\proc{Make-Set}$ is performed in the $i$th operation.
+
+Then $a_i = a_{i-1}$, so
+\begin{equation*}
+    \hat{c_i} = c_i + \Phi(D_i) - \Phi(D_{i-1})
+    = 1 + 0 = 1
+\end{equation*}
+
+\textbf{Case 2.}
+$\proc{Link}(x,y)$ is performed in the $i$th operation.
+
+Note that $x$ and $y$ must be root nodes of different tree.
+This operation make either $x$ or $y$ be a non-root node.
+Then $a_i = a_{i-1} + 1$, so
+\begin{equation*}
+    \hat{c_i} = c_i + \Phi(D_i) - \Phi(D_{i-1})
+    = 1 + 1 = 2
+\end{equation*}
+
+\textbf{Case 3.}
+$\proc{Find-Set}(x)$ is performed in the $i$th operation.
+
+Note that $b_i \leq a_i$ for all $i$.
+If $i = k$, then 
+\begin{equation*}
+    \Phi(D_i) - \Phi(D_{i-1})
+    = b_{i} - a_{i - 1}
+    \leq b_{i} - b_{i - 1}
+\end{equation*}
+If $i > k$, then
+\begin{equation*}
+    \Phi(D_i) - \Phi(D_{i-1})
+    = b_{i} - b_{i - 1}
+\end{equation*}
+Note that 
+\begin{equation*}
+    b_{i} - b_{i - 1} = - (\func{max}(1,depth_{i-1}(x)) - 1) = 1 - \func{max}(1,depth_{i-1}(x))
+\end{equation*}
+Hence 
+\begin{equation*}
+    \hat{c_i} = c_i + \Phi(D_i) - \Phi(D_{i-1})
+    \leq c_i + b_{i} - b_{i - 1}
+    = \func{max}(1,depth_{i-1}(x)) + (1 - \func{max}(1,depth_{i-1}(x)))
+    = 1
+\end{equation*}
+
+We have shown that amortized of each operation is $O(1)$ 
+with the path-compression heuristic,
+no matter whether we use union by rank or not.
+Hence the sequence takes $O(m)$ time 
+with the path-compression heuristic,
+no matter whether we use union by rank or not.
 
 % \section*{Chapter 21 Problems}
 
