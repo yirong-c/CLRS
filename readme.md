@@ -81,6 +81,8 @@ that support operations on intervals.
 
 - [Linked-list Representation](https://github.com/frc123/CLRS/tree/master/ch21/code/list_representation_of_disjoint_sets.cpp)
 
+- [Disjoint-set Forests](https://github.com/frc123/CLRS/tree/master/ch21/code/disjoint_set_forests.cpp)
+
 ## More Code Implementation in C++
 
 https://github.com/frc123/CLRS-code-solution

@@ -606,6 +606,225 @@ Hence the sequence takes $O(m)$ time
 with the path-compression heuristic,
 no matter whether we use union by rank or not.
 
+\section*{21.4}
+
+\subsection*{21.4-1}
+
+\begin{proof}
+    We prove by induction on the number of operations.
+    
+    \textit{(Base)}
+    Initially, there is no element in the disjoint sets,
+    so it is trivial.
+
+    \textit{(Induction)}
+    Denote $D_i$ be the data structure after $i$th operation.
+    Denote $p_i(x)$ be $x.p$ after $i$th operation.
+    Denote $rank_i(x)$ be $x.rank$ after $i$th operation.
+    Suppose that, for all $x \in D_{i - 1}$,
+    \textcircled{1} $rank_{i-1}(x) < rank_{i-1}(p_{i-1}(x))$ if $x \neq p_{i-1}(x)$,
+    \textcircled{2} $rank_{i-1}(x) = rank_{i-2}(x)$ if $x \neq p_{i-1}(x)$, and
+    \textcircled{3} $rank_{i-1}(p_{i-1}(x)) \geq rank_{i-2}(p_{i-2}(x))$.
+    
+    \textbf{Case 1.}
+    $\proc{Make-Set}(y)$ is performed in the $i$th operation.
+    
+    Then all structures of trees in $D_{i-1}$ remain same in $D_i$,
+    and \textcircled{1}\textcircled{2}\textcircled{3} are vacuously true for $y$. 
+
+    \textbf{Case 2.}
+    $\proc{Find-Set}(y)$ is performed in the $i$th operation.
+
+    Since no rank changes in $\proc{Find-Set}$, \textcircled{2} holds.
+    Let $z$ be the root of the tree contains $y$.
+    Let $A$ be the set contains all the nodes on the simple path 
+    from $y$ to $z$ except $z$ in $D_{i-1}$.
+    Let $w \in A$ be arbitrary choice.
+    We have $w \neq p_{i-1}(w)$.
+    By \textcircled{1}, since $p_i(w) = z$, we have 
+    \begin{equation*}
+        rank_{i-1}(w) < rank_{i-1}(p_{i-1}(w)) \leq rank_{i-1}(z) = rank_{i-1}(p_i(w))
+    \end{equation*}
+    Since no rank changes in $\proc{Find-Set}$, we have 
+    $rank_i(w) < rank_i(p_i(w))$ and $rank_i(p_i(w)) \geq rank_{i-1}(p_{i-1}(w))$.
+    For all elements not in $A$, their $p$ are not changed in the $i$th operation.
+    Thus, we conclude \textcircled{1}\textcircled{3} holds.
+     
+    \textbf{Case 3.}
+    $\proc{Union}(y,z)$ is performed in the $i$th operation.
+    Let $f$ be the root of the tree contains $y$,
+    and let $g$ be the root of the tree contains $z$.
+    $\proc{Union}(y,z)$ is acutally perfroming the following sequence
+    \begin{equation*}
+        \langle \proc{Find-Set}(y), \proc{Find-Set}(z), \proc{Link}(f,g)
+    \end{equation*}
+    By case 2, we know IH holds after $\proc{Find-Set}$.
+    Then we assume \textcircled{1}\textcircled{2}\textcircled{3} holds for $(i-1)$th operation
+    and we are performing $\proc{Link}(f,g)$ in the $i$th operation.
+    There are three subcases: $rank_{i-1}(f) > rank_{i-1}(g)$, $rank_{i-1}(f) < rank_{i-1}(g)$,
+    and $rank_{i-1}(f) = rank_{i-1}(g)$; we notice the first two are similar, 
+    so we ignore the first subcase.
+    First, we suppose that $rank_{i-1}(f) < rank_{i-1}(g)$.
+    Notice that $f$ is the only node that $p$ attribute is changed in the $i$th operation.
+    We have $p_{i-1}(f) = f$ and $p_i(f) = g$.
+    Then
+    \begin{equation*}
+        rank_{i-1}(p_{i-1}(f)) = rank_{i-1}(f) < rank_{i-1}(g) = rank_{i-1}(p_i(f))
+    \end{equation*}
+    Since no rank changes in this subcase, we have 
+    $rank_{i}(f) < rank_{i}(p_i(f))$ and $rank_{i}(p_i(f)) \geq rank_{i-1}(p_{i-1}(f))$.
+    Thus, we conclude \textcircled{1}\textcircled{2}\textcircled{3} holds.
+    Now, we suppose that $rank_{i-1}(f) = rank_{i-1}(g)$.
+    By the similar approach to the last subcase, we have
+    \begin{equation*}
+        rank_{i-1}(p_{i-1}(f)) = rank_{i-1}(f) = rank_{i-1}(g) = rank_{i-1}(p_i(f))
+    \end{equation*}
+    By line 5 of the procedure, we have $rank_{i}(g) = rank_{i-1}(g) + 1$,
+    and ranks of all nodes except $g$ remain same in the $i$th operation.
+    Then
+    \begin{equation*}
+        rank_{i-1}(p_{i-1}(f)) = rank_{i}(f) = rank_{i-1}(f) = rank_{i-1}(g) = rank_{i}(g) - 1 < rank_{i}(g) = rank_{i}(p_i(f))
+    \end{equation*}
+    Hence \textcircled{1}\textcircled{2}\textcircled{3} holds for $f$.
+    Since $p_{i-1}(g) = p_i(g) = g$, we have
+    \begin{equation*}
+        rank_{i-1}(p_{i-1}(g)) = rank_{i-1}(g) = rank_{i}(g) - 1 < rank_{i}(g) = rank_{i}(p_i(g))
+    \end{equation*}
+    Hence \textcircled{1}\textcircled{2}\textcircled{3} holds for $g$ 
+    (\textcircled{1}\textcircled{2} are vacuously true).
+    For all nodes other than $f$ and $g$, rank and p attributes remain same in $i$th operation.
+    Thus, we conclude \textcircled{1}\textcircled{2}\textcircled{3} holds.
+\end{proof}
+
+\subsection*{21.4-2}
+
+\begin{lemma}
+    If there exist a node has rank of $k$,
+    then there exists at least $2^k$ nodes in the forest.
+\end{lemma}
+
+\begin{proof}
+    \textit{(Base)}
+    If there exist a node has rank of $0$, 
+    there is at least one node in the forest.
+
+    \textit{(Induction)}
+    Suppose that the lemma is true for $k = h$ for some $h \geq 0$.
+    Consider $k = h + 1$.
+    If there exist a node has rank of $h + 1$,
+    then, by line 4 of $\proc{Link}$, 
+    there must were at least two node have rank of $h$ before.
+    By the inductive hypothesis, 
+    there exists at least $2 \cdot 2^k = 2^{k+1}$ nodes in the forest.
+\end{proof}
+
+\begin{claim}
+    In an $n$ disjoint sets using union by rank and path compression heuristic, 
+    every node has rank at most $\lfloor \lg n \rfloor$.
+\end{claim}
+
+\begin{proof}
+    Suppose that their exist a node has rank of $\lfloor \lg n \rfloor + 1$,
+    for the purpose of contradiction.
+    By the lemma, there exists at least $2^{\lfloor \lg n \rfloor + 1}$ nodes
+    in the forest.
+    \begin{equation*}
+        2^{\lfloor \lg n \rfloor + 1} > 2^{\lg n} = n
+    \end{equation*}
+    Contradiction.
+\end{proof}
+
+\subsection*{21.4-3}
+
+We need $\lceil \lg (k + 1) \rceil$ bits to store value $k$.
+Hence $\lceil \lg (\lfloor \lg n \rfloor + 1) \rceil$ bits
+are necesary to store $x.rank$. 
+
+\subsection*{21.4-4}
+
+\begin{proof}
+    Taking advantage of Lemma 21.7, we convert the sequence into 
+    a sequence of $m$ $\proc{Make-Set}$, $\proc{Link}$, and $\proc{Find-Set}$.
+    Without path compression, 
+    rank of each node is exactly the height of the node.
+    Observed $\proc{Make-Set}$ and $\proc{Link}$ take $O(1)$ time,
+    and $\proc{Find-Set}(x)$ takes $O(x.rank)$ time.
+    Hence the sequence run in $O(m \lg n)$ time.
+\end{proof}
+
+\subsection*{21.4-5}
+
+No.
+Consider $x.rank = 1$, $x.p.rank = 7$, and $x.p.p.rank = 8$.
+Clearly, $x.rank > 0$ and $x.p$ is not a root.
+Since 
+\begin{equation*}
+    A_2(x.rank) = A_2(1) = 7
+\end{equation*}
+and
+\begin{equation*}
+    A_3(x.rank) = A_3(1) = 2047 \quad,
+\end{equation*}
+we have
+\begin{equation*}
+    A_2(x.rank) \leq x.p.rank < A_3(x.rank) \quad,
+\end{equation*}
+so
+\begin{equation*}
+    \func{level}(x) = 2 \quad.
+\end{equation*}
+Since
+\begin{equation*}
+    A_0(x.p.rank) = A_0(7) = 8
+\end{equation*}
+and
+\begin{equation*}
+    A_1(x.p.rank) = A_1(7) = 15 \quad,
+\end{equation*}
+we have
+\begin{equation*}
+    A_0(x.p.rank) \leq x.p.p.rank < A_1(x.p.rank) \quad,
+\end{equation*}
+so
+\begin{equation*}
+    \func{level}(x.p) = 0 \quad.
+\end{equation*}
+Therefore,
+\begin{equation*}
+    \func{level}(x) > \func{level}(x.p) \quad.
+\end{equation*}
+
+\subsection*{21.4-6}
+
+Since $A_3(1) = 2047$, $\alpha'(n) \leq 3$ implies
+\begin{equation*}
+    A_3 = 2047 \geq \lg (n + 1) \quad.
+\end{equation*}
+Then 
+\begin{equation*}
+    n \leq 2^{2047} - 1 = \frac{2^{2048}}{2} - 1 
+    = \frac{(2^4)^{512}}{2} - 1 = 16^{511} - 1 \gg 10^{80} \quad.
+\end{equation*}
+
+Replace all $\alpha(n)$ with $\alpha'(n)$ in the argument.
+The only modification we need to make is at the bound (21.1).
+We claim that
+\begin{equation*}
+    0 \leq \func{level}(x) < \alpha'(n) \quad.
+\end{equation*}
+We need to modify the argument to prove $\func{level}(x) < \alpha'(n)$.
+\begin{equation*}
+\begin{split}
+    A_{\alpha'(n)}(x.rank) & \geq A_{\alpha'(n)}(1)
+    \text{\indent(bacause $A_k(j)$ is strictly increasing)} \\
+    & \geq \lg (n + 1) 
+    \text{\indent(by the definition of $\alpha'(n)$)} \\
+    & > \lfloor \lg(n) \rfloor \\
+    & \geq x.p.rank
+    \text{\indent(by exercise 21.4-2)} \\
+\end{split}
+\end{equation*}
+
 % \section*{Chapter 21 Problems}
 
 % \subsection*{21-1}
