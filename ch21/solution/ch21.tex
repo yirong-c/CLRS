@@ -1001,6 +1001,101 @@ std::vector<int> OffLineMinimum(const std::vector<int>& operations, int n)
     
 In the worst-case, the running time is $O(n \alpha(n))$.
 
+\subsection*{21-2}
+
+\subsubsection*{(a)}
+
+\begin{proof}
+    Suppose that we performed $n$ times $\proc{Make-Tree}$.
+    To maximize the depth we performed $n - 1$ times $\proc{Graft}$
+    to form a tree where the depth of leaf is $n - 1$ 
+    (the tree become a linked list contains all $n$ nodes).
+    Then we performed $m - 2n + 1$ $\proc{Find-Depth}$ on the leaf.
+    Each of $\proc{Make-Tree}$ and $\proc{Graft}$ takes $\Theta(1)$ time,
+    and each of $\proc{Find-Depth}$ takes $\Theta(n)$ time.
+    Hence the sequence takes
+    \begin{equation*}
+        \underbrace{n \cdot \Theta(1)}_{\proc{Make-Tree}}
+        + \underbrace{(n - 1) \cdot \Theta(1)}_{\proc{Graft}}
+        + \underbrace{(m - 2n + 1) \cdot \Theta(n)}_{\proc{Find-Depth}}
+        = O(mn)
+    \end{equation*}
+    time in total.
+    Consider $n = \frac{m}{3}$.
+    In this case, the sequence takes $\Theta(m^2)$ time.
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void MakeTree(Node *x)
+{
+    x->p = x;
+    x->rank = 0;
+    x->d = 0;
+}
+\end{minted}
+
+\subsubsection*{(c)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+// after the function return, v->p is the root of the tree in the disjoint sets
+void Compression(Node *v)
+{
+    if (v->p != v->p->p)
+    {
+        Compression(v->p);
+        v->d += v->p->d;
+        v->p = v->p->p;
+    }
+}
+
+// after the function return, v->p is the root of the tree in the disjoint sets
+int FindDepth(Node *v)
+{
+    Compression(v);
+    return (v == v->p) ? v->d : (v->d + v->p->d);
+}
+\end{minted}
+
+\subsubsection*{(d)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+void Graft(Node *r, Node *v)
+{
+    Node *r_set, *v_set;
+    Compression(r);
+    // r_set is the root node of the disjoint set contains r
+    r_set = r->p;
+    // add depths of all nodes in the tree contains node r by the depth of node v
+    // correctness: disjoint set contains r is 
+    //              exactly the set contains all elements in the tree contains r  
+    r_set->d += (FindDepth(v) + 1);
+    // v_set is the root node of the disjoint set contains v
+    v_set = v->p;
+    if (r_set->rank > v_set->rank)
+    {
+        v_set->p = r_set;
+        // since r_set becomes parent of v_set in the disjoint set,
+        // we need to subtract pseudodistance of v_set by that of r_set
+        v_set->d -= r_set->d;
+    }
+    else
+    {
+        r_set->p = v_set;
+        // since v_set becomes parent of r_set in the disjoint set,
+        // we need to subtract pseudodistance of r_set by that of v_set
+        r_set->d -= v_set->d;
+        if (r_set->rank == v_set->rank)
+            ++v_set->rank;
+    }
+}
+\end{minted}
+
+\subsubsection*{(e)}
+
+$\Theta(m \alpha(n))$ where $n$ is the number of nodes in the forest.
+
 \centerline{\textbf{Updating...}}
 
 \end{document}
