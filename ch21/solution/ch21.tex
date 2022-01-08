@@ -825,11 +825,181 @@ We need to modify the argument to prove $\func{level}(x) < \alpha'(n)$.
 \end{split}
 \end{equation*}
 
-% \section*{Chapter 21 Problems}
+\section*{Chapter 21 Problems}
 
-% \subsection*{21-1}
+\subsection*{21-1}
 
-% \subsubsection*{(a)}
+\subsubsection*{(a)}
+
+$[ 4, 3, 2, 6, 8, 1 ]$
+
+\subsubsection*{(b)}
+
+\begin{proof}
+    \textit{(Base)}
+    Let $j \in \{ 1, 2, \cdots, m \}$,
+    and let $t \in K_j$.
+    Suppose that $extracted[k] = t$ 
+    for some $k \in \{ 1, 2, \cdots, j - 1 \}$,
+    for the purpose of contradiction.
+    Then $extracted[k]$ is extracting the value from $K_j$
+    where $j > k$.
+    Contradiction.
+
+    \textit{(Induction)}
+    Assume the value is removed from the set after we extract it.
+    Suppose that \textcircled{1}
+    \begin{equation*}
+        \forall j \in \{ 1, 2, \cdots, m \},
+        \forall t \in K_j, 
+        extracted[k] = t
+        \text{ for some } k \in \{ j, j + 1, \cdots, m \}
+        \text{ or $t$ will not be extracted }
+        \quad,
+    \end{equation*}
+    and suppose that \textcircled{2} 
+    any values in $\{ 1, 2, \cdots, i - 1 \}$ 
+    have been extracted correctly (hence these values are removed from  
+    $\bigcup\limits_{j \in \{ 1, 2, \cdots, m \}} K_j$).
+    Then at this time, $i$ is the smallest value
+    that is not in the $extracted$ array.
+    Now, we determine $j$ such that $i \in K_j$.
+    By the hypothesis \textcircled{1}, we know that $extracted[k] = i$
+    for some $k \in \{ j, j + 1, \cdots, m \}$ 
+    or $i$ will not be extracted.
+    Since $extracted[j]$ extracted value
+    early than $extracted[j + 1], extracted[j + 2], \cdots, extracted[m]$,
+    we know $extracted[j]$ extracted the smallest possible value $i$, 
+    and this value is what $\proc{Off-Line-Minimum}$
+    will choose, so we have shown that $i$ is extracted correctly.
+    Hence \textcircled{2} holds.
+    Let $l$ be the smallest value greater than $j$ 
+    for which set $K_l$ exists (i.e. $extracted[l]$ was empty).
+    Let $A = K_j$ for facilitating our analysis to $K_j$ after destroying $K_j$.
+    Now, we performed $K_l = K_k \cup K_l$ and destroyed $K_j$,
+    we claim the hypothesis \textcircled{1} holds.
+    By the way we choosed $l$, we knew 
+    $extract[j], extracted[j + 1], \cdots, extracted[l - 1]$
+    were nonempty, so for all $t \in A$,
+    $extracted[k] = t$ only if $k \neq j, j + 1, \cdots, l - 1$.
+    Then for all $t \in A$, 
+    $extracted[k] = t$ for some $k \in \{ j, j + 1, \cdots, m \}$
+    or $t$ will not be extracted.
+    Hence \textcircled{1} holds.
+\end{proof}
+
+\subsubsection*{(c)}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+struct Node
+{
+    int p;
+    int rank;
+    // set info:
+    int subsequence_index_lower;// only root
+    int subsequence_index_upper;// only root
+    int prev;// only root
+    int next;// only root
+};
+
+int FindSet(std::vector<Node>& forest, int x)
+{
+    if (forest[x].p != x)
+        forest[x].p = FindSet(forest, forest[x].p);
+    return forest[x].p;
+}
+
+// keep y's set info
+void Link(std::vector<Node>& forest, int x, int y)
+{
+    forest[forest[x].prev].next = forest[x].next;
+    forest[forest[x].next].prev = forest[x].prev;
+    if (forest[x].rank > forest[y].rank)
+    {
+        forest[y].p = x;
+        forest[x].subsequence_index_lower = forest[y].subsequence_index_lower;
+        forest[x].subsequence_index_upper = forest[y].subsequence_index_upper;
+        forest[x].prev = forest[y].prev;
+        forest[x].next = forest[y].next;
+        forest[forest[x].prev].next = x;
+        forest[forest[x].next].prev = x;
+    }
+    else
+    {
+        forest[x].p = y;
+        if (forest[x].rank == forest[y].rank)
+            ++forest[y].rank;
+    }
+}
+
+void Union(std::vector<Node>& forest, int x, int y)
+{
+    return Link(forest, FindSet(forest, x), FindSet(forest, y));
+}
+
+// operations: E represents by -1
+// n: domain size
+std::vector<int> OffLineMinimum(const std::vector<int>& operations, int n)
+{
+    int i, j, m, root, last_root;
+    std::vector<Node> forest(n + 1);// index start by 1
+    // init disjoin-set forest
+    for (i = 1; i <= n; ++i)
+    {
+        forest[i].p = i;
+        forest[i].rank = 0;
+    }
+    // init subsequence
+    m = 1;
+    root = 0;
+    last_root = 0;
+    for (i = 0; i < operations.size(); ++i)
+    {
+        if (operations[i] < 0)
+        {
+            // extract
+            forest[root].subsequence_index_upper = m;
+            ++m;
+            last_root = root;
+        }
+        else if (last_root == root)
+        {
+            // first insert in the subsequence
+            root = operations[i];
+            forest[root].subsequence_index_lower = m;
+            forest[root].prev = last_root;
+            forest[last_root].next = root;
+        }
+        else
+        {
+            // non-first insert in the subsequence
+            forest[operations[i]].p = root;
+            forest[root].rank = 1;
+        }
+    }
+    m = forest[last_root].subsequence_index_upper;
+    forest[last_root].next = 0;// for situation of that the last operation is extract
+    forest[0].subsequence_index_lower = m + 1;
+    // compute extracted array
+    std::vector<int> extracted(m);
+    for (i = 1; i <= n; ++i)
+    {
+        root = FindSet(forest, i);
+        j = forest[root].subsequence_index_lower;
+        if (j <= m)
+        {
+            extracted[j - 1] = i;
+            if (forest[root].subsequence_index_lower < forest[root].subsequence_index_upper)
+                ++forest[root].subsequence_index_lower;
+            else
+                Union(forest, root, forest[root].next);
+        }
+    }
+    return extracted;
+}
+\end{minted}
+    
+In the worst-case, the running time is $O(n \alpha(n))$.
 
 \centerline{\textbf{Updating...}}
 
