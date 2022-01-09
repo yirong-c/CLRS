@@ -1096,6 +1096,148 @@ void Graft(Node *r, Node *v)
 
 $\Theta(m \alpha(n))$ where $n$ is the number of nodes in the forest.
 
-\centerline{\textbf{Updating...}}
+\subsection*{21-3}
+
+\subsubsection*{(a)}
+
+\begin{proof}
+    $\proc{LCA}$ is actually doing a postorder tree walk
+    (the walk executes lines 8 - 10 for the root after doing so for the subtrees).
+    Then each pair in $P$ will be processed twice at line 8, 9.
+    Note that the procedure blanken the node after the node is visted.
+    Let $\{ u, v \}$ be an arbitrary choice.
+    WLOG, assume $u$ is visited before $v$.
+    At the time of $u$ is being visiting, $v$ has not been visited,
+    so $v.color \neq BLACK$, 
+    and line 10 does not execute for the pair $\{ u, v \}$, therefore.
+    At the time of $v$ is being visiting, $v$ has already been visited,
+    so $v.color == BLACK$, 
+    and line 10 executes for the pair $\{ u, v \}$, therefore.
+    Thus, line 10 executes exactly once for each pair $\{ u, v \} \in P$ .
+\end{proof}
+
+\subsubsection*{(b)}
+
+\begin{proof}
+    Denote $height(u)$ as the height of the node $u$ in $T$,
+    and denote $depth(u)$ as the depth of the node $u$ in $T$.
+
+    \textit{(Base)}
+    Let $u \in T$ where $height(u) = 0$.
+    Then $u$ do not have any descendant.
+    Suppose that at the time of the call $\proc{LCA}(u)$, the number of sets is $depth(u)$.
+    Then at the time of $\proc{LCA}(u)$ return, the number of sets is $depth(u) + 1$,
+    where the new set is from $\func{Make-Set}(u)$ at line 1.
+    Thus the inductive hypothesis (see below) holds for all $u \in T$ where $height(u) = 0$.
+
+    \textit{(Induction)}
+    Inductive hypothesis: for all $u \in T$ where $height(u) \leq k$, 
+    if at the time of the call $\proc{LCA}(u)$, the number of sets is $depth(u)$,
+    then at the time of the call $\proc{LCA}(v)$ where $v$ is a descendant of $u$, 
+    the number of sets is $depth(v)$, 
+    and at the time of $\proc{LCA}(u)$ return, the number of sets is $depth(u) + 1$.
+
+    Let $u \in T$ where $height(u) = k + 1$.
+    Suppose that at the time of the call $\proc{LCA}(u)$, the number of sets is $depth(u)$.
+    Then at the time after line 2 of $\proc{LCA}(u)$ is executed, 
+    the number of sets is $depth(u) + 1$.
+    We claim that after the $\For$ loop (line 3 - 6),
+    the number of sets is $depth(u) + 1$.
+    At line 4, we call $\proc{LCA}(v)$ where $v$ is a child of $u$.
+    Then $height(v) < height(u)$, so $height(v) \leq k$.
+    And the number of sets is $depth(u) + 1 = depth(v)$.
+    By the inductive hypothesis, at the time of $\proc{LCA}(v)$ return, 
+    the number of sets is $depth(v) + 1 = (depth(u) + 1) + 1 = depth(u) + 2$.
+    And we have at the time of the call $\proc{LCA}(w)$ where $w$ is a descendant of $v$, 
+    the number of sets is $depth(w)$.
+    At line 5, we perform $\proc{Union}(x,y)$, so at this time, 
+    the number of sets is $depth(u) + 2 - 1 = depth(u) + 1$.
+    Thus, after the $\For$ loop,
+    the number of sets is $depth(u) + 1$,
+    and the number of sets is same at the time of $\proc{LCA}(u)$ return.
+    Hence the inductive hypothesis holds for all $u \in T$ where $height(u) \leq k + 1$.
+
+    \textit{(Conclusion)}
+    By mathmatical induction, 
+    since at the time of the call $\proc{LCA}(T.root)$, the number of sets is $depth(T.root) = 0$,
+    and all nodes in $T$ is a descendant of $T.root$,
+    we conclude at the time of the call $\proc{LCA}(u)$, the number of sets is $depth(u)$.
+\end{proof}
+
+\subsubsection*{(c)}
+
+Denote $T_u$ as the subtree rooted at $u$.
+
+\begin{lemma}
+    Suppose the program is currently running in $\proc{LCA}(a)$
+    (i.e. the top of the call stack is $\proc{LCA}(a)$) at the end of the line 6.
+    Let $B$ be the set contains all black color children of $a$.
+    Let $A = a \cup \bigcup\limits_{b \in B} T_b$.
+    Then the disjoint set of node $a$ is exactly set $A$  
+    and $\proc{Find-Set}(a).ancestor = a$.
+\end{lemma}
+
+\begin{proof}
+    \textit{(Induction)}
+    Suppose that the lemma is true for all $a$ where $height(a) \leq k$.
+    Let $a \in T$ where $height(a) = k + 1$.
+    Let $B$ be the set contains all black color children of $a$.
+    Then for all $b \in B$, $height(b) \leq k$.
+    Since $b.color$ is black, the colors of all children of $b$ are black.
+    By the hypothesis, all elements in $T_b$ are in a same disjoint set.
+    At line 5 - 6, we union all elements in $T_b$ with $a$.
+    Thus, the disjoint set of node $a$ is $a \cup \bigcup\limits_{b \in B} T_b$.
+    We have $\proc{Find-Set}(a).ancestor = a$ by line 6 immediately.
+\end{proof}
+
+\begin{claim}
+    Suppose the program is currently running in $\proc{LCA}(u)$
+    (i.e. the top of the call stack is $\proc{LCA}(u)$).
+    Then for all $v \in T$ where $u \neq v$, if $v.color$ is BLACK,
+    then $\proc{Find-Set}(v).ancestor$ is the least common ancestor of $u$ and $v$.
+\end{claim}
+
+Note that it is impossible to have $v$ to be a proper ancestor of $u$.
+
+\begin{proof}
+    Let $u, v \in T$ where $u \neq v$, and let $a$ be the least common ancestor of $u$ and $v$.
+
+    Suppose that the program is currently running in $\proc{LCA}(a)$,
+    $u$ has not been visited, and $v$ has been visited.
+    Then $u.color$ is WHITE, and $v.color$ is BLACK.
+    Let $b \in T$ such that $b$ is a child of $a$ and $v$ is a descendant of $b$ 
+    (i.e. $v \in T_b$). 
+    Since the program is currently running in $\proc{LCA}(a)$,
+    $b.color$ must be BLACK also.
+    By the lemma, we have $\proc{Find-Set}(v) = \proc{Find-Set}(a)$
+    and $\proc{Find-Set}(v).ancestor = \proc{Find-Set}(a).ancestor = a$. 
+
+    Suppose that the program keeps running and is currently running in $\proc{LCA}(u)$.
+    When the top of the call stack is not $\proc{LCA}(u)$ 
+    and the call stack still contains $\proc{LCA}(u)$,
+    the disjoint set contains $a$ must remains same.
+    Thus, $\proc{Find-Set}(v).ancestor$ and $\proc{Find-Set}(a).ancestor$ still equal to $a$.
+\end{proof}
+
+\subsubsection*{(d)}
+
+\begin{tabular}{c|c|c}
+    operation & location & times \\
+    \hline
+    $\proc{Make-Set}$ & line 1 & $|T|$ \\
+    $\proc{Find-Set}$ & line 2 & $|T|$ \\
+    $\proc{Union}$ & line 5 & $|T| - 1$ \\
+    $\proc{Find-Set}$ & line 6 & $|T| - 1$ \\
+    $\proc{Find-Set}$ & line 10 & $|P|$ (by part (a)) \\
+\end{tabular}
+
+Hence $\proc{LCA}$ takes $O((|T| + |P|) \alpha(|T|))$.
+Note that we can bound $|P|$ from above:
+\begin{equation*}
+    |P| \leq \binom{|T|}{2} = \Theta(|T|^2)
+\end{equation*}
+Then we can say that $\proc{LCA}$ takes $O(|T|^2 \alpha(|T|))$ also.
+
+% \centerline{\textbf{Updating...}}
 
 \end{document}
