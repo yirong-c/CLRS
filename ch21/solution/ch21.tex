@@ -1169,7 +1169,7 @@ $\Theta(m \alpha(n))$ where $n$ is the number of nodes in the forest.
 Denote $T_u$ as the subtree rooted at $u$.
 
 \begin{lemma}
-    Suppose the program is currently running in $\proc{LCA}(a)$
+    Suppose that the program is currently running in $\proc{LCA}(a)$
     (i.e. the top of the call stack is $\proc{LCA}(a)$) at the end of the line 6.
     Let $B$ be the set contains all black color children of $a$.
     Let $A = a \cup \bigcup\limits_{b \in B} T_b$.
@@ -1178,6 +1178,14 @@ Denote $T_u$ as the subtree rooted at $u$.
 \end{lemma}
 
 \begin{proof}
+    \textit{(Base)}
+    Let $a \in T$ where $height(a) = 0$.
+    Then $a$ does not have any children.
+    Thus, at the end of line 6 
+    (consider the start of line 7 here) of $\proc{LCA}(a)$, 
+    the disjoint set of node $a$ only contains $a$,
+    and $\proc{Find-Set}(a).ancestor = a$ by line 2.
+
     \textit{(Induction)}
     Suppose that the lemma is true for all $a$ where $height(a) \leq k$.
     Let $a \in T$ where $height(a) = k + 1$.
