@@ -1,5 +1,6 @@
 #include <vector>
-#include "../../ch9/code/linear_select.hpp"
+
+#include "selection.hpp"
 
 class DataStructure
 {
@@ -18,9 +19,9 @@ void DataStructure::Insert(int x)
 
 void DataStructure::DeleteLargerHalf()
 {
-    size_t median = arr_.size() >> 1;
-    LinearSelect(arr_, 0, arr_.size() - 1, (arr_.size() - 1) >> 1);
-    arr_.erase(arr_.begin() + median, arr_.end());
+    cotl::Select(arr_.begin(), arr_.end(), (arr_.size() - 1) >> 1, 
+        [](int a, int b) { return a - b; });
+    arr_.erase(arr_.begin() + (arr_.size() >> 1), arr_.end());
 }
 
 const std::vector<int>& DataStructure::Get() const

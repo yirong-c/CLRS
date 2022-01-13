@@ -33,6 +33,12 @@ Chapter 2 - 11 Contents are Uploading and Migrating
 
 ## Submodules of the Project
 
+### [Common Operation Template Library (COTL)](https://github.com/frc123/common-operation-template-library)
+
+Augmented data structures and algorithms in a style similar to STL
+such as partition, selection in linear time, etc.
+(widely used in this project) (in the namespace of `cotl`)
+
 ### [Matrix](https://github.com/frc123/matrix)
 
 Matrix library that supports operator overloading and Strassen's algorithm.
