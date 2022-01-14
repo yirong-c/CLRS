@@ -312,7 +312,8 @@ std::list<int> ZeroOneKnapsack(const std::vector<Item>& items, int maximum_weigh
     {
         for (j = 0; j <= maximum_weight; ++j)
         {
-            if (j >= items[i].w && dp_value[i + 1][j - items[i].w] + items[i].v > dp_value[i + 1][j])
+            if (j >= items[i].w && 
+                dp_value[i + 1][j - items[i].w] + items[i].v > dp_value[i + 1][j])
             {
                 dp_value[i][j] = dp_value[i + 1][j - items[i].w] + items[i].v;
                 dp_put[i][j] = true;
