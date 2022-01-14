@@ -232,6 +232,338 @@ std::list<int> DpActivitySelector(const std::vector<Activity>& activities)
 }
 \end{minted}
 
+\section*{16.2}
+
+\subsection*{16.2-1}
+
+Suppose that items are sorted by value per pound from high to low.
+\begin{equation*}
+    v_1 / w_1 \geq v_2 / w_2 \geq v_3 / w_3 \geq \cdots 
+    \geq v_{n-1} / w_{n-1} \geq v_n / w_n
+    \quad .
+\end{equation*}
+Denote $a_i$ as the item $i$.
+Let $S_k = \{ a_i : k \leq i \leq n \}$.
+
+\begin{claim}
+    Consider any nonempty subproblem $S_k$.
+    Then as much as possible $a_k$ is included in some maximum-value fractional knapsack
+    composed by some items in $S_k$
+    where the items in the knapsack weigh at most $W$ pounds.
+\end{claim}
+
+\begin{proof}
+    Let $A_k$ be a maximum-value fractional knapsack composed by some items in $S_k$
+    where the items in the knapsack weigh at most $W$ pounds.
+    Let $\alpha = \func{max}(a_k, W)$.
+    Let $\beta$ be the number of pounds of $a_k$ in $A_k$.
+    Note that $\alpha \geq \beta$ must be true.
+    If $\alpha = \beta$, then we are done.
+    If $\alpha > \beta$, then we replace any $\alpha - \beta$ pounds non-$a_k$ items in $A_k$
+    with the same amount of $a_k$.
+    Now we have a knapsack that contains at least the value of the original knapsack
+    (actually, the knapsack after replacement must have the same value as the original knapsack;
+    otherwise, we have a contradiction).
+\end{proof}
+
+\subsection*{16.2-2}
+
+Denote $a_i$ as the item $i$.
+Let $S_k = \{ a_i : k \leq i \leq n \}$.
+Denote $c[i,j]$ as the maximum value in the 0-1 knapsack composed by some items in $S_i$
+where the items in the knapsack at most $j$ pounds.
+We have the following recursive solution
+
+\begin{equation*}
+    c[i,j] = 
+    \begin{cases}
+        0 & \text{if } i = n \text{ and } j < w_i \quad , \\
+        v_i & \text{if } i = n \text{ and } j \geq w_i \quad , \\
+        c[i+1,j] & \text{if } i < n \text{ and } j < w_i \quad , \\
+        \func{max}(c[i+1,j], c[i+1,j-w_i] + v_i)
+            & \text{if } i < n \text{ and } j \geq w_i \quad . \\
+    \end{cases}
+\end{equation*}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+std::list<int> ZeroOneKnapsack(const std::vector<Item>& items, int maximum_weight)
+{
+    int n, i, j;
+    n = (int)(items.size());
+    std::vector< std::vector<int> > dp_value(n, std::vector<int>(maximum_weight + 1));
+    std::vector< std::vector<bool> > dp_put(n, std::vector<bool>(maximum_weight + 1));
+    std::list<int> output;
+    // compute
+    i = n - 1;
+    for (j = 0; j <= maximum_weight; ++j)
+    {
+        if (j >= items[i].w)
+        {
+            dp_value[i][j] = items[i].v;
+            dp_put[i][j] = true;
+        }
+        else
+        {
+            dp_value[i][j] = 0;
+            dp_put[i][j] = false;
+        }
+    }
+    for (i = n - 2; i >= 0; --i)
+    {
+        for (j = 0; j <= maximum_weight; ++j)
+        {
+            if (j >= items[i].w && dp_value[i + 1][j - items[i].w] + items[i].v > dp_value[i + 1][j])
+            {
+                dp_value[i][j] = dp_value[i + 1][j - items[i].w] + items[i].v;
+                dp_put[i][j] = true;
+            }
+            else
+            {
+                dp_value[i][j] = dp_value[i + 1][j];
+                dp_put[i][j] = false;
+            }
+        }
+    }
+    // output
+    j = maximum_weight;
+    for (i = 0; i < n; ++i)
+    {
+        if (dp_put[i][j])
+        {
+            output.push_back(i);
+            j -= items[i].w;
+        }
+    }
+    return output;
+}
+\end{minted}
+    
+\subsection*{16.2-3}
+
+Suppose that items are sorted by value from high to low.
+\begin{equation*}
+    v_1 \geq v_2 \geq v_3 \geq \cdots \geq v_{n-1} \geq v_n
+    \quad .
+\end{equation*}
+Then we have 
+\begin{equation*}
+    w_1 \leq w_2 \leq w_3 \leq \cdots \leq w_{n-1} \leq w_n
+    \quad .
+\end{equation*}
+Denote $a_i$ as the item $i$.
+Let $S_k = \{ a_i : k \leq i \leq n \}$.
+
+\begin{claim}
+    Consider any nonempty subproblem $S_k$ with some nonempty solution.
+    Then $a_k$ is included in some maximum-value subset (0-1 knapsack) of $S_k$
+    where all the items in the subset weigh at most $W$ pounds.
+\end{claim}
+
+\begin{proof}
+    Let $A_k$ be a maximum-value subset of $S_k$
+    where all the items in the subset weigh at most $W$ pounds.
+    Let $a_j$ be the item in $A_k$ with the largest value.
+    Then $a_j$ has the smallest weight among the items in $A_k$.
+    If $a_j = a_k$, then we are done.
+    If $a_j \neq a_k$, let the set $A_k' = A_k - \{ a_j \} \cup \{ a_k \}$.
+    Since items are sorted by value from high to low,
+    $a_k$ has the largest value and the smallest weight among the items in $S_k$.
+    Since $A_k, A_k' \subseteq S_k$, 
+    the total values in $A_k'$ must be greater than or equal to (actually, must be equal to) $A_k$,
+    and the total weights in $A_k'$ must be smaller than or equal to (actually, must be equal to) $A_k$,
+    which means all the items $A_k'$ weigh at most $W$ pounds also.
+    We conclude that $A_k'$ is a maximum-value subset of $S_k$
+    where all the items in the subset weigh at most $W$ pounds,
+    and $a_k \in A_k'$.
+\end{proof}
+    
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+// assume v mono decreasing and w mono increasing
+std::list<int> ZeroOneKnapsack(const std::vector<Item>& items, int maximum_weight)
+{
+    int k, n;
+    std::list<int> output;
+    n = (int)(items.size());
+    for (k = 0; k < n; ++k)
+    {
+        if (items[k].w <= maximum_weight)
+        {
+            maximum_weight -= items[k].w;
+            output.push_back(k);
+        }
+        else
+        {
+            break;
+        }
+    }
+    return output;
+}
+\end{minted}
+
+\subsection*{16.2-4}
+
+We start at the beginning and go as far as possible each time.
+In other words, keep going until the water is not enough to get to the next stop.
+
+Denote $a_i$ as the $i$th place at which he can refill his water.
+Denote $d_i$ as distance from the starting point to $a_i$.
+Assume that
+\begin{equation*}
+    d_1 < d_2 < d_3 \cdots < d_{n-1} < d_n
+    \quad .
+\end{equation*}
+Let $S_k = \{ a_i : k < i \leq n \}$, 
+which is the subproblem of minimize the number of stops from $a_k$.
+Assume $m > 0$.
+Let $C_k = \{ a_i \in S_k : d_i \leq d_k + m \}$, 
+which contains the candidates to the next stop from $a_k$.
+
+\begin{claim}
+    Consider any nonempty subproblem $S_k$ where $k \neq n$, 
+    and let $a_l$ be the stop in $C_k$ with the greatest distance from $a_k$.
+    Then $a_l$ is included in some minimum-size subset $B$ of $S_k$ such that
+    $a_k, a_n \in B$ and
+    \begin{equation*}
+        \forall a_i \in B, \exists a_j \in B \text{ such that }
+        | d_j - d_i | \leq m
+        \quad .
+    \end{equation*}
+\end{claim}
+
+\begin{proof}
+    Let $A_k$ be a minimum-size subset of $S_k$ such that
+    $a_k, a_n \in A_k$ and
+    \begin{equation*}
+        \forall a_i \in A_k, \exists a_j \in A_k \text{ such that }
+        | d_j - d_i | \leq m
+        \quad .
+    \end{equation*}
+    Let $a_t$ be the stop in $A_k$ with the smallest distance from $a_k$.
+    If $a_t = a_l$, then we are done.
+    If $a_t \neq a_l$, let the set $A_k' = A_k - \{ a_t \} \cup \{ a_l \}$.
+    By the definition of $C_k$, we have $a_t \in C_k$, so $d_t < d_l$.
+    We claim that $a_t \neq a_n$ since
+    \begin{equation*}
+        a_t = a_n \Longrightarrow d_t = d_n \Longrightarrow d_n < d_l
+    \end{equation*}
+    which leads to a contradiction.
+    Since $a_l \in C_k$, $d_l - d_k \leq m$.
+    Since $a_t \in A_k$, there exists $a_j$ such that $d_j - d_t \leq m$,
+    so $d_j - d_l \leq m$.
+    We conclude that $A_k'$ is a minimum-size subset of $S_k$ such that
+    $a_k, a_n \in A_k'$ and
+    \begin{equation*}
+        \forall a_i \in A_k', \exists a_j \in A_k' \text{ such that }
+        | d_j - d_i | \leq m
+        \quad .
+    \end{equation*}
+\end{proof}
+
+\subsection*{16.2-5}
+
+Let the left endpoint of the first interval be the leftmost point in the set,
+let the left endpoint of the second interval be the leftmost point in the set 
+that is not contained by the first interval,
+let the left endpoint of the third interval be the leftmost point in the set 
+that is not contained by the first interval and the second interval,
+and so forth.
+
+Assume $x_1, x_2, \cdots, x_n$ are strictly monotonous increasing
+(by sorting and removing repeated elements):
+\begin{equation*}
+    x_1 < x_2 < x_3 < \cdots < x_{n-1} < x_n
+    \quad .
+\end{equation*}
+Let $S_k = \{ x_i : k \leq i \leq n \}$,
+which is the subproblem of minimize the number of set of unit-length closed intervals
+that contains all points in $S_k$.
+
+\begin{claim}
+    Consider any nonempty subproblem $S_k$.
+    Then $[x_k, x_k + 1]$ is included in some minimum-size set of unit-length closed intervals
+    that contains all points in $S_k$.
+\end{claim}
+
+\begin{proof}
+    Actually, $[x_k, x_k + 1]$ must be included in any set of unit-length closed intervals
+    that contains all points in $S_k$.
+    Otherwise, $x_k$ cannot be contained, which leads to a contradiction.
+\end{proof}
+
+\subsection*{16.2-6}
+
+We apply weighted selection in worst-case linear time to this problem.
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+// return list of pair where the first element of the pair is 
+// the index of item in the container after the funtion returns 
+// and the second element of the pair is the weight of the item in the knapsack
+std::list< std::pair<int, int> > FractionalKnapsack
+    (std::vector<Item>& items, int maximum_weight)
+{
+    std::list< std::pair<int, int> > output;
+    int weight_sum = 0;
+    for (Item& item : items)
+    {
+        weight_sum += item.w;
+    }
+    if (weight_sum <= maximum_weight)
+    {
+        // put all items into kanpsack
+        for (size_t i = 0; i < items.size(); ++i)
+        {
+            output.emplace_back(i, items[i].w);
+        }
+    }
+    else
+    {
+        for (Item& item : items)
+        {
+            item.v_div_w = (double)(item.v) / (item.w);
+        }
+        // note that a partition around the pivot will be performed also
+        cotl::WeightedSelect(items.begin(), items.end(), maximum_weight - 1, 
+            [](const Item& a) { return a.w; }, 
+            [](const Item& a, const Item& b) { return b.v_div_w - a.v_div_w; });
+        for (size_t i = 0; i < items.size(); ++i)
+        {
+            int pick_weight = std::min(maximum_weight, items[i].w);
+            maximum_weight -= pick_weight;
+            output.emplace_back(i, pick_weight);
+            if (maximum_weight == 0)
+                break;
+        }
+    }
+    return output;
+}
+\end{minted}
+
+\subsection*{16.2-7}
+
+We put each of $A$ and $B$ into an array and sort these two arrays.
+
+\begin{claim}
+    If $a_1 \leq a_2 \leq a_3 \leq \cdots \leq a_{n-1} \leq a_n$
+    and $b_1 \leq b_2 \leq b_3 \leq \cdots \leq b_{n-1} \leq b_n$,
+    then $\prod\limits_{i = 1}^n a_i^{b_i}$ is the maximum payoff. 
+\end{claim}
+
+\begin{proof}
+    Suppose that $a_1 \leq a_2 \leq a_3 \leq \cdots \leq a_{n-1} \leq a_n$
+    and $b_1 \leq b_2 \leq b_3 \leq \cdots \leq b_{n-1} \leq b_n$.
+    Suppose that $\prod\limits_{i = 1}^n a_i^{b_i}$ is not the maximum payoff, 
+    for the purpose of contradiction.
+    Then there exists a sequence $(b_n')$ difference to $(b_n)$ such that
+    $\prod\limits_{i = 1}^n a_i^{b_i'}$ is the maximum payoff,
+    which means $\prod\limits_{i = 1}^n a_i^{b_i'} > \prod\limits_{i = 1}^n a_i^{b_i}$.
+    Then there exists integers $i, j \in [1, n]$ such that $a_i < a_j$ and $b_i' > b_j'$.
+    Consider the difference between $a_i^{b_i'}a_j^{b_j'}$ and $a_i^{b_j'}a_j^{b_i'}$.
+    Since $a_i^{b_i'}a_j^{b_j'} = a_i^{b_j'}a_j^{b_j'}a_i^{b_i' - b_j'}$
+    and $a_i^{b_j'}a_j^{b_i'} = a_i^{b_j'}a_j^{b_j'}a_j^{b_i' - b_j'}$,
+    we have $a_i^{b_i'}a_j^{b_j'} < a_i^{b_j'}a_j^{b_i'}$,
+    which contradicts to $\prod\limits_{i = 1}^n a_i^{b_i'}$ is the maximum payoff.
+\end{proof}
+
 % \section*{Chapter 16 Problems}
 
 % \subsection*{16-1}
