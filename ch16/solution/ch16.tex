@@ -565,6 +565,585 @@ We put each of $A$ and $B$ into an array and sort these two arrays.
     which contradicts to $\prod\limits_{i = 1}^n a_i^{b_i'}$ is the maximum payoff.
 \end{proof}
 
+\section*{16.3}
+
+\subsection*{16.3-1}
+
+Since $x.freq$ and $y.freq$ are the two lowest leaf frequencies,
+and we assume that $a.freq \leq b.freq$ and $x.freq \leq y.freq$,
+we have $x.freq \leq y.freq \leq a.freq \leq b.freq$.
+Thus, if $x.freq = b.freq$, then we must have 
+$x.freq = y.freq = a.freq = b.freq$.
+
+\subsection*{16.3-2}
+
+\begin{proof}
+    Suppose that a non-full binary tree $T$ correspond to an optimal prefix code,
+    for the purpose of contradiction.
+    Then there exists a leaf node $a \in T$ such that $a$ do not have sibling
+    and, then, $a.freq = a.p.freq$.
+    We construct $T'$ by removing $a.p$ and put $a$ at the postion of $a.p$.
+    Then $d_{T'}(a) = d_{T}(a) - 1$.
+    Hence $B(T) > B(T')$, which contradicts to that
+    $T$ correspond to an optimal prefix code.
+\end{proof}
+
+\subsection*{16.3-3}
+
+\begin{tikzpicture}
+    \tikzset{vertex/.style = {shape=circle,draw,minimum size=1em}}
+    \tikzset{edge/.style = {->,> = latex'}}
+    \node[shape=rectangle,draw] (a) at (0,0) {$a : 1$};
+    \node[shape=rectangle,draw] (b) at (2,0) {$b : 1$};
+    \node[shape=circle,draw] (i1) at (1,1) {$2$};
+    \node[shape=rectangle,draw] (c) at (3,1) {$c : 2$};
+    \node[shape=circle,draw] (i2) at (2,2) {$4$};
+    \node[shape=rectangle,draw] (d) at (4,2) {$d : 3$};
+    \node[shape=circle,draw] (i3) at (3,3) {$7$};
+    \node[shape=rectangle,draw] (e) at (5,3) {$e : 5$};
+    \node[shape=circle,draw] (i4) at (4,4) {$12$};
+    \node[shape=rectangle,draw] (f) at (6,4) {$f : 8$};
+    \node[shape=circle,draw] (i5) at (5,5) {$20$};
+    \node[shape=rectangle,draw] (g) at (7,5) {$g : 13$};
+    \node[shape=circle,draw] (i6) at (6,6) {$33$};
+    \node[shape=rectangle,draw] (h) at (8,6) {$h : 21$};
+    \node[shape=circle,draw] (i7) at (7,7) {$54$};
+    \draw[-] (a) to (i1);
+    \draw[-] (b) to (i1);
+    \draw[-] (i1) to (i2);
+    \draw[-] (c) to (i2);
+    \draw[-] (i2) to (i3);
+    \draw[-] (d) to (i3);
+    \draw[-] (i3) to (i4);
+    \draw[-] (e) to (i4);
+    \draw[-] (i4) to (i5);
+    \draw[-] (f) to (i5);
+    \draw[-] (i5) to (i6);
+    \draw[-] (g) to (i6);
+    \draw[-] (i6) to (i7);
+    \draw[-] (h) to (i7);
+\end{tikzpicture}
+
+\begin{lemma}
+    For all $k \in \NN$, 
+    $\sum\limits_{i = 1}^k F_i < F_{k + 2}$.
+\end{lemma}
+
+\begin{proof}
+    \textit{(Base)}
+    Consider $k = 1$.
+    We have 
+    $\sum\limits_{i = 1}^1 F_i = F_1 = 1 < 2 = F_3 = F_{k + 2}$.
+
+    \textit{(Induction)}
+    Fix $k \geq 1$.
+    Suppose that $\sum\limits_{i = 1}^k F_i < F_{k + 2}$.
+    We want to show that $\sum\limits_{i = 1}^{k + 1} F_i < F_{k + 3}$.
+    \begin{equation*}
+        \sum\limits_{i = 1}^{k + 1} F_i = F_{k + 1} + \sum\limits_{i = 1}^k F_i
+        \overset{\text{IH}}{<} F_{k + 1} + F_{k + 2} = F_{k + 3}
+    \end{equation*}
+\end{proof}
+
+We construct the tree inductively.
+Suppose that $T$ is a tree contains first $n$ Fibonacci numbers and
+$T.root.freq = \sum\limits_{i = 1}^n F_i$.
+By the lemma, we have 
+\begin{equation*}
+    T.root.freq = \sum\limits_{i = 1}^n F_i < F_{n + 2}
+    \quad .
+\end{equation*}
+Thus, to construct $T'$ contains first $n + 1$ Fibonacci numbers,
+we allocate a new node, let $T'.root$ be the new node,
+let $T'.root.left = T.root$, and let $T'.root.right$ be the node represents $F_{n + 1}$.
+Then we have 
+\begin{equation*}
+    T'.root.freq = T.root.freq + F_{n + 1} 
+    = \sum\limits_{i = 1}^n F_i + F_{n + 1} 
+    = \sum\limits_{i = 1}^{n + 1} F_i
+    \quad .
+\end{equation*}
+
+\subsection*{16.3-4}
+
+Denote $T_x$ as the subtree rooted at node $x$.
+Denote $C_x$ as the set of leaves (characters) in the subtree $T_x$.
+Denote $M_x$ as the set of internal nodes (mergers) in the subtree $T_x$.
+Denote $h(x)$ as the height of node $x$.
+
+\begin{lemma}
+    For all $x \in T$, we have 
+    \begin{equation*}
+        x.freq = \sum\limits_{c \in C_x} c.freq
+        \quad\quad\quad (*)
+        \quad .
+    \end{equation*}
+\end{lemma}
+
+\begin{proof}
+    \textit{(Base)}
+    Let $y \in T$ where $h(y) = 0$.
+    Then $y$ is a leaf, so $C_y = \{ y \}$.
+    We have $y.freq = \sum\limits_{c \in C_y} c.freq = y.freq$.
+
+    \textit{(Induction)}
+    Suppose that $(*)$ is true for all $x \in T$ where $h(x) \leq k$.
+    Let $y \in T$ where $h(y) = k + 1$.
+    We have 
+    \begin{equation*}
+        y.freq = y.left.freq + y.right.freq
+        \overset{\text{IH}}{=} 
+        \sum\limits_{c \in C_{y.left}} c.freq 
+        + \sum\limits_{c \in C_{y.right}} c.freq
+        = \sum\limits_{c \in C_y} c.freq
+        \quad .
+    \end{equation*}
+\end{proof}
+
+\begin{claim}
+    For all $x \in T$, we have
+    \begin{equation*}
+        B(T_x) = \sum\limits_{m \in M_x} (m.left.freq + m.right.freq)
+        \quad .
+    \end{equation*}
+\end{claim}
+
+\begin{proof}
+    Note that for all $x \in T$ and for all $m \in M_x$,
+    we have $m.left.freq + m.right.freq = m.freq$,
+    so we want to show that 
+    \begin{equation*}
+        B(T_x) = \sum\limits_{m \in M_x} m.freq
+        \quad\quad\quad (*)
+        \quad .
+    \end{equation*}
+
+    \textit{(Base)}
+    Let $y \in T$ where $h(y) = 0$.
+    Then $y$ is a leaf, so $C_y = \{ y \}$ and $M_y = \emptyset$.
+    Thus,
+    \begin{equation*}
+        LHS = B(T_y) = \sum\limits_{c \in C_y} c.freq \cdot d_{T_y}(c)
+        = y.freq \cdot d_{T_y}(y) = y.freq \cdot 0 = 0
+    \end{equation*}
+    and
+    \begin{equation*}
+        RHS = \sum\limits_{m \in M_y} m.freq = 0
+        \quad .
+    \end{equation*}
+    
+    \textit{(Induction)}
+    Suppose that $(*)$ is true for all $x \in T$ where $h(x) \leq k$.
+    Let $y \in T$ where $h(y) = k + 1$.
+    Then $h(y) \geq 1$, and $y$ is an internal node, so $y \notin C_y$.
+    We have
+    \begin{equation*}
+    \begin{split}
+        B(T_y) & = \sum\limits_{c \in C_y} c.freq \cdot d_{T_y}(c) \\
+        & = \sum\limits_{c \in C_{y.left}} c.freq \cdot (d_{T_{y.left}}(c) + 1)
+        + \sum\limits_{c \in C_{y.right}} c.freq \cdot (d_{T_{y.right}}(c) + 1) \\
+        & = \sum\limits_{c \in C_{y.left}} c.freq \cdot d_{T_{y.left}}(c) 
+        + \sum\limits_{c \in C_{y.right}} c.freq \cdot d_{T_{y.right}}(c)
+        + \sum\limits_{c \in C_{y.left}} c.freq
+        + \sum\limits_{c \in C_{y.right}} c.freq \\
+        & = B(T_{y.left}) + B(T_{y.right}) + \sum\limits_{c \in C_y} c.freq \\
+        & \overset{\text{IH}}{=} 
+        \sum\limits_{m \in M_{y.left}} m.freq
+        + \sum\limits_{m \in M_{y.right}} m.freq
+        + \sum\limits_{c \in C_y} c.freq 
+        \quad\quad\quad 
+        (\text{since } h(y.left) \leq k \text{ and } h(y.right) \leq k) \\
+        & \overset{\text{lemma}}{=} 
+        \sum\limits_{m \in M_{y.left}} m.freq
+        + \sum\limits_{m \in M_{y.right}} m.freq
+        + y.freq \\
+        & = \sum\limits_{m \in M_y} m.freq \quad .
+    \end{split}
+    \end{equation*}
+\end{proof}
+
+\subsection*{16.3-5}
+
+\begin{lemma}
+    For all $w,x,y,z$, if $x > w$ and $y > z$, then $xy + wz > xz + wy$.
+\end{lemma}
+
+\begin{proof}
+    \begin{equation*}
+    \begin{split}
+        xy + wz > xz + wy & \Longleftrightarrow 
+        y(x - w) + w(y + z) > z(x - w) + w(y + z) \\
+        & \Longleftrightarrow y(x - w) > z(x - w) \\
+        & \Longleftrightarrow x > w \wedge y > z \\
+    \end{split}
+    \end{equation*}
+\end{proof}
+
+\begin{claim}
+    Let $C = \{ c_1, c_2, c_3, \cdots, c_{n-1}, c_n \}$
+    be the alphabet where 
+    \begin{equation*}
+        c_1.freq \geq c_2.freq \geq c_3.freq \geq 
+        \cdots \geq c_n.freq
+        \quad .
+    \end{equation*}
+    Then there exists a tree $T$ corresponding to an optimal code
+    for $C$ such that 
+    \begin{equation*}
+        d_T(c_1) \leq d_T(c_2) \leq d_T(c_3) \leq 
+        \cdots \leq d_T(c_{n-1}) \leq d_T(c_n)
+        \quad .
+    \end{equation*}
+\end{claim}
+
+\begin{proof}
+    Let $T'$ be a tree corresponding to an optimal code for $C$.
+    We construct $T$ corresponding to an optimal code
+    for $C$ such that 
+    \begin{equation*}
+        d_T(c_1) \leq d_T(c_2) \leq d_T(c_3) \leq 
+        \cdots \leq d_T(c_{n-1}) \leq d_T(c_n)
+    \end{equation*}
+    inductively.
+
+    \textbf{Case 1.}
+    There exists integers $i,j \in [1,n]$ where $i < j$ such that
+    $c_i.freq = c_j.freq$ and $d_{T'}(c_i) > d_{T'}(c_j)$.
+    Then we swap $c_i$ and $c_j$, and we have $B(T')$ unchanged.
+
+    \textbf{Case 2.}
+    There exists integers $i,j \in [1,n]$ where $i < j$ such that
+    $c_i.freq > c_j.freq$ and $d_{T'}(c_i) > d_{T'}(c_j)$.
+    Then we swap $c_i$ and $c_j$, and, by the lemma, since
+    \begin{equation*}
+        c_i.freq \cdot d_{T'}(c_i) + c_j.freq \cdot d_{T'}(c_j)
+        > c_i.freq \cdot d_{T'}(c_j) + c_j.freq \cdot d_{T'}(c_i)
+        \quad ,
+    \end{equation*}
+    we have $B(T')$ decreased.
+    Hence this case is impossible to be trigged
+    since the original $T'$ corresponding to an optimal code for $C$.
+
+    We repeatedly modify $T'$ by the above rules until
+    \begin{equation*}
+        d_{T'}(c_1) \leq d_{T'}(c_2) \leq d_{T'}(c_3) \leq 
+        \cdots \leq d_{T'}(c_{n-1}) \leq d_{T'}(c_n)
+        \quad .
+    \end{equation*}
+\end{proof}
+
+\subsection*{16.3-6}
+
+By Exercise B.5-3, there are exactly $n - 1$ internal nodes,
+so there are exactly $2n - 1$ nodes in the full binary tree.
+
+We use the first $2n - 1$ bits to specify the structure of the tree
+by letting each bit indicate the corresponding node is a leaf ($0$) or an internal node ($1$).
+We imagine maintaining a queue.
+We push the two children of the current processing node 
+into the queue if it is an internal node.
+Then we move on to the next node in the queue.
+We repeatedly do this process until the queue becomes empty.
+
+We use the last $n \lceil \lg n \rceil$ bits 
+to specify the characters on all leaves in the order of the leaves 
+processed in the queue.
+
+\subsection*{16.3-7}
+
+\begin{claim}
+    A full ternary tree with $m$ internal nodes
+    has exactly $2m + 1$ leaves.
+\end{claim}
+
+\begin{proof}
+    A full ternary tree with $m$ internal nodes
+    has $3m$ non-root nodes, so there are $3m + 1$ nodes.
+    Then there are $(3m + 1) - m = 2m + 1$ leaves.
+\end{proof}
+
+Let $C$ an alphabet with $n$ elements.
+If $n = 2m + 1$ for some integer $m$, 
+then we let the $\For$ loop repeats $m = \frac{n - 1}{2}$ times. 
+If $n \neq 2m + 1$ for any integer $m$,
+then $n - 1 = 2m + 1$ for some integer $m$,
+and we do the following steps:
+\begin{itemize}
+	\item dequeue first two nodes (having the lowest frequencies) 
+        to $x$ and $y$, 
+	\item allocate a node and let $x$, $y$ be its chilren 
+        (leave the third child empty), 
+	\item enqueue the node, so there are $n - 1$ elements in the queue, 
+	\item let the $\For$ loop repeats 
+    $\frac{(n - 1) - 1}{2} = \frac{n}{2} - 1$ times. 
+\end{itemize}
+
+\begin{minted}[xleftmargin=20pt,linenos]{cpp}
+struct Node
+{
+    Node *child_1;
+    Node *child_2;
+    Node *child_3;
+    int freq;
+    char character;
+};
+
+Node* Huffman(std::vector<Node*>&& alphabet)
+{
+    size_t n = alphabet.size(), m, i;
+    auto cmp = [](Node *a, Node *b) { return a->freq > b->freq; };
+    std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> 
+        q(cmp, std::forward<std::vector<Node*> >(alphabet));
+    Node *root;
+    if (n % 2 == 0)
+    {
+        root = new Node;
+        root->child_1 = q.top();
+        q.pop();
+        root->child_2 = q.top();
+        q.pop();
+        root->child_3 = nullptr;
+        root->freq = root->child_1->freq + root->child_2->freq;
+        q.push(root);
+        m = (n >> 1) - 1;
+    }
+    else
+    {
+        m = (n - 1) >> 1;
+    }
+    for (i = 0; i < m; ++i)
+    {
+        root = new Node;
+        root->child_1 = q.top();
+        q.pop();
+        root->child_2 = q.top();
+        q.pop();
+        root->child_3 = q.top();
+        q.pop();
+        root->freq = root->child_1->freq + root->child_2->freq + root->child_3->freq;
+        q.push(root);
+    }
+    return q.top();
+}
+\end{minted}
+
+We can use a similar approach from Lemma 16.2 and 16.3 to prove the correctness.
+
+\subsection*{16.3-8}
+
+Let $C = \{ 0, 1, \cdots, n - 1 \}$ where $n = 256$.
+Let $C = \{ c_1, c_2, c_3, \cdots, c_{n-1}, c_n \}$
+where $\forall i,j \in [1,n], i \neq j \Longrightarrow c_i \neq c_j$
+and
+\begin{equation*}
+    c_1.freq \leq c_2.freq \leq c_3.freq \leq 
+    \cdots \leq c_{n-1}.freq \leq c_n.freq
+    \quad .
+\end{equation*}
+Then $2 \cdot a_1.freq > a_n.freq$.
+
+\begin{lemma}
+    For all integers $i,j,k \in [1,n]$, 
+    we have $a_i.freq + a_j.freq > a_k.freq$.
+\end{lemma}
+
+\begin{proof}
+    Suppose that $a_i.freq + a_j.freq \leq a_k.freq$,
+    for the purpose of contradiction.
+    Since
+    \begin{equation*}
+        a_i.freq + a_j.freq \geq 2 \cdot a_i.freq \geq 2 \cdot a_1.freq
+    \end{equation*}
+    and
+    \begin{equation*}
+        a_k.freq \leq a_n.freq
+        \quad ,
+    \end{equation*}
+    we have 
+    \begin{equation*}
+        2 \cdot a_1.freq \leq a_n.freq
+        \quad,
+    \end{equation*}
+    which contradicts to $2 \cdot a_1.freq > a_n.freq$.
+\end{proof}
+
+\begin{lemma}
+    $\proc{Huffman}(C)$ returns the root of 
+    an complete full binary tree where the height is $8$.
+\end{lemma}
+
+\begin{proof}
+    Denote $T$ as the result tree of $\proc{Huffman}(C)$.
+    Denote $h(x)$ as the height of node $x$ in $T$.
+    Denote $T_x$ as the subtree rooted at $x$.
+    Denote $C_x$ as the set of leaves in the subtree $T_x$.
+    
+    \textit{(Base)}
+    Before we enter the $\For$ loop,
+    all of the following IH 1 - 6 hold.
+
+    \textit{(Induction)}
+    Let $Q = \langle q_1, q_2, \cdots, q_f \rangle$.
+    Then $q_1.freq \leq q_2.freq \leq \cdots \leq q_f.freq$.
+    We suppose that the following inductively hypothesis (IH) is true
+    for last iteration:
+    \begin{enumerate}
+        \item $\{ C_q : q \in Q \}$ is a partition of $C$
+        (i.e. $\bigcup\limits_{q \in Q} C_q = C$
+        and $\forall a, b \in Q, 
+        a \neq b \Longrightarrow C_a \cup C_b = \emptyset$);
+        \item $h(q_1) \leq h(q_2) \leq \cdots \leq h(q_f)$;
+        \item $h(q_1) + 1 \geq h(q_f)$;
+        \item for all integers $i,j \in [1,f]$ where $i < j$,
+        $h(q_i) = h(q_j) \Longrightarrow 
+        (\forall a \in C_{q_i}, b \in C_{q_j}, a.freq \leq b.freq)$;
+        \item for all integers $i,j \in [1,f]$ where $i < j$,
+        $h(q_i) < h(q_j) \Longrightarrow 
+        (\forall a \in C_{q_i}, b \in C_{q_j}, a.freq \geq b.freq)$;
+        \item for any $q \in Q$, $T_q$ is a complete full binary tree.
+    \end{enumerate}
+
+    We claim that $h(q_1) = h(q_2)$.
+    Suppose $h(q_1) \neq h(q_2)$, for the purpose of contradiction.
+    Then by IH 2 and 3, we have
+    \begin{equation*}
+        h(q_1) + 1 = h(q_2) = h(q_3) = \cdots = h(q_{f-1}) = h(q_f)
+        \quad .
+    \end{equation*}
+    Note that $|C_a| = 2^{h(a)}$.
+    We have $|C_{q_1}| = 2^{h(q_1)}$ and 
+    \begin{equation*}
+        |C_{q_2}| = |C_{q_3}| = \cdots = |C_{q_{f-1}}| = |C_{q_f}|
+        = 2^{h(q_2)} = 2^{h(q_1) + 1} = 2 \cdot 2^{h(q_1)}
+        = 2 \cdot |C_{q_1}|
+        \quad .
+    \end{equation*}
+    Then
+    \begin{equation*}
+    \begin{split}
+        |C_{q_1}| + |C_{q_2}| + |C_{q_3}| + \cdots + |C_{q_{f-1}}| + |C_{q_f}|
+        & = |C_{q_1}| + (f - 1) \cdot |C_{q_2}| \\
+        & = |C_{q_1}| + 2(f - 1) \cdot |C_{q_1}| \\
+        & = (1 + 2(f - 1)) \cdot |C_{q_1}| \\
+        & = (2f - 1) \cdot |C_{q_1}| \\
+        & = (2f - 1) \cdot 2^{h(q_1)}
+        \quad .
+    \end{split}
+    \end{equation*}
+    By IH 1, 
+    \begin{equation*}
+        |C_{q_1}| + |C_{q_2}| + |C_{q_3}| + \cdots + |C_{q_{f-1}}| + |C_{q_f}|
+        = |C| = 256 = 2^8
+    \end{equation*}
+    must be true.
+    Since $(2f - 1)$ is an odd integer,
+    $(2f - 1) \cdot 2^{h(q_1)}$ cannot a power of $2$.
+    Contradiction.
+
+    Now we allocate a new node $z$ and let $q_1$, $q_2$ be $z$'s children.
+    Since $h(q_1) = h(q_2)$, we have $h(z) = h(q_1) + 1$.
+    By IH 6, we know that $z$ is a complete binary tree (IH 6 holds).
+    We claim that $q_f.freq \leq z.freq$,
+    so $z$ might be enqueued to the end of $Q$.
+    Note that $C_z = C_{q_1} \cup C_{q_2}$ (IH 1 holds).
+    Since $h(z) = h(q_1) + 1$, by IH 3, we have $h(z) \geq h(g_f)$ 
+    (IH 2 holds).
+    If $h(q_3) > h(q_1)$, then $h(q_3) = h(q_1) + 1 = h(z)$.
+    If $h(q_3) = h(q_1)$, then $h(q_3) = h(q_1) = h(z) - 1$.
+    Thus, $h(q_3) + 1 \geq h(z)$ (IH 3 holds).
+
+    \textbf{Case 1.}
+    $h(q_f) < h(z)$.
+
+    Then $|C_z| \geq 2 \cdot |C_{q_f}|$
+    (actually, $|C_z| = 2 \cdot |C_{q_f}|$, but $\geq$ is enough).
+    By Lemma 13, we have 
+    \begin{equation*}
+        \sum\limits_{c \in C_z} c.freq > \sum\limits_{c \in C_{q_f}}
+        \quad .
+    \end{equation*}
+    By Lemma 8, we have $z.freq > q_f.freq$.
+    Since $h(z) = h(q_1) + 1$, we have $h(q_f) < h(q_1) + 1$, so $h(q_f) = h(q_1)$,
+    which means
+    \begin{equation*}
+        h(q_1) = h(q_2) = \cdots = h(q_f)
+        \quad .
+    \end{equation*}
+    By IH 4, we have
+    \begin{equation*}
+        \forall a \in C_{q_1} \cup C_{q_2}, b \in C_{q_3}, a.freq \leq b.freq
+        \quad .
+    \end{equation*}
+    Since $C_z = C_{q_1} \cup C_{q_2}$, we have 
+    \begin{equation*}
+        \forall a \in C_{q_3}, b \in C_z, a.freq \geq b.freq
+    \end{equation*}
+    (IH 5 holds).
+
+    \textbf{Case 2.}
+    $h(q_f) = h(z)$.
+
+    Since $h(z) = h(q_1) + 1$,
+    we have $h(q_1) < h(q_f)$.
+    By IH 5, we have 
+    \begin{equation*}
+        \forall a \in C_{q_1}, b \in C_{q_f}, a.freq \geq b.freq
+        \quad .
+    \end{equation*}
+    By IH 4, we have
+    \begin{equation*}
+        \forall a \in C_{q_1}, b \in C_{q_2}, a.freq \leq b.freq
+        \quad .
+    \end{equation*}
+    Thus,
+    \begin{equation*}
+        \forall a \in C_z, b \in C_{q_f}, a.freq \geq b.freq
+    \end{equation*}
+    (IH 4 holds).
+    We have 
+    \begin{equation*}
+        \sum\limits_{c \in C_z} c.freq \geq \sum\limits_{c \in C_{q_f}}
+        \quad .
+    \end{equation*}
+    By Lemma 8, we have $z.freq \geq q_f.freq$. 
+
+    Therefore, after we dequeue twice (dequeue $q_1$ and $q_2$)
+    and enqueue $z$, all of IH 1 - 6 hold.
+\end{proof}
+
+\begin{claim}
+    Huffman coding in this case is no more efficient than
+    using an ordinary 8-bit fixed-length code.
+\end{claim}
+
+\begin{proof}
+    By lemma 14, $\proc{Huffman}(C)$ produced a Huffman coding 
+    which corresponds to an complete full binary tree where the height is $8$,
+    which is exactly the tree that corresponded by the ordinary 8-bit fixed-length code.
+\end{proof}
+
+\subsection*{16.3-9}
+
+% Is "compression scheme" in this question referring to schemes like Huffman coding?
+
+Let $C = \{ 0, 1, \cdots, n - 1 \}$ where $n = 256$.
+Let $C = \{ c_1, c_2, c_3, \cdots, c_{n-1}, c_n \}$
+where $\forall i,j \in [1,n], i \neq j \Longrightarrow c_i \neq c_j$
+and
+\begin{equation*}
+    c_1.freq \leq c_2.freq \leq c_3.freq \leq 
+    \cdots \leq c_{n-1}.freq \leq c_n.freq
+    \quad .
+\end{equation*}
+In the expecting case, we have
+\begin{equation*}
+    c_1.freq + 1 \geq c_n.freq
+\end{equation*}
+Hence $2 \cdot a_1.freq > a_n.freq$.
+By Exercise 16.3-8, we have shown that 
+Huffman coding in this case is no more efficient than
+using an ordinary 8-bit fixed-length code.
+
 % \section*{Chapter 16 Problems}
 
 % \subsection*{16-1}
