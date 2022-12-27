@@ -1,4 +1,4 @@
-# [CLRS](https://github.com/frc123/CLRS)
+# [CLRS](https://github.com/yirong-c/CLRS)
 
 This repo includes 
 
@@ -17,37 +17,37 @@ Your star is our motivation to do better.
 ## Solution Menu
 
 Chapter 2 - 11 Contents are Uploading and Migrating
-(you can check out codes in [this repo](https://github.com/frc123/CLRS-code-solution) for temporary)
+(you can check out codes in [this repo](https://github.com/yirong-c/CLRS-code-solution) for temporary)
 
 | Chapter | Code | Solution |
 | --- | --- | --- |
-| Chpater 2 - 11 | [Code](https://github.com/frc123/CLRS-code-solution) | |
-| Chpater 12 (Binary Search Trees) | [Code](https://github.com/frc123/CLRS/tree/master/ch12/code) |[Solution](https://github.com/frc123/CLRS/tree/master/ch12/solution) (Hand-writing)
-| Chpater 13 (Red-Black Trees) | [Code](https://github.com/frc123/CLRS/tree/master/ch13/code) | [Solution](https://github.com/frc123/CLRS/tree/master/ch13/solution) (Hand-writing)
-| Chpater 14 (Augmenting Data Structures) | [Code](https://github.com/frc123/CLRS/tree/master/ch14/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
-| Chpater 15 (Dynamic Programming) | [Code](https://github.com/frc123/CLRS/tree/master/ch15/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
-| Chpater 16 (Greedy Algorithms) | [Code](https://github.com/frc123/CLRS/tree/master/ch16/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch16/solution/ch16.pdf) (LaTeX)
-| Chpater 17 (Amortized Analysis) | [Code](https://github.com/frc123/CLRS/tree/master/ch17/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch17/solution/ch17.pdf) (LaTeX)
-| Chpater 21 (Data Structures for Disjoint Sets) | [Code](https://github.com/frc123/CLRS/tree/master/ch21/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch21/solution/ch21.pdf) (LaTeX)
-| Chpater 22 (Elementary Graph Algorithms) | [Code](https://github.com/frc123/CLRS/tree/master/ch22/code) | [Solution](https://github.com/frc123/CLRS/blob/master/ch22/solution/ch22.pdf) (LaTeX)
+| Chpater 2 - 11 | [Code](https://github.com/yirong-c/CLRS-code-solution) | |
+| Chpater 12 (Binary Search Trees) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch12/code) |[Solution](https://github.com/yirong-c/CLRS/tree/master/ch12/solution) (Hand-writing)
+| Chpater 13 (Red-Black Trees) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch13/code) | [Solution](https://github.com/yirong-c/CLRS/tree/master/ch13/solution) (Hand-writing)
+| Chpater 14 (Augmenting Data Structures) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch14/code) | [Solution](https://github.com/yirong-c/CLRS/blob/master/ch14/solution/ch14.pdf) (LaTeX)
+| Chpater 15 (Dynamic Programming) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch15/code) | [Solution](https://github.com/yirong-c/CLRS/blob/master/ch15/solution/ch15.pdf) (LaTeX)
+| Chpater 16 (Greedy Algorithms) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch16/code) | [Solution](https://github.com/yirong-c/CLRS/blob/master/ch16/solution/ch16.pdf) (LaTeX)
+| Chpater 17 (Amortized Analysis) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch17/code) | [Solution](https://github.com/yirong-c/CLRS/blob/master/ch17/solution/ch17.pdf) (LaTeX)
+| Chpater 21 (Data Structures for Disjoint Sets) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch21/code) | [Solution](https://github.com/yirong-c/CLRS/blob/master/ch21/solution/ch21.pdf) (LaTeX)
+| Chpater 22 (Elementary Graph Algorithms) | [Code](https://github.com/yirong-c/CLRS/tree/master/ch22/code) | [Solution](https://github.com/yirong-c/CLRS/blob/master/ch22/solution/ch22.pdf) (LaTeX)
 
 ## Submodules of the Project
 
-### [Common Operation Template Library (COTL)](https://github.com/frc123/common-operation-template-library)
+### [Common Operation Template Library (COTL)](https://github.com/yirong-c/common-operation-template-library)
 
 Augmented data structures and algorithms in a style similar to STL
 such as partition, selection in linear time, etc.
 (widely used in this project) (in the namespace of `cotl`)
 
-### [Matrix](https://github.com/frc123/matrix)
+### [Matrix](https://github.com/yirong-c/matrix)
 
 Matrix library that supports operator overloading and Strassen's algorithm.
 
-### [Red-Black Trees](https://github.com/frc123/red-black-tree)
+### [Red-Black Trees](https://github.com/yirong-c/red-black-tree)
 
 Basic STL style red-black trees.
 
-### [Persistent Red-Black Trees](https://github.com/frc123/persistent-red-black-tree)
+### [Persistent Red-Black Trees](https://github.com/yirong-c/persistent-red-black-tree)
 
 - Red-black trees
 that maintain past versions of a red-black tree.
@@ -55,7 +55,7 @@ that maintain past versions of a red-black tree.
 - Guarantee O(lg n) running time and space
 per selection insertion, or deletion.
 
-### [Order Statistics Trees + Interval Trees](https://github.com/frc123/augment-red-black-tree)
+### [Order Statistics Trees + Interval Trees](https://github.com/yirong-c/augment-red-black-tree)
 
 - Order Statistics Trees: Red-black trees
 that support computation of the rank of an elements in O(lg n).
@@ -65,34 +65,34 @@ that support operations on intervals.
 
 ## Other Data Structures
 
-### [Elementary Data Structures](https://github.com/frc123/CLRS-code-solution/tree/master/src/ch10)
+### [Elementary Data Structures](https://github.com/yirong-c/CLRS-code-solution/tree/master/src/ch10)
 
-- [Stack + Queue](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch10/stack_queue.h)
+- [Stack + Queue](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch10/stack_queue.h)
 
-- [Linked List](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch10/linked_list.h)
+- [Linked List](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch10/linked_list.h)
 
-- [Free List](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch10/pointer_object.cpp): 
-[header](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch10/pointer_object.h)
+- [Free List](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch10/pointer_object.cpp): 
+[header](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch10/pointer_object.h)
 |
-[source](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch10/pointer_object.cpp)
+[source](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch10/pointer_object.cpp)
 
-- [Rooted Tree](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch10/rooted_tree.h)
+- [Rooted Tree](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch10/rooted_tree.h)
 
-### [Hash Table](https://github.com/frc123/CLRS-code-solution/tree/master/src/ch11)
+### [Hash Table](https://github.com/yirong-c/CLRS-code-solution/tree/master/src/ch11)
 
-- [Chained Hash](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch11/chained_hash.hpp)
+- [Chained Hash](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch11/chained_hash.hpp)
 
-- [Open Addressing](https://github.com/frc123/CLRS-code-solution/blob/master/src/ch11/open_addressing.hpp)
+- [Open Addressing](https://github.com/yirong-c/CLRS-code-solution/blob/master/src/ch11/open_addressing.hpp)
 
-### [Disjoint Sets](https://github.com/frc123/CLRS/tree/master/ch21/code)
+### [Disjoint Sets](https://github.com/yirong-c/CLRS/tree/master/ch21/code)
 
-- [Linked-list Representation](https://github.com/frc123/CLRS/tree/master/ch21/code/list_representation_of_disjoint_sets.cpp)
+- [Linked-list Representation](https://github.com/yirong-c/CLRS/tree/master/ch21/code/list_representation_of_disjoint_sets.cpp)
 
-- [Disjoint-set Forests](https://github.com/frc123/CLRS/tree/master/ch21/code/disjoint_set_forests.cpp)
+- [Disjoint-set Forests](https://github.com/yirong-c/CLRS/tree/master/ch21/code/disjoint_set_forests.cpp)
 
 ## More Code Implementation in C++
 
-https://github.com/frc123/CLRS-code-solution
+https://github.com/yirong-c/CLRS-code-solution
 
 This repo includes contents of **Chapter 2 - 11**.
 
